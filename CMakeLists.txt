@@ -11,7 +11,10 @@ add_executable(Rabbit2
         source/opencl/error.hpp
         source/io/file_io.cpp
         source/io/file_io.hpp
-        external/tinyply.hpp)
+        external/tinyply.hpp
+        source/geometry/mesh.cpp
+        source/geometry/mesh.hpp
+        source/geometry/vector.hpp)
 
 find_package(OpenCL)
 
