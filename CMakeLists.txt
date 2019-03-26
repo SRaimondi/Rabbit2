@@ -3,10 +3,15 @@ project(Rabbit2)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(source)
+include_directories(source external)
 
 add_executable(Rabbit2
-        source/main.cpp source/opencl/error.cpp source/opencl/error.hpp source/io/file_io.cpp source/io/file_io.hpp)
+        source/main.cpp
+        source/opencl/error.cpp
+        source/opencl/error.hpp
+        source/io/file_io.cpp
+        source/io/file_io.hpp
+        external/tinyply.hpp)
 
 find_package(OpenCL)
 
