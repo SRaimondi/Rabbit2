@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories(source)
 
 add_executable(Rabbit2
-        source/main.cpp source/opencl/error.cpp source/opencl/error.hpp)
+        source/main.cpp source/opencl/error.cpp source/opencl/error.hpp source/io/file_io.cpp source/io/file_io.hpp)
 
 find_package(OpenCL)
 
