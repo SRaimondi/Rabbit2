@@ -1,12 +1,15 @@
 #include <iostream>
 
 #include "opencl/error.hpp"
+#include "geometry/mesh.hpp"
 
 int main()
 {
     try
     {
-        OPENCL_CHECK(CL_INVALID_ARG_SIZE);
+        const Geometry::Mesh bunny_mesh{ Geometry::Mesh::LoadOBJ("../models/bunny.obj") };
+
+        int x = 0;
     }
     catch (const std::exception& ex)
     {

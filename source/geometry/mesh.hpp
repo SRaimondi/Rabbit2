@@ -19,14 +19,14 @@ public:
 
     Mesh(std::vector<Vector3>&& v, std::vector<Vector3>&& n, std::vector<unsigned int>&& i);
 
-    // Load mesh from PLY
-    static Mesh LoadPLY(const std::string& filename, bool load_normals = true);
-
-    // Compute smooth normals for a given set of vertices and indices
-    static std::vector<Vector3> ComputeSmoothNormals(const std::vector<Vector3>& vertices,
-                                                     const std::vector<unsigned int>& indices);
+    // Load mesh from .obj
+    static Mesh LoadOBJ(const std::string& filename);
 
 private:
+    // Compute smooth normals for a set of vertices and indices
+    static std::vector<Vector3> SmoothNormals(const std::vector<Vector3>& vertices,
+                                              const std::vector<unsigned int>& indices);
+
     // Mesh representation
     std::vector<Vector3> vertices;
     std::vector<Vector3> normals;

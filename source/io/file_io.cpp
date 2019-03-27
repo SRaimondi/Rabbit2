@@ -16,7 +16,7 @@ std::string ReadFile(const std::string& filename)
     if (!file.is_open())
     {
         std::ostringstream error_string;
-        error_string << "Could not open file: " << filename;
+        error_string << "Could not open file: " << filename << "\n";
         throw std::runtime_error(error_string.str());
     }
 

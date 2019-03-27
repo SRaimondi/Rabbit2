@@ -14,7 +14,7 @@ add_executable(Rabbit2
         external/tinyply.hpp
         source/geometry/mesh.cpp
         source/geometry/mesh.hpp
-        source/geometry/vector.hpp)
+        source/geometry/vector.hpp external/tinyobj.hpp)
 
 find_package(OpenCL)
 
