@@ -5,7 +5,7 @@
 #ifndef RABBIT2_MESH_HPP
 #define RABBIT2_MESH_HPP
 
-#include "geometry/vector.hpp"
+#include "geometry/bbox.hpp"
 
 #include <vector>
 

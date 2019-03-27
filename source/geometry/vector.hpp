@@ -118,9 +118,31 @@ constexpr const Vector3 Max(const Vector3& lhs, const Vector3& rhs) noexcept
     return { std::max(lhs.x, rhs.x), std::max(lhs.y, rhs.y), std::max(lhs.z, rhs.z) };
 }
 
+constexpr const Vector3 Max(std::initializer_list<Vector3> vectors) noexcept
+{
+    Vector3 max{ std::numeric_limits<float>::lowest() };
+    for (const auto& vector : vectors)
+    {
+        max = Max(max, vector);
+    }
+
+    return max;
+}
+
 constexpr const Vector3 Min(const Vector3& lhs, const Vector3& rhs) noexcept
 {
     return { std::min(lhs.x, rhs.x), std::min(lhs.y, rhs.y), std::min(lhs.z, rhs.z) };
+}
+
+constexpr const Vector3 Min(std::initializer_list<Vector3> vectors) noexcept
+{
+    Vector3 min{ std::numeric_limits<float>::max() };
+    for (const auto& vector : vectors)
+    {
+        min = Min(min, vector);
+    }
+
+    return min;
 }
 
 } // Geometry namespace
