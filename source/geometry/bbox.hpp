@@ -28,7 +28,7 @@ public:
         : bounds{ Min(v0, Min(v1, v2)), Max(v0, Max(v1, v2)) }
     {}
 
-    constexpr const Vector3& operator[](int i) const noexcept
+    constexpr const Vector3& operator[](unsigned int i) const noexcept
     {
         assert(i < 2);
         return bounds[i];

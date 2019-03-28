@@ -14,9 +14,6 @@ namespace Geometry
 // Minimal 3d vector
 struct Vector3
 {
-    // Vector components
-    float x, y, z;
-
     constexpr Vector3() noexcept
         : x{ 0.f }, y{ 0.f }, z{ 0.f }
     {}
@@ -28,6 +25,23 @@ struct Vector3
     constexpr Vector3(float x, float y, float z) noexcept
         : x{ x }, y{ y }, z{ z }
     {}
+
+    constexpr float operator[](unsigned int i) const noexcept
+    {
+        assert(i < 3);
+        if (i == 0)
+        {
+            return x;
+        }
+        else if (i == 1)
+        {
+            return y;
+        }
+        else
+        {
+            return z;
+        }
+    }
 
     Vector3& operator+=(const Vector3& v) noexcept
     {
@@ -60,6 +74,9 @@ struct Vector3
             return 2;
         }
     }
+
+    // Vector components
+    float x, y, z;
 };
 
 // Math operations

@@ -46,6 +46,20 @@ struct BVHConfig
     const unsigned int num_buckets;
 };
 
+// Output of the PartitionTriangles function
+struct PartitionResult
+{
+    constexpr PartitionResult(unsigned int axis, unsigned int mid) noexcept
+        : split_axis{ axis }, mid_index{ mid }
+    {}
+
+    // Split axis
+    const unsigned int split_axis;
+    // Index of the midpoint for the two partitions
+    const unsigned int mid_index;
+};
+
+// Forward declare build node struct
 struct BVHBuildNode;
 
 class BVH
@@ -59,6 +73,10 @@ private:
                                                  unsigned int start, unsigned int end,
                                                  unsigned int& total_nodes,
                                                  std::vector<Triangle>& ordered_triangles) noexcept;
+
+    // Partition triangles in current range, the two partitions are going to be [start, mid) and [mid, end)
+    PartitionResult PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
+                                       unsigned int start, unsigned int end) noexcept;
 
     const BVHConfig configuration;
     std::vector<Triangle> triangles;

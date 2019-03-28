@@ -14,22 +14,24 @@ struct BVHBuildNode
 {
     // Create leaf node
     BVHBuildNode(unsigned int first_triangle_o, unsigned int num_triangles, const BBox& bounds) noexcept
-        : first_triangle_offset{ first_triangle_o }, num_triangles{ num_triangles }, bounds{ bounds }
+        : first_triangle_offset{ first_triangle_o }, num_triangles{ num_triangles }, split_axis{ 3 }, bounds{ bounds }
     {}
 
     // Create internal node
     BVHBuildNode(unsigned int split_axis, std::unique_ptr<BVHBuildNode> c0, std::unique_ptr<BVHBuildNode> c1) noexcept
-        : children{ std::move(c0), std::move(c1) }, split_axis{ split_axis }
+        : first_triangle_offset{ 0 }, num_triangles{ 0 },
+          split_axis{ split_axis }, children{ std::move(c0), std::move(c1) },
+          bounds{ Union(children[0]->bounds, children[1]->bounds) }
     {}
 
     // Offset of the first triangle and number of triangles in it
     unsigned int first_triangle_offset, num_triangles;
-    // Bounds of the node
-    BBox bounds;
     // Axis used for the split
     unsigned int split_axis;
     // Children nodes
     std::array<std::unique_ptr<BVHBuildNode>, 2> children;
+    // Bounds of the node
+    BBox bounds;
 };
 
 BVH::BVH(const BVHConfig& config, const std::vector<Triangle>& tr)
@@ -97,25 +99,42 @@ std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& tri
     }
     else
     {
-        // Compute bounds of the centroids
-        BBox centroids_bounds;
-        for (unsigned int i = start; i != end; i++)
-        {
-            centroids_bounds = Union(centroids_bounds, triangle_info[i].centroid);
-        }
-
-        // TODO Choose splitting dimension
-        unsigned int split_axis{ 0 };
-
-
-        // TODO Partition triangles
-        unsigned int mid{ (start + end) / 2 };
-
+        // Split triangles
+        const PartitionResult partition_result{ PartitionTriangles(triangle_info, start, end) };
         // Recursively build tree
-        return std::make_unique<BVHBuildNode>(split_axis,
-                                              RecursiveBuild(triangle_info, start, mid, total_nodes, ordered_triangles),
-                                              RecursiveBuild(triangle_info, mid, end, total_nodes, ordered_triangles));
+        return std::make_unique<BVHBuildNode>(partition_result.split_axis,
+                                              RecursiveBuild(triangle_info, start, partition_result.mid_index,
+                                                             total_nodes, ordered_triangles),
+                                              RecursiveBuild(triangle_info, partition_result.mid_index, end,
+                                                             total_nodes, ordered_triangles));
     }
+}
+
+
+PartitionResult BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
+                                        unsigned int start, unsigned int end) noexcept
+{
+    // Compute bounds of the centroids of the triangles
+    BBox centroids_bounds;
+    for (unsigned int i = start; i != end; i++)
+    {
+        centroids_bounds = Union(centroids_bounds, triangle_info[i].centroid);
+    }
+
+    // TODO Choose splitting dimension
+    unsigned int split_axis{ centroids_bounds.LargestDimension() };
+
+    // TODO Partition triangles
+    unsigned int mid{ (start + end) / 2 };
+    std::nth_element(triangle_info.begin() + start,
+                     triangle_info.begin() + mid,
+                     triangle_info.begin() + end,
+                     [split_axis](const TriangleInfo& triangle_info1, const TriangleInfo& triangle_info2) -> bool
+                     {
+                         return triangle_info1.centroid[split_axis] < triangle_info2.centroid[split_axis];
+                     });
+
+    return { split_axis, mid };
 }
 
 } // Geometry namespace
