@@ -13,8 +13,8 @@ namespace Geometry
 struct BVHBuildNode
 {
     // Create leaf node
-    BVHBuildNode(unsigned int first_triangle, unsigned int num_triangles, const BBox& bounds) noexcept
-        : first_triangle_index{ first_triangle }, num_triangles{ num_triangles }, bounds{ bounds }
+    BVHBuildNode(unsigned int first_triangle_o, unsigned int num_triangles, const BBox& bounds) noexcept
+        : first_triangle_offset{ first_triangle_o }, num_triangles{ num_triangles }, bounds{ bounds }
     {}
 
     // Create internal node
@@ -22,8 +22,8 @@ struct BVHBuildNode
         : children{ std::move(c0), std::move(c1) }, split_axis{ split_axis }
     {}
 
-    // Index of the first triangle and number of triangles in it
-    unsigned int first_triangle_index, num_triangles;
+    // Offset of the first triangle and number of triangles in it
+    unsigned int first_triangle_offset, num_triangles;
     // Bounds of the node
     BBox bounds;
     // Axis used for the split
@@ -50,7 +50,72 @@ BVH::BVH(const BVHConfig& config, const std::vector<Triangle>& tr)
         triangle_info.emplace_back(i, triangles[i].Bounds());
     }
 
+    // The building process has the freed of swapping the triangles around such that triangles in the same leaf
+    // are also close in memory
+    std::vector<Triangle> ordered_triangles;
+    ordered_triangles.reserve(triangles.size());
 
+    // Start building
+    unsigned int total_nodes{ 0 };
+    const std::unique_ptr<BVHBuildNode> root{ RecursiveBuild(triangle_info,
+                                                             0, static_cast<unsigned int>(triangle_info.size()),
+                                                             total_nodes,
+                                                             ordered_triangles) };
+
+    // Move the content of the ordered_triangles in the local triangles
+    triangles = std::move(ordered_triangles);
+}
+
+std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
+                                                  unsigned int start, unsigned int end,
+                                                  unsigned int& total_nodes,
+                                                  std::vector<Triangle>& ordered_triangles) noexcept
+{
+    // Increase by 1 the number of created nodes
+    total_nodes++;
+
+    // First thing we do is compute the BBox of all the triangles in this node
+    BBox node_bounds;
+    for (unsigned int i = start; i != end; i++)
+    {
+        node_bounds = Union(node_bounds, triangle_info[i].bounds);
+    }
+
+    // Compute number of triangles for this node
+    const unsigned int num_triangles{ end - start };
+
+    // If there are less triangles than the maximum for a leaf, create it and return it
+    if (num_triangles < configuration.max_triangles_in_leaf)
+    {
+        const unsigned int first_triangle_offset{ static_cast<unsigned int>(ordered_triangles.size()) };
+        for (unsigned int i = start; i != end; i++)
+        {
+            const unsigned int triangle_index{ triangle_info[i].triangle_index };
+            ordered_triangles.push_back(triangles[triangle_index]);
+        }
+        return std::make_unique<BVHBuildNode>(first_triangle_offset, num_triangles, node_bounds);
+    }
+    else
+    {
+        // Compute bounds of the centroids
+        BBox centroids_bounds;
+        for (unsigned int i = start; i != end; i++)
+        {
+            centroids_bounds = Union(centroids_bounds, triangle_info[i].centroid);
+        }
+
+        // TODO Choose splitting dimension
+        unsigned int split_axis{ 0 };
+
+
+        // TODO Partition triangles
+        unsigned int mid{ (start + end) / 2 };
+
+        // Recursively build tree
+        return std::make_unique<BVHBuildNode>(split_axis,
+                                              RecursiveBuild(triangle_info, start, mid, total_nodes, ordered_triangles),
+                                              RecursiveBuild(triangle_info, mid, end, total_nodes, ordered_triangles));
+    }
 }
 
 } // Geometry namespace
