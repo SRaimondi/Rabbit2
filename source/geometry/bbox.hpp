@@ -5,7 +5,7 @@
 #ifndef RABBIT2_BBOX_HPP
 #define RABBIT2_BBOX_HPP
 
-#include "vector.hpp"
+#include "ray.hpp"
 
 #include <array>
 
@@ -69,6 +69,39 @@ public:
     constexpr unsigned int LargestDimension() const noexcept
     {
         return Diagonal().LargestDimension();
+    }
+
+    // Check for intersection between a ray and the BBox
+    constexpr bool Intersect(const Ray& ray,
+                             const Vector3& inv_dir,
+                             std::array<bool, 3> dir_is_neg) const noexcept
+    {
+        const BBox& bounds = *this;
+        // Compute intersection with x slab
+        float t_min{ (bounds[dir_is_neg[0]].x - ray.origin.x) * inv_dir.x };
+        float t_max{ (bounds[1 - dir_is_neg[0]].x - ray.origin.x) * inv_dir.x };
+
+        // Compute intersection with y slab
+        float ty_min{ (bounds[dir_is_neg[1]].y - ray.origin.y) * inv_dir.y };
+        float ty_max{ (bounds[1 - dir_is_neg[1]].y - ray.origin.y) * inv_dir.y };
+        if (t_min > ty_max || ty_min > t_max)
+        {
+            return false;
+        }
+        t_min = std::max(t_min, ty_min);
+        t_max = std::min(t_min, ty_max);
+
+        // Compute intersection with z slab
+        float tz_min{ (bounds[dir_is_neg[2]].z - ray.origin.z) * inv_dir.z };
+        float tz_max{ (bounds[1 - dir_is_neg[2]].z - ray.origin.z) * inv_dir.z };
+        if (t_min > tz_max || tz_min > t_max)
+        {
+            return false;
+        }
+        t_min = std::max(t_min, tz_min);
+        t_max = std::min(t_min, tz_max);
+
+        return (t_min < ray.extent) && (t_max > 0.f);
     }
 
 private:

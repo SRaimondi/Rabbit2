@@ -66,6 +66,12 @@ BVH::BVH(const BVHConfig& config, const std::vector<Triangle>& tr)
 
     // Move the content of the ordered_triangles in the local triangles
     triangles = std::move(ordered_triangles);
+
+    // Bring tree into flat representation
+    unsigned int offset{ 0 };
+    flat_tree_nodes.resize(total_nodes);
+    FlattenTree(root, offset);
+    assert(offset == total_nodes);
 }
 
 std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
@@ -135,6 +141,39 @@ PartitionResult BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info
                      });
 
     return { split_axis, mid };
+}
+
+unsigned int BVH::FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept
+{
+    // Store current offset
+    const unsigned int my_offset{ offset++ };
+
+    // Get reference to the node we use
+    LinearBVHNode& linear_node = flat_tree_nodes[my_offset];
+    // Set the bounds of the node
+    linear_node.bounds = node->bounds;
+
+    // Depending on the number of triangles, either create a leaf or an interior node
+    if (node->num_triangles > 0)
+    {
+        // Create leaf
+        assert(node->split_axis == 3);
+        linear_node.triangle_offset = node->first_triangle_offset;
+        linear_node.num_triangles = static_cast<uint16_t>(node->num_triangles);
+    }
+    else
+    {
+        // Create interior
+        assert(node->split_axis < 3);
+        linear_node.split_axis = static_cast<uint8_t>(node->split_axis);
+        linear_node.num_triangles = 0;
+        // Recursively call the flatten procedure on the first child
+        FlattenTree(node->children[0], offset);
+        // Recursively call the flatten procedure on the second child and store his offset
+        linear_node.second_child_offset = FlattenTree(node->children[1], offset);
+    }
+
+    return my_offset;
 }
 
 } // Geometry namespace

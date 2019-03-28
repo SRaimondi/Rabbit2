@@ -23,6 +23,20 @@ struct TriangleInfo
     Vector3 centroid;
 };
 
+// Linear BVH node with 32 byte size for optimal cache performance
+struct alignas(32) LinearBVHNode
+{
+    BBox bounds;                        // 24 bytes
+    union                               // 4 bytes
+    {
+        uint32_t triangle_offset;       // For leafs
+        uint32_t second_child_offset;   // Interior node
+    };
+    uint16_t num_triangles;             // 2 bytes, 0 for interior node
+    uint8_t split_axis;                 // 1 byte
+    uint8_t padding[1];                 // 1 byte padding to ensure alignment
+};
+
 // Configuration of the BVH
 struct BVHConfig
 {
@@ -30,7 +44,7 @@ struct BVHConfig
                                  float triangle_intersect_cost = 1.f,
                                  float bbox_intersect_cost = 0.125f,
                                  unsigned int num_buckets = 12) noexcept
-        : max_triangles_in_leaf{ max_triangle_in_leaf },
+        : max_triangles_in_leaf{ std::min(255u, max_triangle_in_leaf) },
           triangle_intersect_cost{ triangle_intersect_cost },
           bbox_intersect_cost{ bbox_intersect_cost },
           num_buckets{ num_buckets }
@@ -78,8 +92,13 @@ private:
     PartitionResult PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
                                        unsigned int start, unsigned int end) noexcept;
 
+    // Flatten out tree
+    unsigned int FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept;
+
+    // BVH members
     const BVHConfig configuration;
     std::vector<Triangle> triangles;
+    std::vector<LinearBVHNode> flat_tree_nodes;
 };
 
 } // Geometry namespace
