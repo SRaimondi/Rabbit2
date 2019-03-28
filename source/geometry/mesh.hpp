@@ -12,6 +12,8 @@
 namespace Geometry
 {
 
+class Triangle;
+
 class Mesh
 {
 public:
@@ -39,6 +41,9 @@ public:
 
     // Load mesh from .obj
     static Mesh LoadOBJ(const std::string& filename);
+
+    // Create list of triangles for the mesh
+    std::vector<Triangle> CreateTriangles() const;
 
 private:
     // Compute smooth normals for a set of vertices and indices

@@ -85,6 +85,18 @@ Mesh Mesh::LoadOBJ(const std::string& filename)
     return { std::move(vertices), std::move(smooth_normals), std::move(indices) };
 }
 
+std::vector<Triangle> Mesh::CreateTriangles() const
+{
+    std::vector<Triangle> triangles;
+    triangles.reserve(indices.size() / 3);
+    for (unsigned int index = 0; index != indices.size(); index += 3)
+    {
+        triangles.emplace_back(index, *this);
+    }
+
+    return triangles;
+}
+
 std::vector<Vector3> Mesh::SmoothNormals(const std::vector<Vector3>& vertices, const std::vector<unsigned int>& indices)
 {
     std::vector<Vector3> normals(vertices.size(), Vector3{ 0.f });

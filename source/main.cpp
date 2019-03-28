@@ -10,13 +10,12 @@ int main()
 
     try
     {
+        // Load bunny mesh
+        const Mesh bunny_mesh{ Mesh::LoadOBJ("../models/bunny.obj") };
+        // Create list with triangles
+        std::vector<Triangle> bunny_triangles{ bunny_mesh.CreateTriangles() };
 
-        const Geometry::Mesh bunny_mesh{ Geometry::Mesh::LoadOBJ("../models/bunny.obj") };
 
-        Geometry::BBox b;
-        Geometry::BBox b2{ Geometry::Vector3{ -1.f }, Geometry::Vector3{ 1.f }};
-
-        Geometry::BBox b3{{ Vector3{ 1.f, 2.f, 1.f }, Vector3{ -1.f, 3.f, -5.f }, Vector3{ 0.f, 0.1f, 4.f }}};
     }
     catch (const std::exception& ex)
     {
