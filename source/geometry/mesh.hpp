@@ -6,6 +6,7 @@
 #define RABBIT2_MESH_HPP
 
 #include "geometry/bbox.hpp"
+#include "geometry/intersection.hpp"
 
 #include <vector>
 #include <ostream>
@@ -72,6 +73,12 @@ public:
         return { mesh.VertexAt(mesh.FaceIndexAt(first_index)),
                  mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)),
                  mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) };
+    }
+
+    // Intersect ray with triangle
+    bool Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
+    {
+
     }
 
 private:

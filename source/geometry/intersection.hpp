@@ -10,14 +10,12 @@
 namespace Geometry
 {
 
-struct alignas(32) Intersection
+struct alignas(32) TriangleIntersection
 {
-    constexpr Intersection() noexcept = default;
-
     Vector3 hit_point;
     Vector3 normal;
 };
 
-} // Geometry
+} // Geometry namespace
 
 #endif //RABBIT2_INTERSECTION_HPP
