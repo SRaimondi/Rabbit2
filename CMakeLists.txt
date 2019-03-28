@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.13)
 project(Rabbit2)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -19,7 +19,8 @@ add_executable(Rabbit2
         source/geometry/bbox.hpp
         source/bvh/bvh.cpp
         source/bvh/bvh.hpp
-        source/geometry/ray.hpp source/geometry/intersection.hpp)
+        source/geometry/ray.hpp
+        source/geometry/intersection.hpp)
 
 # find_package(OpenCL)
 
