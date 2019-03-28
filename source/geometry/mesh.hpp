@@ -8,6 +8,7 @@
 #include "geometry/bbox.hpp"
 
 #include <vector>
+#include <ostream>
 
 namespace Geometry
 {
@@ -46,6 +47,8 @@ public:
     std::vector<Triangle> CreateTriangles() const;
 
 private:
+    friend std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
+
     // Compute smooth normals for a set of vertices and indices
     static std::vector<Vector3> SmoothNormals(const std::vector<Vector3>& vertices,
                                               const std::vector<unsigned int>& indices);
@@ -55,6 +58,8 @@ private:
     std::vector<Vector3> normals;
     std::vector<unsigned int> indices;
 };
+
+std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
 
 class Triangle
 {

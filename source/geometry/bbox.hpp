@@ -66,6 +66,11 @@ public:
         return 0.5f * (PMin() + PMax());
     }
 
+    constexpr unsigned int LargestDimension() const noexcept
+    {
+        return Diagonal().LargestDimension();
+    }
+
 private:
     // Bounds
     std::array<Vector3, 2> bounds;

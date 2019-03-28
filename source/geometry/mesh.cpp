@@ -126,6 +126,14 @@ std::vector<Vector3> Mesh::SmoothNormals(const std::vector<Vector3>& vertices, c
     return normals;
 }
 
+std::ostream& operator<<(std::ostream& os, const Mesh& mesh)
+{
+    os << "Vertices: " << mesh.vertices.size() << "\n";
+    os << "Triangles: " << mesh.indices.size() / 3 << "\n";
+
+    return os;
+}
+
 Triangle::Triangle(unsigned int fi, const Mesh& m) noexcept
     : first_index{ fi }, mesh{ m }
 {}

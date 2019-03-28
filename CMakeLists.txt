@@ -14,19 +14,19 @@ add_executable(Rabbit2
         external/tinyply.hpp
         source/geometry/mesh.cpp
         source/geometry/mesh.hpp
-        source/geometry/vector.hpp external/tinyobj.hpp source/geometry/bbox.hpp)
+        source/geometry/vector.hpp external/tinyobj.hpp source/geometry/bbox.hpp source/bvh/bvh.cpp source/bvh/bvh.hpp)
 
-find_package(OpenCL)
+# find_package(OpenCL)
 
 if (APPLE)
     target_compile_definitions(Rabbit2 PRIVATE CL_SILENCE_DEPRECATION)
 endif (APPLE)
 
-if (OpenCL_FOUND)
-    target_link_libraries(Rabbit2 OpenCL::OpenCL)
-else ()
-    message(FATAL_ERROR "OpenCL not found")
-endif ()
+# if (OpenCL_FOUND)
+#     target_link_libraries(Rabbit2 OpenCL::OpenCL)
+# else ()
+#     message(FATAL_ERROR "OpenCL not found")
+# endif ()
 
 # Specify flags for build
 IF (CMAKE_BUILD_TYPE MATCHES Debug)

@@ -45,7 +45,7 @@ struct Vector3
         return *this;
     }
 
-    constexpr unsigned int MaxExtent() const noexcept
+    constexpr unsigned int LargestDimension() const noexcept
     {
         if (x > y && x > z)
         {
