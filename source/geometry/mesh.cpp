@@ -80,7 +80,7 @@ Mesh Mesh::LoadOBJ(const std::string& filename)
     }
 
     // Now that we have our vertices and indices, we can compute the normals
-    const std::vector<Vector3> smooth_normals = SmoothNormals(vertices, indices);
+    std::vector<Vector3> smooth_normals = SmoothNormals(vertices, indices);
 
     return { std::move(vertices), std::move(smooth_normals), std::move(indices) };
 }
@@ -113,5 +113,9 @@ std::vector<Vector3> Mesh::SmoothNormals(const std::vector<Vector3>& vertices, c
 
     return normals;
 }
+
+Triangle::Triangle(unsigned int fi, const Mesh& m) noexcept
+    : first_index{ fi }, mesh{ m }
+{}
 
 } // Geometry namespace
