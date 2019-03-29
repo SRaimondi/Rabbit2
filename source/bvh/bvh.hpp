@@ -86,6 +86,9 @@ public:
     // Intersect Ray with BVH
     bool Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept;
 
+    // Check for intersection
+    bool IntersectTest(const Ray& ray) const noexcept;
+
 private:
     // Recursively build a subpart of the tree for the given range of triangles start to end (not included)
     std::unique_ptr<BVHBuildNode> RecursiveBuild(std::vector<TriangleInfo>& triangle_info,

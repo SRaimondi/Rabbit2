@@ -76,6 +76,9 @@ public:
     // Intersect ray with triangle
     bool Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept;
 
+    // Check for intersection
+    bool IntersectTest(const Ray& ray) const noexcept;
+
     // Fill geometry information
     void ComputeIntersectionGeometry(const Ray& ray,
                                      TriangleIntersection& intersection) const noexcept;
@@ -160,6 +163,75 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
     intersection.v = e1 * inv_det;
     intersection.w = e2 * inv_det;
     ray.extent_end = t_scaled * inv_det;
+
+    return true;
+}
+
+inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
+{
+    // Translate vertices based on ray origin
+    Vector3 v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - ray.origin };
+    Vector3 v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - ray.origin };
+    Vector3 v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - ray.origin };
+
+    // Permute components of triangle vertices and ray direction
+    const unsigned int kz{ Abs(ray.direction).LargestDimension() };
+    unsigned int kx = kz + 1;
+    if (kx == 3)
+    {
+        kx = 0;
+    }
+    unsigned int ky = kx + 1;
+    if (ky == 3)
+    {
+        ky = 0;
+    }
+    const Vector3 d{ Permute(ray.direction, kx, ky, kz) };
+    v0t = Permute(v0t, kx, ky, kz);
+    v1t = Permute(v1t, kx, ky, kz);
+    v2t = Permute(v2t, kx, ky, kz);
+
+    // Apply shear transformation to translated vertex positions
+    const float sz{ 1.f / d.z };
+    const float sx{ -d.x * sz };
+    const float sy{ -d.y * sz };
+    v0t.x += sx * v0t.z;
+    v0t.y += sy * v0t.z;
+    v1t.x += sx * v1t.z;
+    v1t.y += sy * v1t.z;
+    v2t.x += sx * v2t.z;
+    v2t.y += sy * v2t.z;
+
+    // Compute edge function coefficients e0, e1, and e2
+    const float e0{ v1t.x * v2t.y - v1t.y * v2t.x };
+    const float e1{ v2t.x * v0t.y - v2t.y * v0t.x };
+    const float e2{ v0t.x * v1t.y - v0t.y * v1t.x };
+
+    // Perform triangle edge and determinant tests
+    if ((e0 < 0.f || e1 < 0.f || e2 < 0.f) && (e0 > 0.f || e1 > 0.f || e2 > 0.f))
+    {
+        return false;
+    }
+    const float det{ e0 + e1 + e2 };
+    constexpr float EPSILON{ 0.000001f };
+    if (det > -EPSILON && det < EPSILON)
+    {
+        return false;
+    }
+
+    // Compute scaled hit distance to triangle and test against ray  range
+    v0t.z *= sz;
+    v1t.z *= sz;
+    v2t.z *= sz;
+    const float t_scaled{ e0 * v0t.z + e1 * v1t.z + e2 * v2t.z };
+    if (det < 0.f && (t_scaled >= 0.f || t_scaled < ray.extent_end * det || t_scaled > ray.extent_start * det))
+    {
+        return false;
+    }
+    else if (det > 0.f && (t_scaled <= 0.f || t_scaled > ray.extent_end * det || t_scaled < ray.extent_start * det))
+    {
+        return false;
+    }
 
     return true;
 }

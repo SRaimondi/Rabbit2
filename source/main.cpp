@@ -1,4 +1,6 @@
 #include "bvh/bvh.hpp"
+#include "camera/camera.hpp"
+#include "geometry/common.hpp"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.hpp"
@@ -18,9 +20,13 @@ int main()
         // Create BVH
         const BVH bvh{ BVHConfig{}, bunny_mesh.CreateTriangles() };
 
-        // Debug rendering process
         constexpr unsigned int WIDTH{ 512 };
         constexpr unsigned int HEIGHT{ 512 };
+
+        // Create camera
+        const Camera camera{ Vector3{ -1.f, 2.f, 5.f }, Vector3{}, Vector3{ 0.f, 1.f, 0.f }, 45.f, WIDTH, HEIGHT };
+
+        // Performance rendering process
         std::vector<unsigned char> raster(WIDTH * HEIGHT * 3, 0);
 
         constexpr unsigned int NUM_TRIALS{ 100 };
@@ -36,21 +42,17 @@ int main()
                 for (unsigned int column = 0; column != WIDTH; column++)
                 {
                     // Generate ray
-                    constexpr Vector3 ray_direction{ 0.f, 0.f, -1.f };
-                    Ray ray{ Vector3{ -2.f + 4.f * (column + 0.5f) / WIDTH,
-                                      -2.f + 4.f * (row + 0.5f) / HEIGHT,
-                                      10.f },
-                             ray_direction };
+                    Ray ray{ camera.GenerateRay(column, row, 0.5f, 0.5f) };
 
                     // Intersect Ray with BVH
                     TriangleIntersection intersection;
                     if (bvh.Intersect(ray, intersection))
                     {
                         num_hits++;
-//                        const unsigned int linear_index{ 3 * (row * WIDTH + column) };
-//                        raster[linear_index] = static_cast<unsigned char>(255 * std::abs(intersection.normal.x));
-//                        raster[linear_index + 1] = static_cast<unsigned char>(255 * std::abs(intersection.normal.y));
-//                        raster[linear_index + 2] = static_cast<unsigned char>(255 * std::abs(intersection.normal.z));
+                        const unsigned int linear_index{ 3 * (row * WIDTH + column) };
+                        const float n_dot_wo{ Geometry::Clamp(Dot(intersection.normal, -ray.direction), 0.f, 1.f) };
+                        raster[linear_index] = raster[linear_index + 1] =
+                        raster[linear_index + 2] = static_cast<unsigned char>(255 * n_dot_wo);
                     }
                 }
             }
@@ -62,8 +64,8 @@ int main()
                   << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / NUM_TRIALS << " ms\n";
 
         // Write image
-//        stbi_flip_vertically_on_write(1);
-//        stbi_write_png("render.png", WIDTH, HEIGHT, 3, raster.data(), 0);
+        stbi_flip_vertically_on_write(1);
+        stbi_write_png("render.png", WIDTH, HEIGHT, 3, raster.data(), 0);
     }
     catch (const std::exception& ex)
     {

@@ -21,7 +21,9 @@ add_executable(Rabbit2
         source/bvh/bvh.hpp
         source/geometry/ray.hpp
         source/geometry/intersection.hpp
-        external/stb_image_write.hpp)
+        external/stb_image_write.hpp
+        source/camera/camera.cpp
+        source/camera/camera.hpp source/geometry/common.hpp)
 
 # find_package(OpenCL)
 

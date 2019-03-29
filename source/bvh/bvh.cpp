@@ -153,6 +153,78 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
     return hit;
 }
 
+bool BVH::IntersectTest(const Ray& ray) const noexcept
+{
+#ifndef NDEBUG
+    if (triangles.empty())
+    {
+        return false;
+    }
+#endif
+
+    // Compute values needed for traversal
+    const Vector3 inv_dir{ 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z };
+    const unsigned int dir_is_neg[3]{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
+
+    // Follow ray through BVH
+    unsigned int to_visit_offset{ 0 }, current_node_index{ 0 };
+    unsigned int nodes_to_visit[32];
+    while (true)
+    {
+        // Get current node
+        const LinearBVHNode current_node{ flat_tree_nodes[current_node_index] };
+        // Check ray against node
+        if (current_node.bounds.Intersect(ray, inv_dir, dir_is_neg))
+        {
+            // Check for leaf or interior
+            if (current_node.num_triangles != 0)
+            {
+                for (unsigned int i = 0; i != current_node.num_triangles; i++)
+                {
+                    const unsigned int triangle_index{ current_node.triangle_offset + i };
+                    if (triangles[triangle_index].IntersectTest(ray))
+                    {
+                        // As soon as we hit something, return true
+                        return true;
+                    }
+                }
+                // Check if we still have node to visit
+                if (to_visit_offset == 0)
+                {
+                    break;
+                }
+                current_node_index = nodes_to_visit[--to_visit_offset];
+            }
+            else
+            {
+                // Put far node on stack and visit closest one
+                if (dir_is_neg[current_node.split_axis])
+                {
+                    nodes_to_visit[to_visit_offset++] = current_node_index + 1;
+                    current_node_index = current_node.second_child_offset;
+                }
+                else
+                {
+                    nodes_to_visit[to_visit_offset++] = current_node.second_child_offset;
+                    current_node_index++;
+                }
+            }
+        }
+        else
+        {
+            // Check if we still have node to visit
+            if (to_visit_offset == 0)
+            {
+                break;
+            }
+            current_node_index = nodes_to_visit[--to_visit_offset];
+        }
+    }
+
+    // If we get here in this case, we did not hit anything
+    return false;
+}
+
 std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
                                                   unsigned int start, unsigned int end,
                                                   unsigned int& total_nodes,
