@@ -51,14 +51,6 @@ struct Vector3
         return *this;
     }
 
-    Vector3& operator-=(const Vector3& v) noexcept
-    {
-        x -= v.x;
-        y -= v.y;
-        z -= v.z;
-        return *this;
-    }
-
     constexpr unsigned int LargestDimension() const noexcept
     {
         if (x > y && x > z)
@@ -154,6 +146,16 @@ constexpr const Vector3 Max(const Vector3& lhs, const Vector3& rhs) noexcept
 constexpr const Vector3 Min(const Vector3& lhs, const Vector3& rhs) noexcept
 {
     return { std::min(lhs.x, rhs.x), std::min(lhs.y, rhs.y), std::min(lhs.z, rhs.z) };
+}
+
+inline const Vector3 Abs(const Vector3& v) noexcept
+{
+    return { std::abs(v.x), std::abs(v.y), std::abs(v.z) };
+}
+
+constexpr const Vector3 Permute(const Vector3& v, unsigned int kx, unsigned int ky, unsigned int kz) noexcept
+{
+    return { v[kx], v[ky], v[kz] };
 }
 
 } // Geometry namespace

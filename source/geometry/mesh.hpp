@@ -91,53 +91,82 @@ private:
 inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
 {
     // Tolerance value used in intersection process
-    constexpr float EPSILON{ 0.0001f };
+    constexpr float EPSILON{ 0.000001f };
 
     // Access triangle vertices
     const Vector3 v0{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) };
     const Vector3 v1{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) };
     const Vector3 v2{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) };
 
-    // Compute triangle edges
-    const Vector3 edge1{ v1 - v0 };
-    const Vector3 edge2{ v2 - v0 };
+    // Translate vertices based on ray origin
+    Vector3 v0t{ v0 - ray.origin };
+    Vector3 v1t{ v1 - ray.origin };
+    Vector3 v2t{ v2 - ray.origin };
 
-    // Compute determinant
-    const Vector3 pvec{ Cross(ray.direction, edge2) };
-    const float determinant{ Dot(edge1, pvec) };
+    // Permute components of triangle vertices and ray direction
+    const unsigned int kz{ Abs(ray.direction).LargestDimension() };
+    unsigned int kx = kz + 1;
+    if (kx == 3)
+    {
+        kx = 0;
+    }
+    unsigned int ky = kx + 1;
+    if (ky == 3)
+    {
+        ky = 0;
+    }
+    const Vector3 d{ Permute(ray.direction, kx, ky, kz) };
+    v0t = Permute(v0t, kx, ky, kz);
+    v1t = Permute(v1t, kx, ky, kz);
+    v2t = Permute(v2t, kx, ky, kz);
 
-    // Check if ray is parallel to triangle
-    if (determinant > -EPSILON && determinant < EPSILON)
+    // Apply shear transformation to translated vertex positions
+    const float sz{ 1.f / d.z };
+    const float sx{ -d.x * sz };
+    const float sy{ -d.y * sz };
+    v0t.x += sx * v0t.z;
+    v0t.y += sy * v0t.z;
+    v1t.x += sx * v1t.z;
+    v1t.y += sy * v1t.z;
+    v2t.x += sx * v2t.z;
+    v2t.y += sy * v2t.z;
+
+    // Compute edge function coefficients e0, e1, and e2
+    const float e0{ v1t.x * v2t.y - v1t.y * v2t.x };
+    const float e1{ v2t.x * v0t.y - v2t.y * v0t.x };
+    const float e2{ v0t.x * v1t.y - v0t.y * v1t.x };
+
+    // Perform triangle edge and determinant tests>>=
+    if ((e0 < 0.f || e1 < 0.f || e2 < 0.f) && (e0 > 0.f || e1 > 0.f || e2 > 0.f))
     {
         return false;
     }
-    const float inv_determinant{ 1.f / determinant };
-
-    // Calculate u parameter and test bounds
-    const Vector3 tvec{ ray.origin - v0 };
-    intersection.u = inv_determinant * Dot(tvec, pvec);
-    if (intersection.u < 0.f || intersection.u > 1.f)
+    const float det{ e0 + e1 + e2 };
+    if (det > -EPSILON && det < EPSILON)
     {
         return false;
     }
 
-    // Calculate v parameter and test bounds
-    const Vector3 qvec{ Cross(tvec, edge1) };
-    intersection.v = inv_determinant * Dot(ray.direction, qvec);
-    if (intersection.v < 0.f || intersection.u + intersection.v > 1.f)
+    // Compute scaled hit distance to triangle and test against ray  range
+    v0t.z *= sz;
+    v1t.z *= sz;
+    v2t.z *= sz;
+    const float t_scaled{ e0 * v0t.z + e1 * v1t.z + e2 * v2t.z };
+    if (det < 0.f && (t_scaled >= 0.f || t_scaled < ray.extent_end * det || t_scaled > ray.extent_start * det))
+    {
+        return false;
+    }
+    else if (det > 0.f && (t_scaled <= 0.f || t_scaled > ray.extent_end * det || t_scaled < ray.extent_start * det))
     {
         return false;
     }
 
-    // Calculate t (ray intersection parameter)
-    const float t{ inv_determinant * Dot(edge2, qvec) };
-    if (!ray.IsInRange(t))
-    {
-        return false;
-    }
-
-    // We did hit this triangle, update ray maximum extent
-    ray.extent_end = t;
+    // Compute barycentric coordinates and  value for triangle intersection
+    const float inv_det{ 1.f / det };
+    intersection.u = e0 * inv_det;
+    intersection.v = e1 * inv_det;
+    intersection.w = e2 * inv_det;
+    ray.extent_end = t_scaled * inv_det;
 
     return true;
 }
@@ -148,9 +177,10 @@ inline void Triangle::ComputeIntersectionGeometry(const Ray& ray,
     // Compute hit point based on the input ray
     intersection.hit_point = ray(ray.extent_end);
     // Compute normal based on barycentric coordinates
-    intersection.normal = (1.f - intersection.u - intersection.v) * mesh.NormalAt(mesh.FaceIndexAt(first_index)) +
-                          intersection.u * mesh.NormalAt(mesh.FaceIndexAt(first_index + 1)) +
-                          intersection.v * mesh.NormalAt(mesh.FaceIndexAt(first_index + 2));
+    intersection.normal = Normalize(
+        intersection.u * mesh.NormalAt(mesh.FaceIndexAt(first_index)) +
+        intersection.v * mesh.NormalAt(mesh.FaceIndexAt(first_index + 1)) +
+        intersection.w * mesh.NormalAt(mesh.FaceIndexAt(first_index + 2)));
 }
 
 } // Geometry namespace

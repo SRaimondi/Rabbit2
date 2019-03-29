@@ -103,21 +103,21 @@ std::vector<Vector3> Mesh::SmoothNormals(const std::vector<Vector3>& vertices, c
         const unsigned int i1{ indices[f + 1] };
         const unsigned int i2{ indices[f + 2] };
 
-        const Vector3& v0{ vertices[i0] };
-        const Vector3& v1{ vertices[i1] };
-        const Vector3& v2{ vertices[i2] };
+        const Vector3 v0{ vertices[i0] };
+        const Vector3 v1{ vertices[i1] };
+        const Vector3 v2{ vertices[i2] };
 
-        const Vector3 normal{ Cross(v1 - v0, v2 - v0) };
+        const Vector3 normal{ Normalize(Cross(v1 - v0, v2 - v0)) };
 
         normals[i0] += normal;
         normals[i1] += normal;
         normals[i2] += normal;
     }
 
-    std::for_each(normals.begin(), normals.end(), [](Vector3& n) -> void
+    for (Vector3& n : normals)
     {
         NormalizeInPlace(n);
-    });
+    }
 
     return normals;
 }

@@ -172,7 +172,7 @@ std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& tri
     const unsigned int num_triangles{ end - start };
 
     // If there are less triangles than the maximum for a leaf, create it and return it
-    if (num_triangles < configuration.max_triangles_in_leaf)
+    if (num_triangles <= configuration.max_triangles_in_leaf)
     {
         const unsigned int first_triangle_offset{ static_cast<unsigned int>(ordered_triangles.size()) };
         for (unsigned int i = start; i != end; i++)

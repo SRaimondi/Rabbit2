@@ -14,12 +14,12 @@ struct TriangleIntersection
 {
     // Hit point
     Vector3 hit_point;
-    // Barycentric coordinate for vertex v1
+    // Barycentric coordinate for vertex v0
     float u;
     // Normal at hit point
     Vector3 normal;
-    // Barycentric coordinate for vertex v2
-    float v;
+    // Barycentric coordinate for vertex v1 and v2
+    float v, w;
     // Index of the triangle that generated the intersection
     unsigned int triangle_index;
 };
