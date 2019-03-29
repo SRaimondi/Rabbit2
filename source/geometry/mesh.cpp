@@ -13,10 +13,6 @@
 namespace Geometry
 {
 
-Mesh::Mesh(const std::vector<Vector3>& v, const std::vector<Vector3>& n, const std::vector<unsigned int>& i)
-    : vertices{ v }, normals{ n }, indices{ i }
-{}
-
 Mesh::Mesh(std::vector<Vector3>&& v, std::vector<Vector3>&& n, std::vector<unsigned int>&& i)
     : vertices{ std::move(v) }, normals{ std::move(n) }, indices{ std::move(i) }
 {}

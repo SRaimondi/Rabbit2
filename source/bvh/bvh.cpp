@@ -34,8 +34,8 @@ struct BVHBuildNode
     BBox bounds;
 };
 
-BVH::BVH(const BVHConfig& config, const std::vector<Triangle>& tr)
-    : configuration{ config }, triangles{ tr }
+BVH::BVH(const BVHConfig& config, std::vector<Triangle>&& tr)
+    : configuration{ config }, triangles{ std::move(tr) }
 {
     // Check that the list of triangles is not empty
     if (triangles.empty())
@@ -130,17 +130,16 @@ PartitionResult BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info
     // TODO Choose splitting dimension
     unsigned int split_axis{ centroids_bounds.LargestDimension() };
 
-    // TODO Partition triangles
-    unsigned int mid{ (start + end) / 2 };
-    std::nth_element(triangle_info.begin() + start,
-                     triangle_info.begin() + mid,
-                     triangle_info.begin() + end,
-                     [split_axis](const TriangleInfo& triangle_info1, const TriangleInfo& triangle_info2) -> bool
-                     {
-                         return triangle_info1.centroid[split_axis] < triangle_info2.centroid[split_axis];
-                     });
+    // TODO Partition triangles based on midpoint
+    const float axis_mid_point{ centroids_bounds.Centroid()[split_axis] };
+    const auto mid_iter{ std::partition(triangle_info.begin() + start,
+                                        triangle_info.begin() + end,
+                                        [split_axis, axis_mid_point](const TriangleInfo& triangle_info) -> bool
+                                        {
+                                            return triangle_info.centroid[split_axis] < axis_mid_point;
+                                        }) };
 
-    return { split_axis, mid };
+    return { split_axis, static_cast<unsigned int>(std::distance(triangle_info.begin(), mid_iter)) };
 }
 
 unsigned int BVH::FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept

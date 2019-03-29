@@ -19,8 +19,6 @@ class Triangle;
 class Mesh
 {
 public:
-    Mesh(const std::vector<Vector3>& v, const std::vector<Vector3>& n, const std::vector<unsigned int>& i);
-
     Mesh(std::vector<Vector3>&& v, std::vector<Vector3>&& n, std::vector<unsigned int>&& i);
 
     const Vector3& VertexAt(unsigned int vertex_index) const
@@ -76,10 +74,7 @@ public:
     }
 
     // Intersect ray with triangle
-    bool Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
-    {
-
-    }
+    bool Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept;
 
 private:
     // Index of the first vertex
@@ -87,6 +82,21 @@ private:
     // Mesh associated
     const Mesh& mesh;
 };
+
+inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
+{
+    // Access triangle vertices
+    const Vector3 v0{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) };
+    const Vector3 v1{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) };
+    const Vector3 v2{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) };
+
+    // Compute triangle edges
+    const Vector3 e0{ v1 - v0 };
+    const Vector3 e1{ v2 - v0 };
+
+    // Compute determinant
+
+}
 
 } // Geometry namespace
 

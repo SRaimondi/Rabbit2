@@ -79,7 +79,7 @@ struct BVHBuildNode;
 class BVH
 {
 public:
-    BVH(const BVHConfig& config, const std::vector<Triangle>& tr);
+    BVH(const BVHConfig& config, std::vector<Triangle>&& tr);
 
 private:
     // Recursively build a subpart of the tree for the given range of triangles start to end (not included)
@@ -89,8 +89,8 @@ private:
                                                  std::vector<Triangle>& ordered_triangles) noexcept;
 
     // Partition triangles in current range, the two partitions are going to be [start, mid) and [mid, end)
-    PartitionResult PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
-                                       unsigned int start, unsigned int end) noexcept;
+    static PartitionResult PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
+                                              unsigned int start, unsigned int end) noexcept;
 
     // Flatten out tree
     unsigned int FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept;

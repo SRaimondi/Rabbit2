@@ -74,9 +74,8 @@ public:
     // Check for intersection between a ray and the BBox
     constexpr bool Intersect(const Ray& ray,
                              const Vector3& inv_dir,
-                             std::array<bool, 3> dir_is_neg) const noexcept
+                             const bool dir_is_neg[3]) const noexcept
     {
-        const BBox& bounds = *this;
         // Compute intersection with x slab
         float t_min{ (bounds[dir_is_neg[0]].x - ray.origin.x) * inv_dir.x };
         float t_max{ (bounds[1 - dir_is_neg[0]].x - ray.origin.x) * inv_dir.x };
@@ -101,12 +100,12 @@ public:
         t_min = std::max(t_min, tz_min);
         t_max = std::min(t_min, tz_max);
 
-        return (t_min < ray.extent) && (t_max > 0.f);
+        return (t_min < ray.extent_end) && (t_max > ray.extent_start);
     }
 
 private:
     // Bounds
-    std::array<Vector3, 2> bounds;
+    Vector3 bounds[2];
 };
 
 constexpr const BBox Union(const BBox& bbox, const Vector3& v) noexcept

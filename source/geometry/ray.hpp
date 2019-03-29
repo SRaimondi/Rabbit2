@@ -11,26 +11,35 @@ namespace Geometry
 {
 
 // Ray class
-struct Ray
+struct alignas(32) Ray
 {
     constexpr Ray() noexcept
-        : extent{ DEFAULT_EXTENT }
+        : extent_start{ DEFAULT_EXTENT_START }, extent_end{ DEFAULT_EXTENT_END }
     {}
 
-    constexpr Ray(const Vector3& o, const Vector3& d, float ext = DEFAULT_EXTENT) noexcept
-        : origin{ o }, direction{ d }, extent{ ext }
+    constexpr Ray(const Vector3& o, const Vector3& d,
+                  float start = DEFAULT_EXTENT_START, float end = DEFAULT_EXTENT_END) noexcept
+        : origin{ o }, extent_start{ start }, direction{ d }, extent_end{ end }
     {}
+
+    constexpr bool IsInRange(float t) const noexcept
+    {
+        return (t >= extent_start) && (t <= extent_end);
+    }
 
     constexpr const Vector3 operator()(float t) const noexcept
     {
         return origin + t * direction;
     }
 
-    static constexpr float DEFAULT_EXTENT{ std::numeric_limits<float>::max() };
+    static constexpr float DEFAULT_EXTENT_START{ 0.001f };
+    static constexpr float DEFAULT_EXTENT_END{ std::numeric_limits<float>::max() };
 
-    // Ray origin, direction and extent
-    Vector3 origin, direction;
-    float extent;
+    // Ray description
+    Vector3 origin;
+    float extent_start;
+    Vector3 direction;
+    float extent_end;
 };
 
 } // Geometry namespace
