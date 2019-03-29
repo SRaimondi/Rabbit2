@@ -20,7 +20,7 @@ add_executable(Rabbit2
         source/bvh/bvh.cpp
         source/bvh/bvh.hpp
         source/geometry/ray.hpp
-        source/geometry/intersection.hpp)
+        source/geometry/intersection.hpp external/stb_image_write.hpp)
 
 # find_package(OpenCL)
 
