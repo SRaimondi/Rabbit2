@@ -19,7 +19,8 @@ add_executable(Rabbit2
         source/geometry/bbox.hpp
         source/bvh/bvh.cpp
         source/bvh/bvh.hpp
-        source/geometry/ray.hpp source/geometry/intersection.hpp)
+        source/geometry/ray.hpp
+        source/geometry/intersection.hpp)
 
 # find_package(OpenCL)
 
