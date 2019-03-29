@@ -90,18 +90,10 @@ private:
 // From "Fast􏰁 Minimum Storage Ray􏰂Triangle Intersection" - Tomas Mö􏰃ller
 inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
 {
-    // Tolerance value used in intersection process
-    constexpr float EPSILON{ 0.000001f };
-
-    // Access triangle vertices
-    const Vector3 v0{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) };
-    const Vector3 v1{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) };
-    const Vector3 v2{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) };
-
     // Translate vertices based on ray origin
-    Vector3 v0t{ v0 - ray.origin };
-    Vector3 v1t{ v1 - ray.origin };
-    Vector3 v2t{ v2 - ray.origin };
+    Vector3 v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - ray.origin };
+    Vector3 v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - ray.origin };
+    Vector3 v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - ray.origin };
 
     // Permute components of triangle vertices and ray direction
     const unsigned int kz{ Abs(ray.direction).LargestDimension() };
@@ -136,12 +128,13 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
     const float e1{ v2t.x * v0t.y - v2t.y * v0t.x };
     const float e2{ v0t.x * v1t.y - v0t.y * v1t.x };
 
-    // Perform triangle edge and determinant tests>>=
+    // Perform triangle edge and determinant tests
     if ((e0 < 0.f || e1 < 0.f || e2 < 0.f) && (e0 > 0.f || e1 > 0.f || e2 > 0.f))
     {
         return false;
     }
     const float det{ e0 + e1 + e2 };
+    constexpr float EPSILON{ 0.000001f };
     if (det > -EPSILON && det < EPSILON)
     {
         return false;

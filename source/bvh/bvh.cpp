@@ -104,11 +104,12 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
             {
                 for (unsigned int i = 0; i != current_node.num_triangles; i++)
                 {
-                    if (triangles[current_node.triangle_offset + i].Intersect(ray, intersection))
+                    const unsigned int triangle_index{ current_node.triangle_offset + i };
+                    if (triangles[triangle_index].Intersect(ray, intersection))
                     {
                         // Set hit and update index
                         hit = true;
-                        intersection.triangle_index = current_node.triangle_offset + i;
+                        intersection.triangle_index = triangle_index;
                     }
                 }
                 // Check if we still have node to visit
