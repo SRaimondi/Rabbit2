@@ -7,6 +7,8 @@
 
 #include "vector.hpp"
 
+#include <limits>
+
 namespace Geometry
 {
 

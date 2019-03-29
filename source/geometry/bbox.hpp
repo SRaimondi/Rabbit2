@@ -74,7 +74,7 @@ public:
     // Check for intersection between a ray and the BBox
     constexpr bool Intersect(const Ray& ray,
                              const Vector3& inv_dir,
-                             const bool dir_is_neg[3]) const noexcept
+                             const unsigned int dir_is_neg[3]) const noexcept
     {
         // Compute intersection with x slab
         float t_min{ (bounds[dir_is_neg[0]].x - ray.origin.x) * inv_dir.x };
@@ -87,8 +87,14 @@ public:
         {
             return false;
         }
-        t_min = std::max(t_min, ty_min);
-        t_max = std::min(t_min, ty_max);
+        if (ty_min > t_min)
+        {
+            t_min = ty_min;
+        }
+        if (ty_max < t_max)
+        {
+            t_max = ty_max;
+        }
 
         // Compute intersection with z slab
         float tz_min{ (bounds[dir_is_neg[2]].z - ray.origin.z) * inv_dir.z };
@@ -97,8 +103,14 @@ public:
         {
             return false;
         }
-        t_min = std::max(t_min, tz_min);
-        t_max = std::min(t_min, tz_max);
+        if (tz_min > t_min)
+        {
+            t_min = tz_min;
+        }
+        if (tz_max < t_max)
+        {
+            t_max = tz_max;
+        }
 
         return (t_min < ray.extent_end) && (t_max > ray.extent_start);
     }

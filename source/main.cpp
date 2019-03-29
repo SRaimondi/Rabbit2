@@ -15,6 +15,12 @@ int main()
         // Create BVH
         const BVH bvh{ BVHConfig{}, bunny_mesh.CreateTriangles() };
 
+        Ray test_ray{ Vector3{ 0.f, 0.f, 10.f }, Vector3{ 0.f, 0.f, -1.f }};
+        TriangleIntersection intersection;
+
+        const bool hit{ bvh.Intersect(test_ray, intersection) };
+        std::cout << std::boolalpha;
+        std::cout << hit;
     }
     catch (const std::exception& ex)
     {

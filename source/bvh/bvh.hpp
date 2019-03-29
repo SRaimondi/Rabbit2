@@ -81,6 +81,9 @@ class BVH
 public:
     BVH(const BVHConfig& config, std::vector<Triangle>&& tr);
 
+    // Intersect Ray with BVH
+    bool Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept;
+
 private:
     // Recursively build a subpart of the tree for the given range of triangles start to end (not included)
     std::unique_ptr<BVHBuildNode> RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
