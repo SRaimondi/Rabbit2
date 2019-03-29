@@ -7,6 +7,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <cassert>
 
 namespace Geometry
 {

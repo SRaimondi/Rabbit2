@@ -7,6 +7,8 @@
 
 #include "geometry/mesh.hpp"
 
+#include <memory>
+
 namespace Geometry
 {
 
