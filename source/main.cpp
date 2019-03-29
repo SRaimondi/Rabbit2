@@ -16,20 +16,21 @@ int main()
     {
         // Load bunny mesh
         const Mesh bunny_mesh{ Mesh::LoadOBJ("../models/bunny.obj") };
+        const Mesh dragon_mesh{ Mesh::LoadPLY("../models/dragon.ply") };
 
         // Create BVH
-        const BVH bvh{ BVHConfig{}, bunny_mesh.CreateTriangles() };
+        const BVH bvh{ BVHConfig{}, dragon_mesh.CreateTriangles() };
 
-        constexpr unsigned int WIDTH{ 512 };
-        constexpr unsigned int HEIGHT{ 512 };
+        constexpr unsigned int WIDTH{ 800 };
+        constexpr unsigned int HEIGHT{ 800 };
 
         // Create camera
-        const Camera camera{ Vector3{ -1.f, 2.f, 5.f }, Vector3{}, Vector3{ 0.f, 1.f, 0.f }, 45.f, WIDTH, HEIGHT };
+        const Camera camera{ Vector3{ -2.f, 2.f, 6.f }, Vector3{}, Vector3{ 0.f, 1.f, 0.f }, 45.f, WIDTH, HEIGHT };
 
         // Performance rendering process
         std::vector<unsigned char> raster(WIDTH * HEIGHT * 3, 0);
 
-        constexpr unsigned int NUM_TRIALS{ 100 };
+        constexpr unsigned int NUM_TRIALS{ 1 };
         unsigned int num_hits{ 0 };
 
         const auto start{ std::chrono::high_resolution_clock::now() };

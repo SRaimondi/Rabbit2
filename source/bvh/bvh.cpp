@@ -90,7 +90,7 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
 
     // Follow ray through BVH
     unsigned int to_visit_offset{ 0 }, current_node_index{ 0 };
-    unsigned int nodes_to_visit[32];
+    unsigned int nodes_to_visit[64];
     while (true)
     {
         // Get current node
@@ -168,7 +168,7 @@ bool BVH::IntersectTest(const Ray& ray) const noexcept
 
     // Follow ray through BVH
     unsigned int to_visit_offset{ 0 }, current_node_index{ 0 };
-    unsigned int nodes_to_visit[32];
+    unsigned int nodes_to_visit[64];
     while (true)
     {
         // Get current node

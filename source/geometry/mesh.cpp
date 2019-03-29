@@ -7,6 +7,9 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyobj.hpp"
 
+#define TINYPLY_IMPLEMENTATION
+#include "tinyply.hpp"
+
 #include <fstream>
 #include <sstream>
 
@@ -81,6 +84,44 @@ Mesh Mesh::LoadOBJ(const std::string& filename)
     return { std::move(vertices), std::move(smooth_normals), std::move(indices) };
 }
 
+Mesh Mesh::LoadPLY(const std::string& filename)
+{
+    using namespace tinyply;
+
+    // Open file
+    std::ifstream file{ filename, std::ios::binary };
+    if (!file.is_open())
+    {
+        std::ostringstream error_string;
+        error_string << "Could not open file: " << filename << "\n";
+        throw std::runtime_error(error_string.str());
+    }
+
+    // Parse header
+    PlyFile ply_file;
+    ply_file.parse_header(file);
+
+    // We are only interested int vertices + indices
+    const std::shared_ptr<PlyData> ply_vertices{
+        ply_file.request_properties_from_element("vertex", { "x", "y", "z" }) };
+    const std::shared_ptr<PlyData> ply_indices{
+        ply_file.request_properties_from_element("face", { "vertex_indices" }, 3) };
+
+    // Read file
+    ply_file.read(file);
+
+    // Allocate space for vertices / indices and copy
+    std::vector<Vector3> vertices(ply_vertices->count);
+    std::memcpy(vertices.data(), ply_vertices->buffer.get(), ply_vertices->buffer.size_bytes());
+    std::vector<unsigned int> indices(ply_indices->count * 3);
+    std::memcpy(indices.data(), ply_indices->buffer.get(), ply_indices->buffer.size_bytes());
+
+    // Now that we have our vertices and indices, we can compute the normals
+    std::vector<Vector3> smooth_normals = SmoothNormals(vertices, indices);
+
+    return { std::move(vertices), std::move(smooth_normals), std::move(indices) };
+}
+
 std::vector<Triangle> Mesh::CreateTriangles() const
 {
     std::vector<Triangle> triangles;
@@ -107,7 +148,8 @@ std::vector<Vector3> Mesh::SmoothNormals(const std::vector<Vector3>& vertices, c
         const Vector3 v1{ vertices[i1] };
         const Vector3 v2{ vertices[i2] };
 
-        const Vector3 normal{ Normalize(Cross(v1 - v0, v2 - v0)) };
+        // We avoid normalisation here to give a weight to the normal proportional to the triangle size
+        const Vector3 normal{ Cross(v1 - v0, v2 - v0) };
 
         normals[i0] += normal;
         normals[i1] += normal;

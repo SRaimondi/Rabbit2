@@ -42,6 +42,9 @@ public:
     // Load mesh from .obj
     static Mesh LoadOBJ(const std::string& filename);
 
+    // Load mesh from .ply
+    static Mesh LoadPLY(const std::string& filename);
+
     // Create list of triangles for the mesh
     std::vector<Triangle> CreateTriangles() const;
 
@@ -137,8 +140,7 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
         return false;
     }
     const float det{ e0 + e1 + e2 };
-    constexpr float EPSILON{ 0.000001f };
-    if (det > -EPSILON && det < EPSILON)
+    if (det == 0.f)
     {
         return false;
     }
@@ -213,8 +215,7 @@ inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
         return false;
     }
     const float det{ e0 + e1 + e2 };
-    constexpr float EPSILON{ 0.000001f };
-    if (det > -EPSILON && det < EPSILON)
+    if (det == 0.f)
     {
         return false;
     }
@@ -246,6 +247,9 @@ inline void Triangle::ComputeIntersectionGeometry(const Ray& ray,
         intersection.u * mesh.NormalAt(mesh.FaceIndexAt(first_index)) +
         intersection.v * mesh.NormalAt(mesh.FaceIndexAt(first_index + 1)) +
         intersection.w * mesh.NormalAt(mesh.FaceIndexAt(first_index + 2)));
+//
+//    intersection.normal = Normalize(Cross(mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - mesh.VertexAt(mesh.FaceIndexAt(first_index)),
+//                                          mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - mesh.VertexAt(mesh.FaceIndexAt(first_index))));
 }
 
 } // Geometry namespace
