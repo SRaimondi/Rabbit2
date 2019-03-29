@@ -23,7 +23,7 @@ int main()
         constexpr unsigned int HEIGHT{ 512 };
         std::vector<unsigned char> raster(WIDTH * HEIGHT * 3, 0);
 
-        constexpr unsigned int NUM_TRIALS{ 1 };
+        constexpr unsigned int NUM_TRIALS{ 100 };
         unsigned int num_hits{ 0 };
 
         const auto start{ std::chrono::high_resolution_clock::now() };
@@ -47,10 +47,10 @@ int main()
                     if (bvh.Intersect(ray, intersection))
                     {
                         num_hits++;
-                        const unsigned int linear_index{ 3 * (row * WIDTH + column) };
-                        raster[linear_index] = static_cast<unsigned char>(255 * std::abs(intersection.normal.x));
-                        raster[linear_index + 1] = static_cast<unsigned char>(255 * std::abs(intersection.normal.y));
-                        raster[linear_index + 2] = static_cast<unsigned char>(255 * std::abs(intersection.normal.z));
+//                        const unsigned int linear_index{ 3 * (row * WIDTH + column) };
+//                        raster[linear_index] = static_cast<unsigned char>(255 * std::abs(intersection.normal.x));
+//                        raster[linear_index + 1] = static_cast<unsigned char>(255 * std::abs(intersection.normal.y));
+//                        raster[linear_index + 2] = static_cast<unsigned char>(255 * std::abs(intersection.normal.z));
                     }
                 }
             }
