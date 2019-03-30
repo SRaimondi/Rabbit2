@@ -3,7 +3,6 @@
 #include "geometry/common.hpp"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-
 #include "stb_image_write.hpp"
 
 #include <iostream>

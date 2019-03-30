@@ -75,15 +75,17 @@ public:
     constexpr bool Intersect(const Ray& ray,
                              const Vector3& inv_dir) const noexcept
     {
-        const Vector3 bounds_t_min{ (bounds[0] - ray.origin) * inv_dir };
-        const Vector3 bounds_t_max{ (bounds[1] - ray.origin) * inv_dir };
+        // Compute intersection of ray with the bounds slabs
+        const Vector3 bounds_min{ (bounds[0] - ray.origin) * inv_dir };
+        const Vector3 bounds_max{ (bounds[1] - ray.origin) * inv_dir };
+        const Vector3 ts_min{ Min(bounds_min, bounds_max) };
+        const Vector3 ts_max{ Max(bounds_min, bounds_max) };
 
-        const Vector3 ts_min{ Min(bounds_t_min, bounds_t_max) };
-        const Vector3 ts_max{ Max(bounds_t_min, bounds_t_max) };
-
+        // Select minimum and maximum
         const float t_min{ HorizontalMax(ts_min) };
         const float t_max{ HorizontalMin(ts_max) };
 
+        // Check if we did hit
         return (t_min < t_max) && (t_min < ray.extent_end) && (t_max > ray.extent_start);
     }
 
