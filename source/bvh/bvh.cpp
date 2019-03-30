@@ -96,7 +96,7 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
         // Get current node
         const LinearBVHNode current_node{ flat_tree_nodes[current_node_index] };
         // Check ray against node
-        if (current_node.bounds.Intersect(ray, inv_dir, dir_is_neg))
+        if (current_node.bounds.Intersect(ray, inv_dir))
         {
             // Check for leaf or interior
             if (current_node.num_triangles != 0)
@@ -174,7 +174,7 @@ bool BVH::IntersectTest(const Ray& ray) const noexcept
         // Get current node
         const LinearBVHNode current_node{ flat_tree_nodes[current_node_index] };
         // Check ray against node
-        if (current_node.bounds.Intersect(ray, inv_dir, dir_is_neg))
+        if (current_node.bounds.Intersect(ray, inv_dir))
         {
             // Check for leaf or interior
             if (current_node.num_triangles != 0)
@@ -243,15 +243,13 @@ std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& tri
     // Compute number of triangles for this node
     const unsigned int num_triangles{ end - start };
 
-    // If there are less triangles than the maximum for a leaf, create it and return it
-    if (num_triangles <= configuration.max_triangles_in_leaf)
+    // If there is only one triangle left, we create a leaf
+    if (num_triangles == 1)
     {
         const unsigned int first_triangle_offset{ static_cast<unsigned int>(ordered_triangles.size()) };
-        for (unsigned int i = start; i != end; i++)
-        {
-            const unsigned int triangle_index{ triangle_info[i].triangle_index };
-            ordered_triangles.push_back(triangles[triangle_index]);
-        }
+        const unsigned int triangle_index{ triangle_info[start].triangle_index };
+        ordered_triangles.push_back(triangles[triangle_index]);
+
         return std::make_unique<BVHBuildNode>(first_triangle_offset, num_triangles, node_bounds);
     }
     else
@@ -278,19 +276,18 @@ PartitionResult BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info
         centroids_bounds = Union(centroids_bounds, triangle_info[i].centroid);
     }
 
-    // TODO Choose splitting dimension
-    unsigned int split_axis{ centroids_bounds.LargestDimension() };
+    // Compute partition result already
+    const PartitionResult result{ centroids_bounds.LargestDimension(), (start + end) / 2 };
 
-    // TODO Partition triangles based on midpoint
-    const float axis_mid_point{ centroids_bounds.Centroid()[split_axis] };
-    const auto mid_iter{ std::partition(triangle_info.begin() + start,
-                                        triangle_info.begin() + end,
-                                        [split_axis, axis_mid_point](const TriangleInfo& triangle_info) -> bool
-                                        {
-                                            return triangle_info.centroid[split_axis] < axis_mid_point;
-                                        }) };
+    // Sort triangles into two partition of equal count
+    std::nth_element(triangle_info.begin() + start, triangle_info.begin() + result.mid_index,
+                     triangle_info.begin() + end,
+                     [&result](const TriangleInfo& info1, const TriangleInfo& info2) -> bool
+                     {
+                         return info1.centroid[result.split_axis] < info2.centroid[result.split_axis];
+                     });
 
-    return { split_axis, static_cast<unsigned int>(std::distance(triangle_info.begin(), mid_iter)) };
+    return result;
 }
 
 unsigned int BVH::FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept

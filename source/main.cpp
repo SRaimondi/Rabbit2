@@ -3,6 +3,7 @@
 #include "geometry/common.hpp"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+
 #include "stb_image_write.hpp"
 
 #include <iostream>
@@ -21,6 +22,11 @@ int main()
         // Create BVH
         const BVH bvh{ BVHConfig{}, dragon_mesh.CreateTriangles() };
 
+        Ray test{ Vector3{ 0.f, 0.f, 10.f }, Vector3{ 0.f, 0.f, -1.f }};
+
+        TriangleIntersection isect;
+        bool hit = bvh.Intersect(test, isect);
+
         constexpr unsigned int WIDTH{ 800 };
         constexpr unsigned int HEIGHT{ 800 };
 
@@ -30,7 +36,7 @@ int main()
         // Performance rendering process
         std::vector<unsigned char> raster(WIDTH * HEIGHT * 3, 0);
 
-        constexpr unsigned int NUM_TRIALS{ 1 };
+        constexpr unsigned int NUM_TRIALS{ 20 };
         unsigned int num_hits{ 0 };
 
         const auto start{ std::chrono::high_resolution_clock::now() };

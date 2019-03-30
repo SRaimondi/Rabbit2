@@ -88,6 +88,11 @@ constexpr const Vector3 operator-(const Vector3& v) noexcept
     return { -v.x, -v.y, -v.z };
 }
 
+constexpr const Vector3 operator*(const Vector3& lhs, const Vector3& rhs) noexcept
+{
+    return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z };
+}
+
 constexpr const Vector3 operator*(float lhs, const Vector3& rhs) noexcept
 {
     return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.z };
@@ -144,9 +149,19 @@ constexpr const Vector3 Max(const Vector3& lhs, const Vector3& rhs) noexcept
     return { std::max(lhs.x, rhs.x), std::max(lhs.y, rhs.y), std::max(lhs.z, rhs.z) };
 }
 
+constexpr float HorizontalMax(const Vector3& v) noexcept
+{
+    return std::max(v.x, std::max(v.y, v.z));
+}
+
 constexpr const Vector3 Min(const Vector3& lhs, const Vector3& rhs) noexcept
 {
     return { std::min(lhs.x, rhs.x), std::min(lhs.y, rhs.y), std::min(lhs.z, rhs.z) };
+}
+
+constexpr float HorizontalMin(const Vector3& v) noexcept
+{
+    return std::min(v.x, std::min(v.y, v.z));
 }
 
 inline const Vector3 Abs(const Vector3& v) noexcept

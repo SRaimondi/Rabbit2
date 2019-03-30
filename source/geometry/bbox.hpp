@@ -73,46 +73,18 @@ public:
 
     // Check for intersection between a ray and the BBox
     constexpr bool Intersect(const Ray& ray,
-                             const Vector3& inv_dir,
-                             const unsigned int dir_is_neg[3]) const noexcept
+                             const Vector3& inv_dir) const noexcept
     {
-        // Compute intersection with x slab
-        float t_min{ (bounds[dir_is_neg[0]].x - ray.origin.x) * inv_dir.x };
-        float t_max{ (bounds[1 - dir_is_neg[0]].x - ray.origin.x) * inv_dir.x };
+        const Vector3 bounds_t_min{ (bounds[0] - ray.origin) * inv_dir };
+        const Vector3 bounds_t_max{ (bounds[1] - ray.origin) * inv_dir };
 
-        // Compute intersection with y slab
-        float ty_min{ (bounds[dir_is_neg[1]].y - ray.origin.y) * inv_dir.y };
-        float ty_max{ (bounds[1 - dir_is_neg[1]].y - ray.origin.y) * inv_dir.y };
-        if (t_min > ty_max || ty_min > t_max)
-        {
-            return false;
-        }
-        if (ty_min > t_min)
-        {
-            t_min = ty_min;
-        }
-        if (ty_max < t_max)
-        {
-            t_max = ty_max;
-        }
+        const Vector3 ts_min{ Min(bounds_t_min, bounds_t_max) };
+        const Vector3 ts_max{ Max(bounds_t_min, bounds_t_max) };
 
-        // Compute intersection with z slab
-        float tz_min{ (bounds[dir_is_neg[2]].z - ray.origin.z) * inv_dir.z };
-        float tz_max{ (bounds[1 - dir_is_neg[2]].z - ray.origin.z) * inv_dir.z };
-        if (t_min > tz_max || tz_min > t_max)
-        {
-            return false;
-        }
-        if (tz_min > t_min)
-        {
-            t_min = tz_min;
-        }
-        if (tz_max < t_max)
-        {
-            t_max = tz_max;
-        }
+        const float t_min{ HorizontalMax(ts_min) };
+        const float t_max{ HorizontalMin(ts_max) };
 
-        return (t_min < ray.extent_end) && (t_max > ray.extent_start);
+        return (t_min < t_max) && (t_min < ray.extent_end) && (t_max > ray.extent_start);
     }
 
 private:

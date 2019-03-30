@@ -2,13 +2,14 @@ cmake_minimum_required(VERSION 3.13)
 project(Rabbit2)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 include_directories(source external)
 
 add_executable(Rabbit2
         source/main.cpp
-        source/opencl/error.cpp
-        source/opencl/error.hpp
+        #source/opencl/error.cpp
+        #source/opencl/error.hpp
         source/io/file_io.cpp
         source/io/file_io.hpp
         external/tinyply.hpp

@@ -58,7 +58,7 @@ struct BVHConfig
     const float triangle_intersect_cost;
     // BBox intersect cost
     const float bbox_intersect_cost;
-    // Number of buckets to use to evaluate heuristic
+    // Number of buckets to use to evaluate SAH
     const unsigned int num_buckets;
 };
 
