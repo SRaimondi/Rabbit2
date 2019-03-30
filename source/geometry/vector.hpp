@@ -174,6 +174,12 @@ constexpr const Vector3 Permute(const Vector3& v, unsigned int kx, unsigned int 
     return { v[kx], v[ky], v[kz] };
 }
 
+// Reciprocal 1 / v
+constexpr const Vector3 Reciprocal(const Vector3& v) noexcept
+{
+    return { 1.f / v.x, 1.f / v.y, 1.f / v.z };
+}
+
 } // Geometry namespace
 
 #endif //RABBIT2_VECTOR_HPP

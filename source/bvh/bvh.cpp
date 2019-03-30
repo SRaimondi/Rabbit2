@@ -163,7 +163,7 @@ bool BVH::IntersectTest(const Ray& ray) const noexcept
 #endif
 
     // Compute values needed for traversal
-    const Vector3 inv_dir{ 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z };
+    const Vector3 inv_dir{ Reciprocal(ray.direction) };
     const unsigned int dir_is_neg[3]{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
 
     // Follow ray through BVH
