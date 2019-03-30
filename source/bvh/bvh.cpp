@@ -86,7 +86,7 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
     bool hit{ false };
     // Compute values needed for traversal
     const Vector3 inv_dir{ 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z };
-    const unsigned int dir_is_neg[3]{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
+    const std::array<bool, 3> dir_is_neg{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
 
     // Follow ray through BVH
     unsigned int to_visit_offset{ 0 }, current_node_index{ 0 };
@@ -164,7 +164,7 @@ bool BVH::IntersectTest(const Ray& ray) const noexcept
 
     // Compute values needed for traversal
     const Vector3 inv_dir{ Reciprocal(ray.direction) };
-    const unsigned int dir_is_neg[3]{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
+    const std::array<bool, 3> dir_is_neg{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
 
     // Follow ray through BVH
     unsigned int to_visit_offset{ 0 }, current_node_index{ 0 };
