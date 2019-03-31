@@ -52,7 +52,7 @@ BVH::BVH(const BVHConfig& config, std::vector<Triangle>&& tr)
         triangle_info.emplace_back(i, triangles[i].Bounds());
     }
 
-    // The building process has the freed of swapping the triangles around such that triangles in the same leaf
+    // The building process has the freedom of swapping the triangles around such that triangles in the same leaf
     // are also close in memory
     std::vector<Triangle> ordered_triangles;
     ordered_triangles.reserve(triangles.size());
@@ -436,7 +436,7 @@ std::pair<unsigned int, float> BVH::FindBestBucketIndex(const std::vector<Bucket
     }
 
     // Find bucket to split that minimizes SAH
-    std::pair<unsigned int, float> sah_result{ std::make_pair(0, split_cost[0]) };
+    std::pair<unsigned int, float> sah_result{ 0, split_cost[0] };
     for (unsigned int i = 1; i != scan_size; i++)
     {
         if (split_cost[i] < sah_result.second)
