@@ -100,7 +100,7 @@ private:
     // Partition triangles in current range, the two partitions are going to be [start, mid) and [mid, end)
     bool PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
                             unsigned int start, unsigned int end,
-                            const BBox& bounds,
+                            const BBox& node_bounds,
                             PartitionResult& partition_result) const noexcept;
 
     // Compute buckets information for SAH
@@ -108,6 +108,10 @@ private:
                                                      unsigned int start, unsigned int end,
                                                      const BBox& centroids_bounds,
                                                      unsigned int split_axis) const noexcept;
+
+    // Find index of the best bucket to split with the cost
+    std::pair<unsigned int, float> FindBestBucketIndex(const std::vector<BucketInfo>& buckets,
+                                                       const BBox& node_bounds) const noexcept;
 
     // Flatten out tree
     unsigned int FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept;

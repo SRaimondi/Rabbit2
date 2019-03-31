@@ -298,7 +298,7 @@ struct BucketInfo
 
 bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
                              unsigned int start, unsigned int end,
-                             const BBox& bounds,
+                             const BBox& node_bounds,
                              PartitionResult& partition_result) const noexcept
 {
     // Compute bounds of the centroids of the triangles
@@ -318,65 +318,18 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
                                                               partition_result.split_axis) };
 
     // Find best bucket for split
-    const unsigned int scan_size{ configuration.num_buckets - 1 };
-    std::vector<BBox> forward_bounds(scan_size);
-    std::vector<BBox> backward_bounds(scan_size);
-    std::vector<unsigned int> forward_count(scan_size, 0);
-    std::vector<unsigned int> backward_count(scan_size, 0);
-
-    // Forward scan
-    forward_bounds[0] = buckets[0].bounds;
-    forward_count[0] = buckets[0].num_triangles;
-    for (unsigned int i = 1; i < scan_size; i++)
-    {
-        forward_bounds[i] = Union(forward_bounds[i - 1], buckets[i].bounds);
-        forward_count[i] = forward_count[i - 1] + buckets[i].num_triangles;
-    }
-
-    // Backward scan
-    backward_bounds[0] = buckets[scan_size].bounds;
-    backward_count[0] = buckets[scan_size].num_triangles;
-    for (unsigned int i = 1; i < scan_size; i++)
-    {
-        const unsigned int bucket_index{ scan_size - i };
-        backward_bounds[i] = Union(backward_bounds[i - 1], buckets[bucket_index].bounds);
-        backward_count[i] = backward_count[i - 1] + buckets[bucket_index].num_triangles;
-    }
-
-    // Evaluate cost for splitting after each bucket
-    const float inv_node_bounds_area{ 1.f / bounds.Surface() };
-    std::vector<float> split_cost(scan_size, 0.f);
-    for (unsigned int i = 0; i < scan_size; i++)
-    {
-        split_cost[i] = configuration.bbox_intersect_cost +
-                        (forward_count[i] * forward_bounds[i].Surface() +
-                         backward_count[scan_size - 1 - i] * backward_bounds[scan_size - 1 - i].Surface()) *
-                        inv_node_bounds_area;
-    }
-
-    // Find bucket to split that minimizes SAH
-    float min_cost{ split_cost[0] };
-    unsigned int min_cost_split_bucket{ 0 };
-    for (unsigned int i = 0; i != scan_size; i++)
-    {
-        if (split_cost[i] < min_cost)
-        {
-            min_cost = split_cost[i];
-            min_cost_split_bucket = i;
-        }
-    }
+    const std::pair<unsigned int, float> sah_result{ FindBestBucketIndex(buckets, node_bounds) };
 
     // Check if splitting is better than creating a leaf
-    const unsigned int num_triangles{ end - start };
-    const float leaf_cost{ num_triangles * configuration.triangle_intersect_cost };
-    if (min_cost < leaf_cost)
+    const float leaf_cost{ (end - start) * configuration.triangle_intersect_cost };
+    if (sah_result.second < leaf_cost)
     {
         const float split_axis_reciprocal_diagonal{ 1.f /
                                                     (centroids_bounds.PMax()[partition_result.split_axis] -
                                                      centroids_bounds.PMin()[partition_result.split_axis]) };
         const auto mid{ std::partition(triangle_info.begin() + start,
                                        triangle_info.begin() + end,
-                                       [this, min_cost_split_bucket, split_axis_reciprocal_diagonal,
+                                       [this, split_axis_reciprocal_diagonal, &sah_result,
                                            &centroids_bounds, &partition_result](const TriangleInfo& triangle_info)
                                        {
                                            // Compute index of the bucket where the triangle centroid is
@@ -395,7 +348,7 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
                                                bucket_index = configuration.num_buckets - 1;
                                            }
 
-                                           return bucket_index <= min_cost_split_bucket;
+                                           return bucket_index <= sah_result.first;
                                        }) };
         partition_result.mid_index = static_cast<unsigned int>(std::distance(triangle_info.begin(), mid));
 
@@ -440,6 +393,60 @@ const std::vector<BucketInfo> BVH::ComputeBucketsInfo(const std::vector<Triangle
     }
 
     return buckets;
+}
+
+std::pair<unsigned int, float> BVH::FindBestBucketIndex(const std::vector<BucketInfo>& buckets,
+                                                        const BBox& node_bounds) const noexcept
+{
+    // Find best bucket for split
+    const unsigned int scan_size{ configuration.num_buckets - 1 };
+
+    // Forward scan
+    std::vector<BucketInfo> forward_scan(scan_size);
+    forward_scan[0].bounds = buckets[0].bounds;
+    forward_scan[0].num_triangles = buckets[0].num_triangles;
+    for (unsigned int i = 1; i < scan_size; i++)
+    {
+        forward_scan[i].bounds = Union(forward_scan[i - 1].bounds, buckets[i].bounds);
+        forward_scan[i].num_triangles = forward_scan[i - 1].num_triangles + buckets[i].num_triangles;
+    }
+
+    // Backward scan
+    std::vector<BucketInfo> backward_scan(scan_size);
+    backward_scan[0].bounds = buckets[scan_size].bounds;
+    backward_scan[0].num_triangles = buckets[scan_size].num_triangles;
+    for (unsigned int i = 1; i < scan_size; i++)
+    {
+        const unsigned int bucket_index{ scan_size - i };
+        backward_scan[i].bounds = Union(backward_scan[i - 1].bounds, buckets[bucket_index].bounds);
+        backward_scan[i].num_triangles = backward_scan[i - 1].num_triangles + buckets[bucket_index].num_triangles;
+    }
+
+    // Evaluate cost for splitting after each bucket
+    const float inv_node_bounds_area{ 1.f / node_bounds.Surface() };
+    std::vector<float> split_cost(scan_size, 0.f);
+    for (unsigned int i = 0; i < scan_size; i++)
+    {
+        split_cost[i] = configuration.bbox_intersect_cost +
+                        (forward_scan[i].num_triangles *
+                         forward_scan[i].bounds.Surface() +
+                         backward_scan[scan_size - 1 - i].num_triangles *
+                         backward_scan[scan_size - 1 - i].bounds.Surface()) *
+                        inv_node_bounds_area;
+    }
+
+    // Find bucket to split that minimizes SAH
+    std::pair<unsigned int, float> sah_result{ std::make_pair(0, split_cost[0]) };
+    for (unsigned int i = 1; i != scan_size; i++)
+    {
+        if (split_cost[i] < sah_result.second)
+        {
+            sah_result.second = split_cost[i];
+            sah_result.first = i;
+        }
+    }
+
+    return sah_result;
 }
 
 unsigned int BVH::FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept

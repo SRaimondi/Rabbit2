@@ -15,22 +15,33 @@ int main()
     try
     {
         // Load bunny mesh
-        const Mesh bunny_mesh{ Mesh::LoadOBJ("../models/bunny.obj") };
+        const auto mesh_read_start{ std::chrono::high_resolution_clock::now() };
+        // const Mesh bunny_mesh{ Mesh::LoadOBJ("../models/bunny.obj") };
         const Mesh dragon_mesh{ Mesh::LoadPLY("../models/dragon.ply") };
+        const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
+
+        std::cout << "Read mesh in "
+                  << std::chrono::duration_cast<std::chrono::milliseconds>(mesh_read_end - mesh_read_start).count()
+                  << " ms\n";
 
         // Create BVH
+        const auto bvh_start{ std::chrono::high_resolution_clock::now() };
         const BVH bvh{ BVHConfig{ 4, 1.f, 0.125f, 30 }, dragon_mesh.CreateTriangles() };
+        const auto bvh_end{ std::chrono::high_resolution_clock::now() };
+
+        std::cout << "Built BVH in "
+                  << std::chrono::duration_cast<std::chrono::milliseconds>(bvh_end - bvh_start).count() << " ms\n";
 
         constexpr unsigned int WIDTH{ 800 };
         constexpr unsigned int HEIGHT{ 800 };
 
         // Create camera
-        const Camera camera{ Vector3{ -2.f, 2.f, -6.f }, Vector3{}, Vector3{ 0.f, 1.f, 0.f }, 45.f, WIDTH, HEIGHT };
+        const Camera camera{ Vector3{ -2.f, 2.f, 6.f }, Vector3{}, Vector3{ 0.f, 1.f, 0.f }, 45.f, WIDTH, HEIGHT };
 
         // Performance rendering process
         std::vector<unsigned char> raster(WIDTH * HEIGHT * 3, 0);
 
-        constexpr unsigned int NUM_TRIALS{ 1 };
+        constexpr unsigned int NUM_TRIALS{ 30 };
         unsigned int num_hits{ 0 };
 
         const auto start{ std::chrono::high_resolution_clock::now() };
