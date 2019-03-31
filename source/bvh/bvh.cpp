@@ -259,7 +259,7 @@ std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& tri
     {
         // Split triangles
         PartitionResult partition_result;
-        if (PartitionTriangles(triangle_info, start, end, partition_result))
+        if (PartitionTriangles(triangle_info, start, end, node_bounds, partition_result))
         {
             // Recursively build tree
             return std::make_unique<BVHBuildNode>(partition_result.split_axis,
@@ -298,6 +298,7 @@ struct BucketInfo
 
 bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
                              unsigned int start, unsigned int end,
+                             const BBox& bounds,
                              PartitionResult& partition_result) const noexcept
 {
     // Compute bounds of the centroids of the triangles
@@ -342,7 +343,69 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
         backward_count[i] = backward_count[i - 1] + buckets[bucket_index].num_triangles;
     }
 
-    return true;
+    // Evaluate cost for splitting after each bucket
+    const float inv_node_bounds_area{ 1.f / bounds.Surface() };
+    std::vector<float> split_cost(scan_size, 0.f);
+    for (unsigned int i = 0; i < scan_size; i++)
+    {
+        split_cost[i] = configuration.bbox_intersect_cost +
+                        (forward_count[i] * forward_bounds[i].Surface() +
+                         backward_count[scan_size - 1 - i] * backward_bounds[scan_size - 1 - i].Surface()) *
+                        inv_node_bounds_area;
+    }
+
+    // Find bucket to split that minimizes SAH
+    float min_cost{ split_cost[0] };
+    unsigned int min_cost_split_bucket{ 0 };
+    for (unsigned int i = 0; i != scan_size; i++)
+    {
+        if (split_cost[i] < min_cost)
+        {
+            min_cost = split_cost[i];
+            min_cost_split_bucket = i;
+        }
+    }
+
+    // Check if splitting is better than creating a leaf
+    const unsigned int num_triangles{ end - start };
+    const float leaf_cost{ num_triangles * configuration.triangle_intersect_cost };
+    if (min_cost < leaf_cost)
+    {
+        const float split_axis_reciprocal_diagonal{ 1.f /
+                                                    (centroids_bounds.PMax()[partition_result.split_axis] -
+                                                     centroids_bounds.PMin()[partition_result.split_axis]) };
+        const auto mid{ std::partition(triangle_info.begin() + start,
+                                       triangle_info.begin() + end,
+                                       [this, min_cost_split_bucket, split_axis_reciprocal_diagonal,
+                                           &centroids_bounds, &partition_result](const TriangleInfo& triangle_info)
+                                       {
+                                           // Compute index of the bucket where the triangle centroid is
+                                           unsigned int bucket_index{
+                                               static_cast<unsigned int>(
+                                                   configuration.num_buckets *
+                                                   (triangle_info.centroid[partition_result.split_axis] -
+                                                    centroids_bounds.PMin()[partition_result.split_axis]) *
+                                                   split_axis_reciprocal_diagonal
+                                               )
+                                           };
+
+                                           // Check if we are on the end of the bounds and fix index in that case
+                                           if (bucket_index == configuration.num_buckets)
+                                           {
+                                               bucket_index = configuration.num_buckets - 1;
+                                           }
+
+                                           return bucket_index <= min_cost_split_bucket;
+                                       }) };
+        partition_result.mid_index = static_cast<unsigned int>(std::distance(triangle_info.begin(), mid));
+
+        return true;
+    }
+    else
+    {
+        // Create leaf
+        return false;
+    }
 }
 
 const std::vector<BucketInfo> BVH::ComputeBucketsInfo(const std::vector<TriangleInfo>& triangle_info,

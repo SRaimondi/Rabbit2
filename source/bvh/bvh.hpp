@@ -44,12 +44,12 @@ struct BVHConfig
 {
     constexpr explicit BVHConfig(unsigned int max_triangle_in_leaf = 4,
                                  float triangle_intersect_cost = 1.f,
-                                 float bbox_intersect_cost = 0.250f,
+                                 float bbox_intersect_cost = 0.2f,
                                  unsigned int num_buckets = 12) noexcept
         : max_triangles_in_leaf{ std::min(255u, max_triangle_in_leaf) },
           triangle_intersect_cost{ triangle_intersect_cost },
           bbox_intersect_cost{ bbox_intersect_cost },
-          num_buckets{ num_buckets }
+          num_buckets{ std::max(2u, num_buckets) }
     {}
 
     // Maximum number of triangles in leaf node
@@ -100,6 +100,7 @@ private:
     // Partition triangles in current range, the two partitions are going to be [start, mid) and [mid, end)
     bool PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
                             unsigned int start, unsigned int end,
+                            const BBox& bounds,
                             PartitionResult& partition_result) const noexcept;
 
     // Compute buckets information for SAH
