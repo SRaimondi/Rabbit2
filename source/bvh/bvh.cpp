@@ -243,12 +243,15 @@ std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& tri
     // Compute number of triangles for this node
     const unsigned int num_triangles{ end - start };
 
-    // If there is only one triangle left, we create a leaf
-    if (num_triangles == 1)
+    // If there are less triangles than the maximum, create leaf
+    if (num_triangles <= configuration.max_triangles_in_leaf)
     {
         const unsigned int first_triangle_offset{ static_cast<unsigned int>(ordered_triangles.size()) };
-        const unsigned int triangle_index{ triangle_info[start].triangle_index };
-        ordered_triangles.push_back(triangles[triangle_index]);
+        for (unsigned int i = start; i != end; i++)
+        {
+            const unsigned int triangle_index{ triangle_info[i].triangle_index };
+            ordered_triangles.push_back(triangles[triangle_index]);
+        }
 
         return std::make_unique<BVHBuildNode>(first_triangle_offset, num_triangles, node_bounds);
     }
@@ -264,7 +267,6 @@ std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& tri
                                                              total_nodes, ordered_triangles));
     }
 }
-
 
 PartitionResult BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
                                         unsigned int start, unsigned int end) noexcept

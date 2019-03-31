@@ -19,7 +19,7 @@ int main()
         const Mesh dragon_mesh{ Mesh::LoadPLY("../models/dragon.ply") };
 
         // Create BVH
-        const BVH bvh{ BVHConfig{}, dragon_mesh.CreateTriangles() };
+        const BVH bvh{ BVHConfig{ 1 }, dragon_mesh.CreateTriangles() };
 
         Ray test{ Vector3{ 0.f, 0.f, 10.f }, Vector3{ 0.f, 0.f, -1.f }};
 

@@ -71,13 +71,19 @@ public:
         return Diagonal().LargestDimension();
     }
 
+    // Compute offset of a point in the BBox
+    constexpr const Vector3 Offset(const Vector3& v) const noexcept
+    {
+        return (v - PMin()) / Diagonal();
+    }
+
     // Check for intersection between a ray and the BBox
     constexpr bool Intersect(const Ray& ray,
                              const Vector3& inv_dir) const noexcept
     {
         // Compute intersection of ray with the bounds slabs
-        const Vector3 bounds_min{ (bounds[0] - ray.origin) * inv_dir };
-        const Vector3 bounds_max{ (bounds[1] - ray.origin) * inv_dir };
+        const Vector3 bounds_min{ (PMin() - ray.origin) * inv_dir };
+        const Vector3 bounds_max{ (PMax() - ray.origin) * inv_dir };
         const Vector3 slabs_min{ Min(bounds_min, bounds_max) };
         const Vector3 slabs_max{ Max(bounds_min, bounds_max) };
 

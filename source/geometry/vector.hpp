@@ -103,6 +103,11 @@ constexpr const Vector3 operator*(const Vector3& lhs, float rhs) noexcept
     return { lhs.x * rhs, lhs.y * rhs, lhs.z * rhs };
 }
 
+constexpr const Vector3 operator/(const Vector3& lhs, const Vector3& rhs) noexcept
+{
+    return { lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z };
+}
+
 constexpr const Vector3 operator/(const Vector3& lhs, float rhs) noexcept
 {
     const float inv_rhs{ 1.f / rhs };
