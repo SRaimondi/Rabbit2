@@ -21,11 +21,6 @@ int main()
         // Create BVH
         const BVH bvh{ BVHConfig{ 1 }, dragon_mesh.CreateTriangles() };
 
-        Ray test{ Vector3{ 0.f, 0.f, 10.f }, Vector3{ 0.f, 0.f, -1.f }};
-
-        TriangleIntersection isect;
-        bool hit = bvh.Intersect(test, isect);
-
         constexpr unsigned int WIDTH{ 800 };
         constexpr unsigned int HEIGHT{ 800 };
 

@@ -258,13 +258,28 @@ std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& tri
     else
     {
         // Split triangles
-        const PartitionResult partition_result{ PartitionTriangles(triangle_info, start, end) };
-        // Recursively build tree
-        return std::make_unique<BVHBuildNode>(partition_result.split_axis,
-                                              RecursiveBuild(triangle_info, start, partition_result.mid_index,
-                                                             total_nodes, ordered_triangles),
-                                              RecursiveBuild(triangle_info, partition_result.mid_index, end,
-                                                             total_nodes, ordered_triangles));
+        PartitionResult partition_result;
+        if (PartitionTriangles(triangle_info, start, end, partition_result))
+        {
+            // Recursively build tree
+            return std::make_unique<BVHBuildNode>(partition_result.split_axis,
+                                                  RecursiveBuild(triangle_info, start, partition_result.mid_index,
+                                                                 total_nodes, ordered_triangles),
+                                                  RecursiveBuild(triangle_info, partition_result.mid_index, end,
+                                                                 total_nodes, ordered_triangles));
+        }
+        else
+        {
+            // Create leaf node
+            const unsigned int first_triangle_offset{ static_cast<unsigned int>(ordered_triangles.size()) };
+            for (unsigned int i = start; i != end; i++)
+            {
+                const unsigned int triangle_index{ triangle_info[i].triangle_index };
+                ordered_triangles.push_back(triangles[triangle_index]);
+            }
+
+            return std::make_unique<BVHBuildNode>(first_triangle_offset, num_triangles, node_bounds);
+        }
     }
 }
 
@@ -281,8 +296,9 @@ struct BucketInfo
     BBox bounds;
 };
 
-PartitionResult BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
-                                        unsigned int start, unsigned int end) const noexcept
+bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
+                             unsigned int start, unsigned int end,
+                             PartitionResult& partition_result) const noexcept
 {
     // Compute bounds of the centroids of the triangles
     BBox centroids_bounds;
@@ -292,18 +308,64 @@ PartitionResult BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info
     }
 
     // Split axis is selected as the one with the largest extent
-    const unsigned int split_axis{ centroids_bounds.LargestDimension() };
+    partition_result.split_axis = centroids_bounds.LargestDimension();
 
-    // Initialise buckets for SAH computation
+    // Compute buckets for SAH
+    const std::vector<BucketInfo> buckets{ ComputeBucketsInfo(triangle_info,
+                                                              start, end,
+                                                              centroids_bounds,
+                                                              partition_result.split_axis) };
+
+    // Find best bucket for split
+    const unsigned int scan_size{ configuration.num_buckets - 1 };
+    std::vector<BBox> forward_bounds(scan_size);
+    std::vector<BBox> backward_bounds(scan_size);
+    std::vector<unsigned int> forward_count(scan_size, 0);
+    std::vector<unsigned int> backward_count(scan_size, 0);
+
+    // Forward scan
+    forward_bounds[0] = buckets[0].bounds;
+    forward_count[0] = buckets[0].num_triangles;
+    for (unsigned int i = 1; i < scan_size; i++)
+    {
+        forward_bounds[i] = Union(forward_bounds[i - 1], buckets[i].bounds);
+        forward_count[i] = forward_count[i - 1] + buckets[i].num_triangles;
+    }
+
+    // Backward scan
+    backward_bounds[0] = buckets[scan_size].bounds;
+    backward_count[0] = buckets[scan_size].num_triangles;
+    for (unsigned int i = 1; i < scan_size; i++)
+    {
+        const unsigned int bucket_index{ scan_size - i };
+        backward_bounds[i] = Union(backward_bounds[i - 1], buckets[bucket_index].bounds);
+        backward_count[i] = backward_count[i - 1] + buckets[bucket_index].num_triangles;
+    }
+
+    return true;
+}
+
+const std::vector<BucketInfo> BVH::ComputeBucketsInfo(const std::vector<TriangleInfo>& triangle_info,
+                                                      unsigned int start, unsigned int end,
+                                                      const BBox& centroids_bounds,
+                                                      unsigned int split_axis) const noexcept
+{
     std::vector<BucketInfo> buckets(configuration.num_buckets);
-    const Vector3 centroids_bounds_reciprocal_diagonal{ Reciprocal(centroids_bounds.Diagonal()) };
+    const float split_axis_reciprocal_diagonal{ 1.f /
+                                                (centroids_bounds.PMax()[split_axis] -
+                                                 centroids_bounds.PMin()[split_axis]) };
     for (unsigned int i = start; i != end; i++)
     {
         // Compute index of the bucket where the triangle centroid is
         unsigned int bucket_index{
-            static_cast<unsigned int>(configuration.num_buckets *
-                                      (triangle_info[i].centroid[split_axis] - centroids_bounds.PMin()[split_axis]) *
-                                      centroids_bounds_reciprocal_diagonal[split_axis]) };
+            static_cast<unsigned int>(
+                configuration.num_buckets *
+                (triangle_info[i].centroid[split_axis] - centroids_bounds.PMin()[split_axis]) *
+                split_axis_reciprocal_diagonal
+            )
+        };
+
+        // Check if we are on the end of the bounds and fix index in that case
         if (bucket_index == configuration.num_buckets)
         {
             bucket_index = configuration.num_buckets - 1;
@@ -314,7 +376,7 @@ PartitionResult BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info
         buckets[bucket_index].bounds = Union(buckets[bucket_index].bounds, triangle_info[i].bounds);
     }
 
-    return { split_axis, (start + end) / 2 };
+    return buckets;
 }
 
 unsigned int BVH::FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept

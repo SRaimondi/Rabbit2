@@ -44,7 +44,7 @@ struct BVHConfig
 {
     constexpr explicit BVHConfig(unsigned int max_triangle_in_leaf = 4,
                                  float triangle_intersect_cost = 1.f,
-                                 float bbox_intersect_cost = 0.125f,
+                                 float bbox_intersect_cost = 0.250f,
                                  unsigned int num_buckets = 12) noexcept
         : max_triangles_in_leaf{ std::min(255u, max_triangle_in_leaf) },
           triangle_intersect_cost{ triangle_intersect_cost },
@@ -65,18 +65,19 @@ struct BVHConfig
 // Output of the PartitionTriangles function
 struct PartitionResult
 {
-    constexpr PartitionResult(unsigned int axis, unsigned int mid) noexcept
-        : split_axis{ axis }, mid_index{ mid }
+    PartitionResult() noexcept
+        : split_axis{ 3 }, mid_index{ 0 }
     {}
 
     // Split axis
-    const unsigned int split_axis;
+    unsigned int split_axis;
     // Index of the midpoint for the two partitions
-    const unsigned int mid_index;
+    unsigned int mid_index;
 };
 
 // Forward declare build node struct
 struct BVHBuildNode;
+struct BucketInfo;
 
 class BVH
 {
@@ -97,8 +98,15 @@ private:
                                                  std::vector<Triangle>& ordered_triangles) noexcept;
 
     // Partition triangles in current range, the two partitions are going to be [start, mid) and [mid, end)
-    PartitionResult PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
-                                       unsigned int start, unsigned int end) const noexcept;
+    bool PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
+                            unsigned int start, unsigned int end,
+                            PartitionResult& partition_result) const noexcept;
+
+    // Compute buckets information for SAH
+    const std::vector<BucketInfo> ComputeBucketsInfo(const std::vector<TriangleInfo>& triangle_info,
+                                                     unsigned int start, unsigned int end,
+                                                     const BBox& centroids_bounds,
+                                                     unsigned int split_axis) const noexcept;
 
     // Flatten out tree
     unsigned int FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept;
