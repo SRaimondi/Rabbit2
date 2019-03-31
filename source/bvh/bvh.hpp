@@ -97,8 +97,8 @@ private:
                                                  std::vector<Triangle>& ordered_triangles) noexcept;
 
     // Partition triangles in current range, the two partitions are going to be [start, mid) and [mid, end)
-    static PartitionResult PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
-                                              unsigned int start, unsigned int end) noexcept;
+    PartitionResult PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
+                                       unsigned int start, unsigned int end) const noexcept;
 
     // Flatten out tree
     unsigned int FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept;
