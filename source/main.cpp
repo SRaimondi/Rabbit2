@@ -33,7 +33,7 @@ int main()
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
-        const BVH bvh{ BVHConfig{ 4, 1.f, 0.125f, 30 }, scene_triangles };
+        const BVH bvh{ BVHConfig{ 4, 1.f, 0.125f, 30 }, std::move(scene_triangles) };
         const auto bvh_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Built BVH in "
@@ -61,7 +61,7 @@ int main()
                 for (unsigned int column = 0; column != WIDTH; column++)
                 {
                     // Generate ray
-                    Ray ray{ camera.GenerateRay(column, row, 0.5f, 0.5f) };
+                    Ray ray{ camera.GenerateRay(column, row, Vector2{ 0.5f }) };
 
                     // Intersect Ray with BVH
                     TriangleIntersection intersection;

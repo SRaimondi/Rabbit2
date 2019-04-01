@@ -24,11 +24,11 @@ Camera::Camera(const Geometry::Vector3& eye, const Geometry::Vector3& at, const 
 }
 
 const Geometry::Ray Camera::GenerateRay(unsigned int pixel_x, unsigned int pixel_y,
-                                        float offset_x, float offset_y) const noexcept
+                                        const Geometry::Vector2& sample_offset) const noexcept
 {
     // Compute pixel coordinates on view plane
-    const float viewplane_x{ left + (right - left) * (pixel_x + offset_x) * inv_width };
-    const float viewplane_y{ bottom + (top - bottom) * (pixel_y + offset_y) * inv_height };
+    const float viewplane_x{ left + (right - left) * (pixel_x + sample_offset.x) * inv_width };
+    const float viewplane_y{ bottom + (top - bottom) * (pixel_y + sample_offset.y) * inv_height };
 
     return { eye, Geometry::Normalize(viewplane_x * u + viewplane_y * v - w) };
 }

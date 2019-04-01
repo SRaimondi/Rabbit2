@@ -15,7 +15,7 @@ public:
 
     // Generate ray at given coordinates and offset
     const Geometry::Ray GenerateRay(unsigned int pixel_x, unsigned int pixel_y,
-                                    float offset_x, float offset_y) const noexcept;
+                                    const Geometry::Vector2& sample_offset) const noexcept;
 
 private:
     // Eye position
