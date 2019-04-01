@@ -16,17 +16,24 @@ int main()
     {
         // Load bunny mesh
         const auto mesh_read_start{ std::chrono::high_resolution_clock::now() };
-        // const Mesh bunny_mesh{ Mesh::LoadOBJ("../models/bunny.obj") };
-        const Mesh dragon_mesh{ Mesh::LoadPLY("../models/dragon.ply") };
+        const Mesh dragon1_mesh{ Mesh::LoadPLY("../models/dragon1.ply") };
+        const Mesh dragon2_mesh{ Mesh::LoadPLY("../models/dragon2.ply") };
         const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Read mesh in "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(mesh_read_end - mesh_read_start).count()
                   << " ms\n";
 
+        std::vector<Triangle> dragon1_triangles{ dragon1_mesh.CreateTriangles() };
+        std::vector<Triangle> dragon2_triangles{ dragon2_mesh.CreateTriangles() };
+
+        std::vector<Triangle> scene_triangles;
+        std::move(dragon1_triangles.begin(), dragon1_triangles.end(), std::back_inserter(scene_triangles));
+        std::move(dragon2_triangles.begin(), dragon2_triangles.end(), std::back_inserter(scene_triangles));
+
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
-        const BVH bvh{ BVHConfig{ 4, 1.f, 0.125f, 30 }, dragon_mesh.CreateTriangles() };
+        const BVH bvh{ BVHConfig{ 4, 1.f, 0.125f, 30 }, scene_triangles };
         const auto bvh_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Built BVH in "
@@ -36,12 +43,12 @@ int main()
         constexpr unsigned int HEIGHT{ 800 };
 
         // Create camera
-        const Camera camera{ Vector3{ -2.f, 2.f, 6.f }, Vector3{}, Vector3{ 0.f, 1.f, 0.f }, 45.f, WIDTH, HEIGHT };
+        const Camera camera{ Vector3{ -6.f, 1.f, 5.f }, Vector3{}, Vector3{ 0.f, 1.f, 0.f }, 45.f, WIDTH, HEIGHT };
 
         // Performance rendering process
         std::vector<unsigned char> raster(WIDTH * HEIGHT * 3, 0);
 
-        constexpr unsigned int NUM_TRIALS{ 30 };
+        constexpr unsigned int NUM_TRIALS{ 1 };
         unsigned int num_hits{ 0 };
 
         const auto start{ std::chrono::high_resolution_clock::now() };
@@ -72,7 +79,7 @@ int main()
         const auto end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Found " << num_hits << " hits\n";
-        std::cout << "Average time: "
+        std::cout << "Average rendering time: "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / NUM_TRIALS << " ms\n";
 
         // Write image

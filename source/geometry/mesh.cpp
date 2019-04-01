@@ -44,11 +44,21 @@ Mesh Mesh::LoadOBJ(const std::string& filename)
         throw std::runtime_error(error_string.str());
     }
 
-    // Storage for the loaded data
-    static_assert(std::is_same<float, real_t>::value, "Tinyobj real_t is not float");
+    // Store vertices
     std::vector<Vector3> vertices(attrib.vertices.size() / 3);
-    std::memcpy(vertices.data(), attrib.vertices.data(), attrib.vertices.size() * sizeof(float));
+    if (std::is_same<float, real_t>::value)
+    {
+        std::memcpy(vertices.data(), attrib.vertices.data(), attrib.vertices.size() * sizeof(float));
+    }
+    else
+    {
+        for (size_t v = 0; v != vertices.size(); v++)
+        {
+            vertices[v] = Vector3{ attrib.vertices[3 * v], attrib.vertices[3 * v + 1], attrib.vertices[3 * v + 2] };
+        }
+    }
 
+    // Store indices
     std::vector<unsigned int> indices;
 
     // Add all triangles from all shapes to a single list

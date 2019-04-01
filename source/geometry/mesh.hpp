@@ -145,7 +145,7 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
         return false;
     }
 
-    // Compute scaled hit distance to triangle and test against ray  range
+    // Compute scaled hit distance to triangle and test against ray range
     v0t.z *= sz;
     v1t.z *= sz;
     v2t.z *= sz;
@@ -159,7 +159,7 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
         return false;
     }
 
-    // Compute barycentric coordinates and  value for triangle intersection
+    // Compute barycentric coordinates and value for triangle intersection
     const float inv_det{ 1.f / det };
     intersection.u = e0 * inv_det;
     intersection.v = e1 * inv_det;
@@ -247,9 +247,6 @@ inline void Triangle::ComputeIntersectionGeometry(const Ray& ray,
         intersection.u * mesh.NormalAt(mesh.FaceIndexAt(first_index)) +
         intersection.v * mesh.NormalAt(mesh.FaceIndexAt(first_index + 1)) +
         intersection.w * mesh.NormalAt(mesh.FaceIndexAt(first_index + 2)));
-//
-//    intersection.normal = Normalize(Cross(mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - mesh.VertexAt(mesh.FaceIndexAt(first_index)),
-//                                          mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - mesh.VertexAt(mesh.FaceIndexAt(first_index))));
 }
 
 } // Geometry namespace

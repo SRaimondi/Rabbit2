@@ -82,6 +82,8 @@ struct BucketInfo;
 class BVH
 {
 public:
+    BVH(const BVHConfig& config, const std::vector<Triangle>& tr);
+
     BVH(const BVHConfig& config, std::vector<Triangle>&& tr);
 
     // Intersect Ray with BVH
@@ -91,6 +93,9 @@ public:
     bool IntersectTest(const Ray& ray) const noexcept;
 
 private:
+    // Build tree
+    void Build();
+
     // Recursively build a subpart of the tree for the given range of triangles start to end (not included)
     std::unique_ptr<BVHBuildNode> RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
                                                  unsigned int start, unsigned int end,

@@ -34,44 +34,16 @@ struct BVHBuildNode
     BBox bounds;
 };
 
+BVH::BVH(const BVHConfig& config, const std::vector<Triangle>& tr)
+    : configuration{ config }, triangles{ tr }
+{
+    Build();
+}
+
 BVH::BVH(const BVHConfig& config, std::vector<Triangle>&& tr)
     : configuration{ config }, triangles{ std::move(tr) }
 {
-    // Check that the list of triangles is not empty
-    if (triangles.empty())
-    {
-        std::cout << "Triangle list given to BVH is empty\n";
-        return;
-    }
-
-    // Create list with information for each triangle
-    std::vector<TriangleInfo> triangle_info;
-    triangle_info.reserve(triangles.size());
-    for (unsigned int i = 0; i != triangles.size(); i++)
-    {
-        triangle_info.emplace_back(i, triangles[i].Bounds());
-    }
-
-    // The building process has the freedom of swapping the triangles around such that triangles in the same leaf
-    // are also close in memory
-    std::vector<Triangle> ordered_triangles;
-    ordered_triangles.reserve(triangles.size());
-
-    // Start building
-    unsigned int total_nodes{ 0 };
-    const std::unique_ptr<BVHBuildNode> root{ RecursiveBuild(triangle_info,
-                                                             0, static_cast<unsigned int>(triangle_info.size()),
-                                                             total_nodes,
-                                                             ordered_triangles) };
-
-    // Move the content of the ordered_triangles in the local triangles
-    triangles = std::move(ordered_triangles);
-
-    // Bring tree into flat representation
-    unsigned int offset{ 0 };
-    flat_tree_nodes.resize(total_nodes);
-    FlattenTree(root, offset);
-    assert(offset == total_nodes);
+    Build();
 }
 
 bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
@@ -83,7 +55,6 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
     }
 #endif
 
-    bool hit{ false };
     // Compute values needed for traversal
     const Vector3 inv_dir{ 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z };
     const std::array<bool, 3> dir_is_neg{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
@@ -106,8 +77,7 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
                     const unsigned int triangle_index{ current_node.triangle_offset + i };
                     if (triangles[triangle_index].Intersect(ray, intersection))
                     {
-                        // Set hit and update index
-                        hit = true;
+                        // Update index
                         intersection.triangle_index = triangle_index;
                     }
                 }
@@ -144,13 +114,16 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
         }
     }
 
-    // If we did hit something, fill the intersection
-    if (hit)
+    // If we did hit something, fill the intersection and return true
+    if (intersection.IsValid())
     {
         triangles[intersection.triangle_index].ComputeIntersectionGeometry(ray, intersection);
+        return true;
     }
-
-    return hit;
+    else
+    {
+        return false;
+    }
 }
 
 bool BVH::IntersectTest(const Ray& ray) const noexcept
@@ -223,6 +196,44 @@ bool BVH::IntersectTest(const Ray& ray) const noexcept
 
     // If we get here in this case, we did not hit anything
     return false;
+}
+
+void BVH::Build()
+{
+    // Check that the list of triangles is not empty
+    if (triangles.empty())
+    {
+        throw std::runtime_error("Building empty BVH\n");
+    }
+
+    // Create list with information for each triangle
+    std::vector<TriangleInfo> triangle_info;
+    triangle_info.reserve(triangles.size());
+    for (unsigned int i = 0; i != triangles.size(); i++)
+    {
+        triangle_info.emplace_back(i, triangles[i].Bounds());
+    }
+
+    // The building process has the freedom of swapping the triangles around such that triangles in the same leaf
+    // are also close in memory
+    std::vector<Triangle> ordered_triangles;
+    ordered_triangles.reserve(triangles.size());
+
+    // Start building
+    unsigned int total_nodes{ 0 };
+    const std::unique_ptr<BVHBuildNode> root{ RecursiveBuild(triangle_info,
+                                                             0, static_cast<unsigned int>(triangle_info.size()),
+                                                             total_nodes,
+                                                             ordered_triangles) };
+
+    // Move the content of the ordered_triangles in the local triangles
+    triangles = std::move(ordered_triangles);
+
+    // Bring tree into flat representation
+    unsigned int offset{ 0 };
+    flat_tree_nodes.resize(total_nodes);
+    FlattenTree(root, offset);
+    assert(offset == total_nodes);
 }
 
 std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
@@ -308,25 +319,44 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
         centroids_bounds = Union(centroids_bounds, triangle_info[i].centroid);
     }
 
-    // Split axis is selected as the one with the largest extent
-    partition_result.split_axis = centroids_bounds.LargestDimension();
+    // Loop over the 3 axis and compute SAH
+    std::array<std::pair<unsigned int, float>, 3> sah_axis;
+    const Vector3 centroids_bounds_diagonal{ centroids_bounds.Diagonal() };
+    for (unsigned int split_axis = 0; split_axis != 3; split_axis++)
+    {
+        if (centroids_bounds_diagonal[split_axis] != 0.f)
+        {
+            // Compute buckets for SAH unless bounds on that dimension are degenerate
+            const std::vector<BucketInfo> buckets{ ComputeBucketsInfo(triangle_info,
+                                                                      start, end,
+                                                                      centroids_bounds,
+                                                                      split_axis) };
 
-    // Compute buckets for SAH
-    const std::vector<BucketInfo> buckets{ ComputeBucketsInfo(triangle_info,
-                                                              start, end,
-                                                              centroids_bounds,
-                                                              partition_result.split_axis) };
+            sah_axis[split_axis] = FindBestBucketIndex(buckets, node_bounds);
+        }
+        else
+        {
+            sah_axis[split_axis].second = std::numeric_limits<float>::max();
+        }
+    }
 
-    // Find best bucket for split
-    const std::pair<unsigned int, float> sah_result{ FindBestBucketIndex(buckets, node_bounds) };
+    // Find best split axis
+    std::pair<unsigned int, float> sah_result{ sah_axis[0] };
+    partition_result.split_axis = 0;
+    for (unsigned int i = 1; i != 3; i++)
+    {
+        if (sah_axis[i].second < sah_result.second)
+        {
+            sah_result = sah_axis[i];
+            partition_result.split_axis = i;
+        }
+    }
 
     // Check if splitting is better than creating a leaf
     const float leaf_cost{ (end - start) * configuration.triangle_intersect_cost };
     if (sah_result.second < leaf_cost)
     {
-        const float split_axis_reciprocal_diagonal{ 1.f /
-                                                    (centroids_bounds.PMax()[partition_result.split_axis] -
-                                                     centroids_bounds.PMin()[partition_result.split_axis]) };
+        const float split_axis_reciprocal_diagonal{ 1.f / centroids_bounds_diagonal[partition_result.split_axis] };
         const auto mid{ std::partition(triangle_info.begin() + start,
                                        triangle_info.begin() + end,
                                        [this, split_axis_reciprocal_diagonal, &sah_result,

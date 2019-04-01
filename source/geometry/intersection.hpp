@@ -12,6 +12,19 @@ namespace Geometry
 
 struct TriangleIntersection
 {
+    // Index for triangle to indicate no hit
+    static constexpr uint32_t INVALID_TRIANGLE_IDX{ std::numeric_limits<uint32_t>::max() };
+
+    TriangleIntersection() noexcept
+        : u{ 0.f }, v{ 0.f }, w{ 0.f }, triangle_index{ INVALID_TRIANGLE_IDX }
+    {}
+
+    // Check if intersection represents and hit
+    bool IsValid() const noexcept
+    {
+        return triangle_index != INVALID_TRIANGLE_IDX;
+    }
+
     // Hit point
     Vector3 hit_point;
     // Barycentric coordinate for vertex v0
@@ -21,7 +34,7 @@ struct TriangleIntersection
     // Barycentric coordinate for vertex v1 and v2
     float v, w;
     // Index of the triangle that generated the intersection
-    unsigned int triangle_index;
+    uint32_t triangle_index;
 };
 
 } // Geometry namespace
