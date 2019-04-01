@@ -10,16 +10,16 @@
 class Camera
 {
 public:
-    Camera(const Geometry::Vector3& eye, const Geometry::Vector3& at, const Geometry::Vector3& up,
+    Camera(const Geometry::Point3& eye, const Geometry::Point3& at, const Geometry::Vector3& up,
            float fov, unsigned int image_width, unsigned int image_height) noexcept;
 
     // Generate ray at given coordinates and offset
     const Geometry::Ray GenerateRay(unsigned int pixel_x, unsigned int pixel_y,
-                                    const Geometry::Vector2& sample_offset) const noexcept;
+                                    const Geometry::Point2& sample_offset) const noexcept;
 
 private:
     // Eye position
-    const Geometry::Vector3 eye;
+    const Geometry::Point3 eye;
     // Local base
     Geometry::Vector3 u, v, w;
     // View volume

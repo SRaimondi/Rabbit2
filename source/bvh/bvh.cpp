@@ -454,7 +454,7 @@ std::pair<unsigned int, float> BVH::FindBestBucketIndex(const std::vector<Bucket
 
     // Evaluate cost for splitting after each bucket
     const float inv_node_bounds_area{ 1.f / node_bounds.Surface() };
-    std::vector<float> split_cost(scan_size, 0.f);
+    std::vector<float> split_cost(scan_size);
     for (unsigned int i = 0; i < scan_size; i++)
     {
         split_cost[i] = configuration.bbox_intersect_cost +

@@ -1,9 +1,9 @@
 //
-// Created by Simon on 2019-03-26.
+// Created by Simon on 2019-04-01.
 //
 
-#ifndef RABBIT2_VECTOR_HPP
-#define RABBIT2_VECTOR_HPP
+#ifndef RABBIT2_GEOMETRY_HPP
+#define RABBIT2_GEOMETRY_HPP
 
 #include <cmath>
 #include <algorithm>
@@ -11,6 +11,72 @@
 
 namespace Geometry
 {
+
+struct Point3
+{
+    constexpr Point3() noexcept
+        : x{ 0.f }, y{ 0.f }, z{ 0.f }
+    {}
+
+    constexpr explicit Point3(float v) noexcept
+        : x{ v }, y{ v }, z{ v }
+    {}
+
+    constexpr Point3(float x, float y, float z)
+        : x{ x }, y{ y }, z{ z }
+    {}
+
+    constexpr float operator[](unsigned int i) const noexcept
+    {
+        assert(i < 3);
+        if (i == 0)
+        {
+            return x;
+        }
+        else if (i == 1)
+        {
+            return y;
+        }
+        else
+        {
+            return z;
+        }
+    }
+
+    // Point elements
+    float x, y, z;
+};
+
+struct Point2
+{
+    constexpr Point2() noexcept
+        : x{ 0.f }, y{ 0.f }
+    {}
+
+    constexpr explicit Point2(float v) noexcept
+        : x{ v }, y{ v }
+    {}
+
+    constexpr Point2(float x, float y)
+        : x{ x }, y{ y }
+    {}
+
+    constexpr float operator[](unsigned int i) const noexcept
+    {
+        assert(i < 2);
+        if (i == 0)
+        {
+            return x;
+        }
+        else
+        {
+            return y;
+        }
+    }
+
+    // Point elements
+    float x, y;
+};
 
 struct Vector3
 {
@@ -71,13 +137,73 @@ struct Vector3
     float x, y, z;
 };
 
+struct Vector2
+{
+    constexpr Vector2() noexcept
+        : x{ 0.f }, y{ 0.f }
+    {}
+
+    constexpr explicit Vector2(float v) noexcept
+        : x{ v }, y{ v }
+    {}
+
+    constexpr Vector2(float x, float y) noexcept
+        : x{ x }, y{ y }
+    {}
+
+    constexpr float operator[](unsigned int i) const noexcept
+    {
+        assert(i < 2);
+        if (i == 0)
+        {
+            return x;
+        }
+        else
+        {
+            return y;
+        }
+    }
+
+    Vector2& operator+=(const Vector2& v) noexcept
+    {
+        x += v.x;
+        y += v.y;
+        return *this;
+    }
+
+    constexpr unsigned int LargestDimension() const noexcept
+    {
+        if (x > y)
+        {
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+
+    // Vector components
+    float x, y;
+};
+
 // Math operations
 constexpr const Vector3 operator+(const Vector3& lhs, const Vector3& rhs) noexcept
 {
     return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z };
 }
 
+constexpr const Point3 operator+(const Point3& lhs, const Vector3& rhs) noexcept
+{
+    return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z };
+}
+
 constexpr const Vector3 operator-(const Vector3& lhs, const Vector3& rhs) noexcept
+{
+    return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z };
+}
+
+constexpr const Vector3 operator-(const Point3& lhs, const Point3& rhs) noexcept
 {
     return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z };
 }
@@ -148,6 +274,11 @@ inline void NormalizeInPlace(Vector3& v) noexcept
     v.z *= inv_norm;
 }
 
+constexpr const Point3 Max(const Point3& lhs, const Point3& rhs) noexcept
+{
+    return { std::max(lhs.x, rhs.x), std::max(lhs.y, rhs.y), std::max(lhs.z, rhs.z) };
+}
+
 constexpr const Vector3 Max(const Vector3& lhs, const Vector3& rhs) noexcept
 {
     return { std::max(lhs.x, rhs.x), std::max(lhs.y, rhs.y), std::max(lhs.z, rhs.z) };
@@ -156,6 +287,11 @@ constexpr const Vector3 Max(const Vector3& lhs, const Vector3& rhs) noexcept
 constexpr float HorizontalMax(const Vector3& v) noexcept
 {
     return std::max(v.x, std::max(v.y, v.z));
+}
+
+constexpr const Point3 Min(const Point3& lhs, const Point3& rhs) noexcept
+{
+    return { std::min(lhs.x, rhs.x), std::min(lhs.y, rhs.y), std::min(lhs.z, rhs.z) };
 }
 
 constexpr const Vector3 Min(const Vector3& lhs, const Vector3& rhs) noexcept
@@ -178,63 +314,17 @@ constexpr const Vector3 Permute(const Vector3& v, unsigned int kx, unsigned int 
     return { v[kx], v[ky], v[kz] };
 }
 
+inline float Distance(const Point3& from, const Point3& to) noexcept
+{
+    return Norm(to - from);
+}
+
 // Reciprocal 1 / v
 constexpr const Vector3 Reciprocal(const Vector3& v) noexcept
 {
     return { 1.f / v.x, 1.f / v.y, 1.f / v.z };
 }
 
-struct Vector2
-{
-    constexpr Vector2() noexcept
-        : x{ 0.f }, y{ 0.f }
-    {}
-
-    constexpr explicit Vector2(float v) noexcept
-        : x{ v }, y{ v }
-    {}
-
-    constexpr Vector2(float x, float y) noexcept
-        : x{ x }, y{ y }
-    {}
-
-    constexpr float operator[](unsigned int i) const noexcept
-    {
-        assert(i < 2);
-        if (i == 0)
-        {
-            return x;
-        }
-        else
-        {
-            return y;
-        }
-    }
-
-    Vector2& operator+=(const Vector2& v) noexcept
-    {
-        x += v.x;
-        y += v.y;
-        return *this;
-    }
-
-    constexpr unsigned int LargestDimension() const noexcept
-    {
-        if (x > y)
-        {
-            return 0;
-        }
-        else
-        {
-            return 1;
-        }
-    }
-
-    // Vector components
-    float x, y;
-};
-
-// Math operations
 constexpr const Vector2 operator+(const Vector2& lhs, const Vector2& rhs) noexcept
 {
     return { lhs.x + rhs.x, lhs.y + rhs.y };
@@ -341,4 +431,4 @@ constexpr const Vector2 Reciprocal(const Vector2& v) noexcept
 
 } // Geometry namespace
 
-#endif //RABBIT2_VECTOR_HPP
+#endif //RABBIT2_GEOMETRY_HPP

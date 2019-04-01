@@ -16,30 +16,30 @@ class BBox
 {
 public:
     constexpr BBox() noexcept
-        : bounds{ Vector3{ std::numeric_limits<float>::max() },
-                  Vector3{ std::numeric_limits<float>::lowest() }}
+        : bounds{ Point3{ std::numeric_limits<float>::max() },
+                  Point3{ std::numeric_limits<float>::lowest() }}
     {}
 
-    constexpr BBox(const Vector3& min, const Vector3& max) noexcept
+    constexpr BBox(const Point3& min, const Point3& max) noexcept
         : bounds{ min, max }
     {}
 
-    constexpr BBox(const Vector3& v0, const Vector3& v1, const Vector3& v2) noexcept
+    constexpr BBox(const Point3& v0, const Point3& v1, const Point3& v2) noexcept
         : bounds{ Min(v0, Min(v1, v2)), Max(v0, Max(v1, v2)) }
     {}
 
-    constexpr const Vector3& operator[](unsigned int i) const noexcept
+    constexpr const Point3& operator[](unsigned int i) const noexcept
     {
         assert(i < 2);
         return bounds[i];
     }
 
-    constexpr const Vector3& PMin() const noexcept
+    constexpr const Point3& PMin() const noexcept
     {
         return bounds[0];
     }
 
-    constexpr const Vector3& PMax() const noexcept
+    constexpr const Point3& PMax() const noexcept
     {
         return bounds[1];
     }
@@ -61,9 +61,9 @@ public:
         return diagonal.x * diagonal.y * diagonal.z;
     }
 
-    constexpr const Vector3 Centroid() const noexcept
+    constexpr const Point3 Centroid() const noexcept
     {
-        return 0.5f * (PMin() + PMax());
+        return PMin() + 0.5f * Diagonal();
     }
 
     constexpr unsigned int LargestDimension() const noexcept
@@ -72,9 +72,9 @@ public:
     }
 
     // Compute offset of a point in the BBox
-    constexpr const Vector3 Offset(const Vector3& v) const noexcept
+    constexpr const Vector3 Offset(const Point3& p) const noexcept
     {
-        return (v - PMin()) / Diagonal();
+        return (p - PMin()) / Diagonal();
     }
 
     // Check for intersection between a ray and the BBox
@@ -97,12 +97,12 @@ public:
 
 private:
     // Bounds
-    Vector3 bounds[2];
+    Point3 bounds[2];
 };
 
-constexpr const BBox Union(const BBox& bbox, const Vector3& v) noexcept
+constexpr const BBox Union(const BBox& bbox, const Point3& p) noexcept
 {
-    return { Min(bbox.PMin(), v), Max(bbox.PMax(), v) };
+    return { Min(bbox.PMin(), p), Max(bbox.PMax(), p) };
 }
 
 constexpr const BBox Union(const BBox& bbox1, const BBox& bbox2) noexcept

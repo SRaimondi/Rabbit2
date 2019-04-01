@@ -15,7 +15,6 @@ add_executable(Rabbit2
         external/tinyply.hpp
         source/geometry/mesh.cpp
         source/geometry/mesh.hpp
-        source/geometry/vector.hpp
         external/tinyobj.hpp
         source/geometry/bbox.hpp
         source/bvh/bvh.cpp
@@ -25,7 +24,8 @@ add_executable(Rabbit2
         external/stb_image_write.hpp
         source/camera/camera.cpp
         source/camera/camera.hpp
-        source/geometry/common.hpp)
+        source/geometry/common.hpp
+        source/geometry/geometry.hpp)
 
 # find_package(OpenCL)
 

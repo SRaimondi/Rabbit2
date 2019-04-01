@@ -5,7 +5,7 @@
 #ifndef RABBIT2_INTERSECTION_HPP
 #define RABBIT2_INTERSECTION_HPP
 
-#include "vector.hpp"
+#include "geometry.hpp"
 
 namespace Geometry
 {
@@ -26,7 +26,7 @@ struct TriangleIntersection
     }
 
     // Hit point
-    Vector3 hit_point;
+    Point3 hit_point;
     // Barycentric coordinate for vertex v0
     float u;
     // Normal at hit point
@@ -34,7 +34,7 @@ struct TriangleIntersection
     // Barycentric coordinate for vertex v1
     float v;
     // UV coordinates
-    Vector2 uv;
+    Point2 uv;
     // Barycentric coordinate for vertex v2
     float w;
     // Index of the triangle that generated the intersection

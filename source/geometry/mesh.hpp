@@ -19,9 +19,9 @@ class Triangle;
 class Mesh
 {
 public:
-    Mesh(std::vector<Vector3>&& v, std::vector<Vector3>&& n, std::vector<unsigned int>&& i);
+    Mesh(std::vector<Point3>&& v, std::vector<Vector3>&& n, std::vector<unsigned int>&& i);
 
-    const Vector3& VertexAt(unsigned int vertex_index) const
+    const Point3& VertexAt(unsigned int vertex_index) const
     {
         assert(vertex_index < vertices.size());
         return vertices[vertex_index];
@@ -52,11 +52,11 @@ private:
     friend std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
 
     // Compute smooth normals for a set of vertices and indices
-    static std::vector<Vector3> SmoothNormals(const std::vector<Vector3>& vertices,
+    static std::vector<Vector3> SmoothNormals(const std::vector<Point3>& vertices,
                                               const std::vector<unsigned int>& indices);
 
     // Mesh representation
-    std::vector<Vector3> vertices;
+    std::vector<Point3> vertices;
     std::vector<Vector3> normals;
     std::vector<unsigned int> indices;
 };
@@ -93,7 +93,6 @@ private:
     const Mesh& mesh;
 };
 
-// From "Fast􏰁 Minimum Storage Ray􏰂Triangle Intersection" - Tomas Mö􏰃ller
 inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
 {
     // Translate vertices based on ray origin

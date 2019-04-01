@@ -16,34 +16,38 @@ int main()
     {
         // Load bunny mesh
         const auto mesh_read_start{ std::chrono::high_resolution_clock::now() };
-        const Mesh dragon1_mesh{ Mesh::LoadPLY("../models/dragon1.ply") };
-        const Mesh dragon2_mesh{ Mesh::LoadPLY("../models/dragon2.ply") };
+        //const Mesh dragon1_mesh{ Mesh::LoadPLY("../models/dragon1.ply") };
+        //const Mesh dragon2_mesh{ Mesh::LoadPLY("../models/dragon2.ply") };
+        const Mesh statue_mesh{ Mesh::LoadPLY("../models/statue.ply") };
         const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Read mesh in "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(mesh_read_end - mesh_read_start).count()
                   << " ms\n";
 
-        std::vector<Triangle> dragon1_triangles{ dragon1_mesh.CreateTriangles() };
-        std::vector<Triangle> dragon2_triangles{ dragon2_mesh.CreateTriangles() };
+        //std::vector<Triangle> dragon1_triangles{ dragon1_mesh.CreateTriangles() };
+        //std::vector<Triangle> dragon2_triangles{ dragon2_mesh.CreateTriangles() };
+        std::vector<Triangle> statue_triangles{ statue_mesh.CreateTriangles() };
 
         std::vector<Triangle> scene_triangles;
-        std::move(dragon1_triangles.begin(), dragon1_triangles.end(), std::back_inserter(scene_triangles));
-        std::move(dragon2_triangles.begin(), dragon2_triangles.end(), std::back_inserter(scene_triangles));
+        //std::move(dragon1_triangles.begin(), dragon1_triangles.end(), std::back_inserter(scene_triangles));
+        //std::move(dragon2_triangles.begin(), dragon2_triangles.end(), std::back_inserter(scene_triangles));
+        std::move(statue_triangles.begin(), statue_triangles.end(), std::back_inserter(scene_triangles));
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
-        const BVH bvh{ BVHConfig{ 4, 1.f, 0.125f, 30 }, std::move(scene_triangles) };
+        const BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 64 }, std::move(scene_triangles) };
         const auto bvh_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Built BVH in "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(bvh_end - bvh_start).count() << " ms\n";
 
-        constexpr unsigned int WIDTH{ 800 };
-        constexpr unsigned int HEIGHT{ 800 };
+        constexpr unsigned int WIDTH{ 1920 };
+        constexpr unsigned int HEIGHT{ 1080 };
 
         // Create camera
-        const Camera camera{ Vector3{ -6.f, 1.f, 5.f }, Vector3{}, Vector3{ 0.f, 1.f, 0.f }, 45.f, WIDTH, HEIGHT };
+        const Camera camera{ Point3{ 100.f, 200.f, 400.f }, Point3{ 0.f, 70.f, 0.f }, Vector3{ 0.f, 1.f, 0.f },
+                             60.f, WIDTH, HEIGHT };
 
         // Performance rendering process
         std::vector<unsigned char> raster(WIDTH * HEIGHT * 3, 0);
@@ -61,7 +65,7 @@ int main()
                 for (unsigned int column = 0; column != WIDTH; column++)
                 {
                     // Generate ray
-                    Ray ray{ camera.GenerateRay(column, row, Vector2{ 0.5f }) };
+                    Ray ray{ camera.GenerateRay(column, row, Point2{ 0.5f }) };
 
                     // Intersect Ray with BVH
                     TriangleIntersection intersection;
