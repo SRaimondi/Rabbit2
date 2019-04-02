@@ -5,7 +5,7 @@
 #ifndef RABBIT2_CAMERA_HPP
 #define RABBIT2_CAMERA_HPP
 
-#include "geometry/ray.hpp"
+#include "geometry/matrix.hpp"
 
 class Camera
 {
@@ -18,10 +18,13 @@ public:
                                     const Geometry::Point2f& sample_offset) const noexcept;
 
 private:
+    void SetupOrientation(const Geometry::Point3f& at,
+                          const Geometry::Vector3f& up) noexcept;
+
     // Eye position
-    const Geometry::Point3f eye;
-    // Local base
-    Geometry::Vector3f u, v, w;
+    Geometry::Point3f eye;
+    // Look at matrix
+    Geometry::Matrixf orientation;
     // View volume
     float left, right, top, bottom;
     // Inverse size of the image

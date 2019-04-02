@@ -1,6 +1,7 @@
 #include "bvh/bvh.hpp"
 #include "camera/camera.hpp"
 #include "geometry/common.hpp"
+#include "geometry/matrix.hpp"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.hpp"
@@ -11,6 +12,13 @@
 int main()
 {
     using namespace Geometry;
+
+    Matrixf m{ 1.0, 2.f, 3.f, 4.f,
+               7.f, 8.f, 9.f, 11.f,
+               14.f, -1.f, 4.f, 90.f,
+               13.f, -9.f, 5.f, 6.f };
+
+    const Matrixf inv_m{ Inverse(m) };
 
     try
     {
