@@ -23,22 +23,12 @@ public:
 
     const Geometry::Matrixf CameraLookAt() const noexcept
     {
-        Geometry::Matrixf look_at{ orientation };
-        look_at(0, 3) = eye.x;
-        look_at(1, 3) = eye.y;
-        look_at(2, 3) = eye.z;
-
         return Geometry::Inverse(look_at);
     }
 
 private:
-    void SetupOrientation(const Geometry::Point3f& at,
-                          const Geometry::Vector3f& up) noexcept;
-
-    // Eye position
-    Geometry::Point3f eye;
     // Look at matrix
-    Geometry::Matrixf orientation;
+    Geometry::Matrixf look_at;
     // View volume
     float left, right, top, bottom;
     // Inverse size of the image

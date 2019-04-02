@@ -193,6 +193,21 @@ inline const Matrix<T> operator*(const Matrix<T>& lhs, const Matrix<T>& rhs) noe
     return product;
 }
 
+// Create look at matrix
+template <typename T>
+const Matrix<T> LookAt(const Point3<T>& eye, const Point3<T>& at, const Vector3<T>& up) noexcept
+{
+    // Compute local base
+    const Vector3f w{ Normalize(eye - at) };
+    const Vector3f u{ Normalize(Cross(up, w)) };
+    const Vector3f v{ Cross(w, u) };
+
+    return { u.x, v.x, w.x, eye.x,
+             u.y, v.y, w.y, eye.y,
+             u.z, v.z, w.z, eye.z,
+             0, 0, 0, 1 };
+}
+
 using Matrixf = Matrix<float>;
 
 } // Geometry namespace
