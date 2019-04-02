@@ -8,6 +8,8 @@
 #include "matrix.hpp"
 #include "ray.hpp"
 
+namespace Rabbit
+{
 namespace Geometry
 {
 
@@ -71,5 +73,6 @@ const Transform RotateY(float angle) noexcept;
 const Transform RotateZ(float angle) noexcept;
 
 } // Geometry namespace
+} // Rabbit namespace
 
 #endif //RABBIT2_TRANSFORM_HPP

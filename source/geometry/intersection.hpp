@@ -7,6 +7,8 @@
 
 #include "geometry.hpp"
 
+namespace Rabbit
+{
 namespace Geometry
 {
 
@@ -42,5 +44,6 @@ struct TriangleIntersection
 };
 
 } // Geometry namespace
+} // Rabbit namespace
 
 #endif //RABBIT2_INTERSECTION_HPP

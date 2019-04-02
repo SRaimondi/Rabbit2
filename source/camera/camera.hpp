@@ -8,6 +8,9 @@
 #include "geometry/matrix.hpp"
 #include "geometry/ray.hpp"
 
+namespace Rabbit
+{
+
 class Camera
 {
 public:
@@ -30,5 +33,7 @@ private:
     // Inverse size of the image
     const float inv_width, inv_height;
 };
+
+} // Rabbit namespace
 
 #endif //RABBIT2_CAMERA_HPP

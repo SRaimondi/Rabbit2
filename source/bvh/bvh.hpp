@@ -9,26 +9,26 @@
 
 #include <memory>
 
-namespace Geometry
+namespace Rabbit
 {
 
 // Information of a triangle for building
 struct TriangleInfo
 {
-    constexpr TriangleInfo(unsigned int index, const BBox& b) noexcept
+    constexpr TriangleInfo(unsigned int index, const Geometry::BBox& b) noexcept
         : triangle_index{ index }, bounds{ b }, centroid{ bounds.Centroid() }
     {}
 
     // Index of the triangle in the list
     unsigned int triangle_index;
-    BBox bounds;
-    Point3f centroid;
+    Geometry::BBox bounds;
+    Geometry::Point3f centroid;
 };
 
 // Linear BVH node with 32 byte size for optimal cache performance
 struct alignas(32) LinearBVHNode
 {
-    BBox bounds;                        // 24 bytes
+    Geometry::BBox bounds;                        // 24 bytes
     union                               // 4 bytes
     {
         uint32_t triangle_offset;       // For leafs
@@ -82,15 +82,15 @@ struct BucketInfo;
 class BVH
 {
 public:
-    BVH(const BVHConfig& config, const std::vector<Triangle>& tr);
+    BVH(const BVHConfig& config, const std::vector<Geometry::Triangle>& tr);
 
-    BVH(const BVHConfig& config, std::vector<Triangle>&& tr);
+    BVH(const BVHConfig& config, std::vector<Geometry::Triangle>&& tr);
 
     // Intersect Ray with BVH
-    bool Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept;
+    bool Intersect(Geometry::Ray& ray, Geometry::TriangleIntersection& intersection) const noexcept;
 
     // Check for intersection
-    bool IntersectTest(const Ray& ray) const noexcept;
+    bool IntersectTest(const Geometry::Ray& ray) const noexcept;
 
 private:
     // Build tree
@@ -100,33 +100,33 @@ private:
     std::unique_ptr<BVHBuildNode> RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
                                                  unsigned int start, unsigned int end,
                                                  unsigned int& total_nodes,
-                                                 std::vector<Triangle>& ordered_triangles) noexcept;
+                                                 std::vector<Geometry::Triangle>& ordered_triangles) noexcept;
 
     // Partition triangles in current range, the two partitions are going to be [start, mid) and [mid, end)
     bool PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
                             unsigned int start, unsigned int end,
-                            const BBox& node_bounds,
+                            const Geometry::BBox& node_bounds,
                             PartitionResult& partition_result) const noexcept;
 
     // Compute buckets information for SAH
     const std::vector<BucketInfo> ComputeBucketsInfo(const std::vector<TriangleInfo>& triangle_info,
                                                      unsigned int start, unsigned int end,
-                                                     const BBox& centroids_bounds,
+                                                     const Geometry::BBox& centroids_bounds,
                                                      unsigned int split_axis) const noexcept;
 
     // Find index of the best bucket to split with the cost
     std::pair<unsigned int, float> FindBestBucketIndex(const std::vector<BucketInfo>& buckets,
-                                                       const BBox& node_bounds) const noexcept;
+                                                       const Geometry::BBox& node_bounds) const noexcept;
 
     // Flatten out tree
     unsigned int FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigned int& offset) noexcept;
 
     // BVH members
     const BVHConfig configuration;
-    std::vector<Triangle> triangles;
+    std::vector<Geometry::Triangle> triangles;
     std::vector<LinearBVHNode> flat_tree_nodes;
 };
 
-} // Geometry namespace
+} // Rabbit namespace
 
 #endif //RABBIT2_BVH_HPP

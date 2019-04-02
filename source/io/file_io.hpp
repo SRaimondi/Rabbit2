@@ -7,6 +7,8 @@
 
 #include <string>
 
+namespace Rabbit
+{
 namespace IO
 {
 
@@ -14,5 +16,6 @@ namespace IO
 std::string ReadFile(const std::string& filename);
 
 } // IO namespace
+} // Rabbit namespace
 
 #endif //RABBIT2_FILE_IO_HPP

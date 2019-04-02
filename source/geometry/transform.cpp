@@ -5,6 +5,8 @@
 #include "transform.hpp"
 #include "common.hpp"
 
+namespace Rabbit
+{
 namespace Geometry
 {
 
@@ -94,3 +96,4 @@ const Transform RotateZ(float angle) noexcept
 }
 
 } // Geometry namespace
+} // Rabbit namespace

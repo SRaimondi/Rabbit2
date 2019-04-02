@@ -28,7 +28,9 @@ add_executable(Rabbit2
         source/geometry/geometry.hpp
         source/geometry/matrix.hpp
         source/geometry/transform.cpp
-        source/geometry/transform.hpp)
+        source/geometry/transform.hpp
+        source/film/film.cpp
+        source/film/film.hpp source/film/spectrum.hpp source/utilities.hpp)
 
 # find_package(OpenCL)
 

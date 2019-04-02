@@ -9,6 +9,8 @@
 
 #include <limits>
 
+namespace Rabbit
+{
 namespace Geometry
 {
 
@@ -40,5 +42,6 @@ struct alignas(32) Ray
 };
 
 } // Geometry namespace
+} // Rabbit namespace
 
 #endif //RABBIT2_RAY_HPP

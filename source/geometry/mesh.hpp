@@ -13,6 +13,8 @@
 #include <ostream>
 #include <memory>
 
+namespace Rabbit
+{
 namespace Geometry
 {
 
@@ -257,5 +259,6 @@ inline void Triangle::ComputeIntersectionGeometry(const Ray& ray,
 }
 
 } // Geometry namespace
+} // Rabbit namespace
 
 #endif //RABBIT2_MESH_HPP

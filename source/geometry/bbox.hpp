@@ -9,6 +9,8 @@
 
 #include <array>
 
+namespace Rabbit
+{
 namespace Geometry
 {
 
@@ -125,5 +127,6 @@ constexpr const BBox Intersection(const BBox& bbox1, const BBox& bbox2) noexcept
 }
 
 } // Geometry namespace
+} // Rabbit namespace
 
 #endif //RABBIT2_BBOX_HPP

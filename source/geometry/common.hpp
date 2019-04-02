@@ -7,6 +7,8 @@
 
 #include <type_traits>
 
+namespace Rabbit
+{
 namespace Geometry
 {
 
@@ -27,12 +29,7 @@ constexpr T Degrees(const T& rad) noexcept
     return rad * (T(180) / PI<T>);
 }
 
-template <typename T>
-constexpr const T& Clamp(const T& v, const T& min, const T& max) noexcept
-{
-    return (v < min ? min : (v > max ? max : v));
-}
-
 } // Geometry namespace
+} // Rabbit namespace
 
 #endif //RABBIT2_COMMON_HPP

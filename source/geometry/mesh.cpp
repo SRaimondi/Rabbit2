@@ -13,6 +13,8 @@
 #include <fstream>
 #include <sstream>
 
+namespace Rabbit
+{
 namespace Geometry
 {
 
@@ -188,3 +190,4 @@ Triangle::Triangle(unsigned int fi, const Mesh& m, const std::shared_ptr<const T
 {}
 
 } // Geometry namespace
+} // Rabbit namespace

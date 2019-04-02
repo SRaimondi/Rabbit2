@@ -1,24 +1,16 @@
 #include "bvh/bvh.hpp"
 #include "camera/camera.hpp"
+#include "film/film.hpp"
 #include "geometry/common.hpp"
 #include "geometry/matrix.hpp"
-
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.hpp"
 
 #include <iostream>
 #include <chrono>
 
 int main()
 {
-    using namespace Geometry;
-
-    Matrixf m{ 1.0, 2.f, 3.f, 4.f,
-               7.f, 8.f, 9.f, 11.f,
-               14.f, -1.f, 4.f, 90.f,
-               13.f, -9.f, 5.f, 6.f };
-
-    const Matrixf inv_m{ Inverse(m) };
+    using namespace Rabbit;
+    using namespace Rabbit::Geometry;
 
     try
     {
@@ -32,9 +24,9 @@ int main()
                   << " ms\n";
 
         const Transform scale{ Scale(0.5f) };
-        const auto tr1{ std::make_shared<const Transform>(Translate(3.f, 0.f, 0.f) * RotateY(90.f) * Scale(0.5f)) };
+        const auto tr1{ std::make_shared<const Transform>(Translate(3.f, 0.f, 0.f) * RotateY(90.f)) };
         const auto tr2{ std::make_shared<const Transform>(RotateY(90.f)) };
-        const auto tr3{ std::make_shared<const Transform>(Translate(-3.f, 0.f, 0.f) * RotateY(90.f) * Scale(2.f)) };
+        const auto tr3{ std::make_shared<const Transform>(Translate(-3.f, 0.f, 0.f) * RotateY(90.f)) };
         std::vector<Triangle> dragon1_triangles{ dragon.CreateTriangles(tr1) };
         std::vector<Triangle> dragon2_triangles{ dragon.CreateTriangles(tr2) };
         std::vector<Triangle> dragon3_triangles{ dragon.CreateTriangles(tr3) };
@@ -52,16 +44,16 @@ int main()
         std::cout << "Built BVH in "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(bvh_end - bvh_start).count() << " ms\n";
 
-        constexpr unsigned int WIDTH{ 1000 };
-        constexpr unsigned int HEIGHT{ 1000 };
+        constexpr unsigned int WIDTH{ 800 };
+        constexpr unsigned int HEIGHT{ 800 };
+
+        Film film{ WIDTH, HEIGHT };
 
         // Create camera
-        const Camera camera{ Point3f{ 0.f, 3.f, 10.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
+        const Camera camera{ Point3f{ 5.f, 3.f, 5.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
                              60.f, WIDTH, HEIGHT };
 
         // Performance rendering process
-        std::vector<unsigned char> raster(WIDTH * HEIGHT * 3, 0);
-
         constexpr unsigned int NUM_TRIALS{ 1 };
         unsigned int num_hits{ 0 };
 
@@ -82,10 +74,8 @@ int main()
                     if (bvh.Intersect(ray, intersection))
                     {
                         num_hits++;
-                        const unsigned int linear_index{ 3 * (row * WIDTH + column) };
-                        raster[linear_index] = static_cast<unsigned char>(255 * std::abs(intersection.normal.x));
-                        raster[linear_index + 1] = static_cast<unsigned char>(255 * std::abs(intersection.normal.y));
-                        raster[linear_index + 2] = static_cast<unsigned char>(255 * std::abs(intersection.normal.z));
+                        const Vector3f n_abs{ Abs(intersection.normal) };
+                        film(row, column) = Spectrumf{ n_abs.x, n_abs.y, n_abs.z };
                     }
                 }
             }
@@ -96,9 +86,7 @@ int main()
         std::cout << "Average rendering time: "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / NUM_TRIALS << " ms\n";
 
-        // Write image
-        stbi_flip_vertically_on_write(1);
-        stbi_write_png("render.png", WIDTH, HEIGHT, 3, raster.data(), 0);
+        film.WritePNG("render.png");
     }
     catch (const std::exception& ex)
     {

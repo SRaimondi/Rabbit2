@@ -5,6 +5,9 @@
 #include "camera.hpp"
 #include "geometry/common.hpp"
 
+namespace Rabbit
+{
+
 Camera::Camera(const Geometry::Point3f& eye, const Geometry::Point3f& at, const Geometry::Vector3f& up, float fov,
                unsigned int image_width, unsigned int image_height) noexcept
     : look_at{ Geometry::LookAt(eye, at, up) }, inv_width{ 1.f / image_width }, inv_height{ 1.f / image_height }
@@ -33,3 +36,5 @@ const Geometry::Ray Camera::GenerateRayLocalSpace(const Geometry::Point2ui& pixe
 
     return { Geometry::Point3f{}, Geometry::Normalize(direction) };
 }
+
+} // Rabbit namespace

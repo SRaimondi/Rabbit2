@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <cassert>
 
+namespace Rabbit
+{
 namespace Geometry
 {
 
@@ -343,5 +345,6 @@ using Vector3f = Vector3<float>;
 using Vector2f = Vector2<float>;
 
 } // Geometry namespace
+} // Rabbit namespace
 
 #endif //RABBIT2_GEOMETRY_HPP

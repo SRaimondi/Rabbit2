@@ -7,6 +7,8 @@
 #include <fstream>
 #include <sstream>
 
+namespace Rabbit
+{
 namespace IO
 {
 
@@ -29,3 +31,4 @@ std::string ReadFile(const std::string& filename)
 }
 
 } // namespace IO
+} // Rabbit namespace

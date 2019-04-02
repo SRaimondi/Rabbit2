@@ -6,14 +6,14 @@
 
 #include <iostream>
 
-namespace Geometry
+namespace Rabbit
 {
 
 // BVH building node
 struct BVHBuildNode
 {
     // Create leaf node
-    BVHBuildNode(unsigned int first_triangle_o, unsigned int num_triangles, const BBox& bounds) noexcept
+    BVHBuildNode(unsigned int first_triangle_o, unsigned int num_triangles, const Geometry::BBox& bounds) noexcept
         : first_triangle_offset{ first_triangle_o }, num_triangles{ num_triangles }, split_axis{ 3 }, bounds{ bounds }
     {}
 
@@ -31,22 +31,22 @@ struct BVHBuildNode
     // Children nodes
     std::array<std::unique_ptr<BVHBuildNode>, 2> children;
     // Bounds of the node
-    BBox bounds;
+    Geometry::BBox bounds;
 };
 
-BVH::BVH(const BVHConfig& config, const std::vector<Triangle>& tr)
+BVH::BVH(const BVHConfig& config, const std::vector<Geometry::Triangle>& tr)
     : configuration{ config }, triangles{ tr }
 {
     Build();
 }
 
-BVH::BVH(const BVHConfig& config, std::vector<Triangle>&& tr)
+BVH::BVH(const BVHConfig& config, std::vector<Geometry::Triangle>&& tr)
     : configuration{ config }, triangles{ std::move(tr) }
 {
     Build();
 }
 
-bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
+bool BVH::Intersect(Geometry::Ray& ray, Geometry::TriangleIntersection& intersection) const noexcept
 {
 #ifndef NDEBUG
     if (triangles.empty())
@@ -56,11 +56,12 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
 #endif
 
     // Compute values needed for traversal
-    const Vector3f inv_dir{ Reciprocal(ray.direction) };
+    const Geometry::Vector3f inv_dir{ Geometry::Reciprocal(ray.direction) };
     const std::array<bool, 3> dir_is_neg{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
 
     // Follow ray through BVH
-    unsigned int to_visit_offset{ 0 }, current_node_index{ 0 };
+    unsigned int to_visit_offset{ 0 };
+    unsigned int current_node_index{ 0 };
     unsigned int nodes_to_visit[64];
     while (true)
     {
@@ -126,7 +127,7 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
     }
 }
 
-bool BVH::IntersectTest(const Ray& ray) const noexcept
+bool BVH::IntersectTest(const Geometry::Ray& ray) const noexcept
 {
 #ifndef NDEBUG
     if (triangles.empty())
@@ -136,11 +137,12 @@ bool BVH::IntersectTest(const Ray& ray) const noexcept
 #endif
 
     // Compute values needed for traversal
-    const Vector3f inv_dir{ Reciprocal(ray.direction) };
+    const Geometry::Vector3f inv_dir{ Geometry::Reciprocal(ray.direction) };
     const std::array<bool, 3> dir_is_neg{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
 
     // Follow ray through BVH
-    unsigned int to_visit_offset{ 0 }, current_node_index{ 0 };
+    unsigned int to_visit_offset{ 0 };
+    unsigned int current_node_index{ 0 };
     unsigned int nodes_to_visit[64];
     while (true)
     {
@@ -216,7 +218,7 @@ void BVH::Build()
 
     // The building process has the freedom of swapping the triangles around such that triangles in the same leaf
     // are also close in memory
-    std::vector<Triangle> ordered_triangles;
+    std::vector<Geometry::Triangle> ordered_triangles;
     ordered_triangles.reserve(triangles.size());
 
     // Start building
@@ -239,13 +241,13 @@ void BVH::Build()
 std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
                                                   unsigned int start, unsigned int end,
                                                   unsigned int& total_nodes,
-                                                  std::vector<Triangle>& ordered_triangles) noexcept
+                                                  std::vector<Geometry::Triangle>& ordered_triangles) noexcept
 {
     // Increase by 1 the number of created nodes
     total_nodes++;
 
     // First thing we do is compute the BBox of all the triangles in this node
-    BBox node_bounds;
+    Geometry::BBox node_bounds;
     for (unsigned int i = start; i != end; i++)
     {
         node_bounds = Union(node_bounds, triangle_info[i].bounds);
@@ -304,16 +306,16 @@ struct BucketInfo
     // Number of triangles in the bucket
     unsigned int num_triangles;
     // Bounds of the bucket
-    BBox bounds;
+    Geometry::BBox bounds;
 };
 
 bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
                              unsigned int start, unsigned int end,
-                             const BBox& node_bounds,
+                             const Geometry::BBox& node_bounds,
                              PartitionResult& partition_result) const noexcept
 {
     // Compute bounds of the centroids of the triangles
-    BBox centroids_bounds;
+    Geometry::BBox centroids_bounds;
     for (unsigned int i = start; i != end; i++)
     {
         centroids_bounds = Union(centroids_bounds, triangle_info[i].centroid);
@@ -321,7 +323,7 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
 
     // Loop over the 3 axis and compute SAH
     std::array<std::pair<unsigned int, float>, 3> sah_axis;
-    const Vector3f centroids_bounds_diagonal{ centroids_bounds.Diagonal() };
+    const Geometry::Vector3f centroids_bounds_diagonal{ centroids_bounds.Diagonal() };
     for (unsigned int split_axis = 0; split_axis != 3; split_axis++)
     {
         if (centroids_bounds_diagonal[split_axis] > 0.f)
@@ -393,7 +395,7 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
 
 const std::vector<BucketInfo> BVH::ComputeBucketsInfo(const std::vector<TriangleInfo>& triangle_info,
                                                       unsigned int start, unsigned int end,
-                                                      const BBox& centroids_bounds,
+                                                      const Geometry::BBox& centroids_bounds,
                                                       unsigned int split_axis) const noexcept
 {
     std::vector<BucketInfo> buckets(configuration.num_buckets);
@@ -426,7 +428,7 @@ const std::vector<BucketInfo> BVH::ComputeBucketsInfo(const std::vector<Triangle
 }
 
 std::pair<unsigned int, float> BVH::FindBestBucketIndex(const std::vector<BucketInfo>& buckets,
-                                                        const BBox& node_bounds) const noexcept
+                                                        const Geometry::BBox& node_bounds) const noexcept
 {
     const unsigned int scan_size{ configuration.num_buckets - 1 };
 
@@ -514,4 +516,4 @@ unsigned int BVH::FlattenTree(const std::unique_ptr<BVHBuildNode>& node, unsigne
     return my_offset;
 }
 
-} // Geometry namespace
+} // Rabbit namespace
