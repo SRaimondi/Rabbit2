@@ -10,18 +10,18 @@
 class Camera
 {
 public:
-    Camera(const Geometry::Point3& eye, const Geometry::Point3& at, const Geometry::Vector3& up,
+    Camera(const Geometry::Point3f& eye, const Geometry::Point3f& at, const Geometry::Vector3f& up,
            float fov, unsigned int image_width, unsigned int image_height) noexcept;
 
     // Generate ray at given coordinates and offset
-    const Geometry::Ray GenerateRay(unsigned int pixel_x, unsigned int pixel_y,
-                                    const Geometry::Point2& sample_offset) const noexcept;
+    const Geometry::Ray GenerateRay(const Geometry::Point2ui& pixel_coordinates,
+                                    const Geometry::Point2f& sample_offset) const noexcept;
 
 private:
     // Eye position
-    const Geometry::Point3 eye;
+    const Geometry::Point3f eye;
     // Local base
-    Geometry::Vector3 u, v, w;
+    Geometry::Vector3f u, v, w;
     // View volume
     float left, right, top, bottom;
     // Inverse size of the image

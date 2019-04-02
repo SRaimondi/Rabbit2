@@ -56,7 +56,7 @@ bool BVH::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
 #endif
 
     // Compute values needed for traversal
-    const Vector3 inv_dir{ 1.f / ray.direction.x, 1.f / ray.direction.y, 1.f / ray.direction.z };
+    const Vector3f inv_dir{ Reciprocal(ray.direction) };
     const std::array<bool, 3> dir_is_neg{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
 
     // Follow ray through BVH
@@ -136,7 +136,7 @@ bool BVH::IntersectTest(const Ray& ray) const noexcept
 #endif
 
     // Compute values needed for traversal
-    const Vector3 inv_dir{ Reciprocal(ray.direction) };
+    const Vector3f inv_dir{ Reciprocal(ray.direction) };
     const std::array<bool, 3> dir_is_neg{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
 
     // Follow ray through BVH
@@ -321,7 +321,7 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
 
     // Loop over the 3 axis and compute SAH
     std::array<std::pair<unsigned int, float>, 3> sah_axis;
-    const Vector3 centroids_bounds_diagonal{ centroids_bounds.Diagonal() };
+    const Vector3f centroids_bounds_diagonal{ centroids_bounds.Diagonal() };
     for (unsigned int split_axis = 0; split_axis != 3; split_axis++)
     {
         if (centroids_bounds_diagonal[split_axis] != 0.f)

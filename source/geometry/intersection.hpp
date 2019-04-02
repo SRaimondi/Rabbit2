@@ -26,15 +26,15 @@ struct TriangleIntersection
     }
 
     // Hit point
-    Point3 hit_point;
+    Point3f hit_point;
     // Barycentric coordinate for vertex v0
     float u;
     // Normal at hit point
-    Vector3 normal;
+    Vector3f normal;
     // Barycentric coordinate for vertex v1
     float v;
     // UV coordinates
-    Point2 uv;
+    Point2f uv;
     // Barycentric coordinate for vertex v2
     float w;
     // Index of the triangle that generated the intersection

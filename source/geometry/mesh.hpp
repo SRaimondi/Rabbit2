@@ -19,15 +19,15 @@ class Triangle;
 class Mesh
 {
 public:
-    Mesh(std::vector<Point3>&& v, std::vector<Vector3>&& n, std::vector<unsigned int>&& i);
+    Mesh(std::vector<Point3f>&& v, std::vector<Vector3f>&& n, std::vector<unsigned int>&& i);
 
-    const Point3& VertexAt(unsigned int vertex_index) const
+    const Point3f& VertexAt(unsigned int vertex_index) const
     {
         assert(vertex_index < vertices.size());
         return vertices[vertex_index];
     }
 
-    const Vector3& NormalAt(unsigned int normal_index) const
+    const Vector3f& NormalAt(unsigned int normal_index) const
     {
         assert(normal_index < normals.size());
         return normals[normal_index];
@@ -52,12 +52,12 @@ private:
     friend std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
 
     // Compute smooth normals for a set of vertices and indices
-    static std::vector<Vector3> SmoothNormals(const std::vector<Point3>& vertices,
-                                              const std::vector<unsigned int>& indices);
+    static std::vector<Vector3f> SmoothNormals(const std::vector<Point3f>& vertices,
+                                               const std::vector<unsigned int>& indices);
 
     // Mesh representation
-    std::vector<Point3> vertices;
-    std::vector<Vector3> normals;
+    std::vector<Point3f> vertices;
+    std::vector<Vector3f> normals;
     std::vector<unsigned int> indices;
 };
 
@@ -96,9 +96,9 @@ private:
 inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
 {
     // Translate vertices based on ray origin
-    Vector3 v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - ray.origin };
-    Vector3 v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - ray.origin };
-    Vector3 v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - ray.origin };
+    Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - ray.origin };
+    Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - ray.origin };
+    Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - ray.origin };
 
     // Permute components of triangle vertices and ray direction
     const unsigned int kz{ Abs(ray.direction).LargestDimension() };
@@ -112,7 +112,7 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
     {
         ky = 0;
     }
-    const Vector3 d{ Permute(ray.direction, kx, ky, kz) };
+    const Vector3f d{ Permute(ray.direction, kx, ky, kz) };
     v0t = Permute(v0t, kx, ky, kz);
     v1t = Permute(v1t, kx, ky, kz);
     v2t = Permute(v2t, kx, ky, kz);
@@ -171,9 +171,9 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
 inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
 {
     // Translate vertices based on ray origin
-    Vector3 v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - ray.origin };
-    Vector3 v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - ray.origin };
-    Vector3 v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - ray.origin };
+    Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - ray.origin };
+    Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - ray.origin };
+    Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - ray.origin };
 
     // Permute components of triangle vertices and ray direction
     const unsigned int kz{ Abs(ray.direction).LargestDimension() };
@@ -187,7 +187,7 @@ inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
     {
         ky = 0;
     }
-    const Vector3 d{ Permute(ray.direction, kx, ky, kz) };
+    const Vector3f d{ Permute(ray.direction, kx, ky, kz) };
     v0t = Permute(v0t, kx, ky, kz);
     v1t = Permute(v1t, kx, ky, kz);
     v2t = Permute(v2t, kx, ky, kz);

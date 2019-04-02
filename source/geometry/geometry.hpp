@@ -12,21 +12,22 @@
 namespace Geometry
 {
 
+template <typename T>
 struct Point3
 {
     constexpr Point3() noexcept
-        : x{ 0.f }, y{ 0.f }, z{ 0.f }
+        : x{ 0 }, y{ 0 }, z{ 0 }
     {}
 
-    constexpr explicit Point3(float v) noexcept
+    constexpr explicit Point3(T v) noexcept
         : x{ v }, y{ v }, z{ v }
     {}
 
-    constexpr Point3(float x, float y, float z)
+    constexpr Point3(T x, T y, T z)
         : x{ x }, y{ y }, z{ z }
     {}
 
-    constexpr float operator[](unsigned int i) const noexcept
+    constexpr T operator[](unsigned int i) const noexcept
     {
         assert(i < 3);
         if (i == 0)
@@ -44,24 +45,25 @@ struct Point3
     }
 
     // Point elements
-    float x, y, z;
+    T x, y, z;
 };
 
+template <typename T>
 struct Point2
 {
     constexpr Point2() noexcept
-        : x{ 0.f }, y{ 0.f }
+        : x{ 0 }, y{ 0 }
     {}
 
-    constexpr explicit Point2(float v) noexcept
+    constexpr explicit Point2(T v) noexcept
         : x{ v }, y{ v }
     {}
 
-    constexpr Point2(float x, float y)
+    constexpr Point2(T x, T y)
         : x{ x }, y{ y }
     {}
 
-    constexpr float operator[](unsigned int i) const noexcept
+    constexpr T operator[](unsigned int i) const noexcept
     {
         assert(i < 2);
         if (i == 0)
@@ -75,24 +77,25 @@ struct Point2
     }
 
     // Point elements
-    float x, y;
+    T x, y;
 };
 
+template <typename T>
 struct Vector3
 {
-    constexpr Vector3() noexcept
-        : x{ 0.f }, y{ 0.f }, z{ 0.f }
+    constexpr Vector3<T>() noexcept
+        : x{ 0 }, y{ 0 }, z{ 0 }
     {}
 
-    constexpr explicit Vector3(float v) noexcept
+    constexpr explicit Vector3<T>(T v) noexcept
         : x{ v }, y{ v }, z{ v }
     {}
 
-    constexpr Vector3(float x, float y, float z) noexcept
+    constexpr Vector3<T>(T x, T y, T z) noexcept
         : x{ x }, y{ y }, z{ z }
     {}
 
-    constexpr float operator[](unsigned int i) const noexcept
+    constexpr T operator[](unsigned int i) const noexcept
     {
         assert(i < 3);
         if (i == 0)
@@ -109,7 +112,7 @@ struct Vector3
         }
     }
 
-    Vector3& operator+=(const Vector3& v) noexcept
+    Vector3<T>& operator+=(const Vector3<T>& v) noexcept
     {
         x += v.x;
         y += v.y;
@@ -134,24 +137,25 @@ struct Vector3
     }
 
     // Vector components
-    float x, y, z;
+    T x, y, z;
 };
 
+template <typename T>
 struct Vector2
 {
     constexpr Vector2() noexcept
-        : x{ 0.f }, y{ 0.f }
+        : x{ 0 }, y{ 0 }
     {}
 
-    constexpr explicit Vector2(float v) noexcept
+    constexpr explicit Vector2(T v) noexcept
         : x{ v }, y{ v }
     {}
 
-    constexpr Vector2(float x, float y) noexcept
+    constexpr Vector2(T x, T y) noexcept
         : x{ x }, y{ y }
     {}
 
-    constexpr float operator[](unsigned int i) const noexcept
+    constexpr T operator[](unsigned int i) const noexcept
     {
         assert(i < 2);
         if (i == 0)
@@ -165,146 +169,178 @@ struct Vector2
     }
 
     // Vector components
-    float x, y;
+    T x, y;
 };
 
 // Math operations
-constexpr const Vector3 operator+(const Vector3& lhs, const Vector3& rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> operator+(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z };
 }
 
-constexpr const Point3 operator+(const Point3& lhs, const Vector3& rhs) noexcept
+template <typename T>
+constexpr const Point3<T> operator+(const Point3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z };
 }
 
-constexpr const Vector3 operator-(const Vector3& lhs, const Vector3& rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> operator-(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z };
 }
 
-constexpr const Vector3 operator-(const Point3& lhs, const Point3& rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> operator-(const Point3<T>& lhs, const Point3<T>& rhs) noexcept
 {
     return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z };
 }
 
-constexpr const Vector3 operator-(const Vector3& v) noexcept
+template <typename T>
+constexpr const Vector3<T> operator-(const Vector3<T>& v) noexcept
 {
     return { -v.x, -v.y, -v.z };
 }
 
-constexpr const Vector3 operator*(const Vector3& lhs, const Vector3& rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> operator*(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z };
 }
 
-constexpr const Vector3 operator*(float lhs, const Vector3& rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> operator*(T lhs, const Vector3<T>& rhs) noexcept
 {
     return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.z };
 }
 
-constexpr const Vector3 operator*(const Vector3& lhs, float rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> operator*(const Vector3<T>& lhs, T rhs) noexcept
 {
     return { lhs.x * rhs, lhs.y * rhs, lhs.z * rhs };
 }
 
-constexpr const Vector3 operator/(const Vector3& lhs, const Vector3& rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> operator/(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return { lhs.x / rhs.x, lhs.y / rhs.y, lhs.z / rhs.z };
 }
 
-constexpr const Vector3 operator/(const Vector3& lhs, float rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> operator/(const Vector3<T>& lhs, T rhs) noexcept
 {
-    const float inv_rhs{ 1.f / rhs };
+    const T inv_rhs{ 1.f / rhs };
     return inv_rhs * lhs;
 }
 
-constexpr const Vector3 Cross(const Vector3& lhs, const Vector3& rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> Cross(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return { lhs.y * rhs.z - lhs.z * rhs.y,
              lhs.z * rhs.x - lhs.x * rhs.z,
              lhs.x * rhs.y - lhs.y * rhs.x };
 }
 
-constexpr float Dot(const Vector3& lhs, const Vector3& rhs) noexcept
+template <typename T>
+constexpr T Dot(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 }
 
-constexpr float SquaredNorm(const Vector3& v) noexcept
+template <typename T>
+constexpr T SquaredNorm(const Vector3<T>& v) noexcept
 {
     return Dot(v, v);
 }
 
-inline float Norm(const Vector3& v) noexcept
+template <typename T>
+inline T Norm(const Vector3<T>& v) noexcept
 {
     return std::sqrt(SquaredNorm(v));
 }
 
-inline const Vector3 Normalize(const Vector3& v) noexcept
+template <typename T>
+inline const Vector3<T> Normalize(const Vector3<T>& v) noexcept
 {
     return v / Norm(v);
 }
 
-inline void NormalizeInPlace(Vector3& v) noexcept
+template <typename T>
+inline void NormalizeInPlace(Vector3<T>& v) noexcept
 {
-    const float inv_norm{ 1.f / Norm(v) };
+    const T inv_norm{ 1.f / Norm(v) };
     v.x *= inv_norm;
     v.y *= inv_norm;
     v.z *= inv_norm;
 }
 
-constexpr const Point3 Max(const Point3& lhs, const Point3& rhs) noexcept
+template <typename T>
+constexpr const Point3<T> Max(const Point3<T>& lhs, const Point3<T>& rhs) noexcept
 {
     return { std::max(lhs.x, rhs.x), std::max(lhs.y, rhs.y), std::max(lhs.z, rhs.z) };
 }
 
-constexpr const Vector3 Max(const Vector3& lhs, const Vector3& rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> Max(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return { std::max(lhs.x, rhs.x), std::max(lhs.y, rhs.y), std::max(lhs.z, rhs.z) };
 }
 
-constexpr float HorizontalMax(const Vector3& v) noexcept
+template <typename T>
+constexpr float HorizontalMax(const Vector3<T>& v) noexcept
 {
     return std::max(v.x, std::max(v.y, v.z));
 }
 
-constexpr const Point3 Min(const Point3& lhs, const Point3& rhs) noexcept
+template <typename T>
+constexpr const Point3<T> Min(const Point3<T>& lhs, const Point3<T>& rhs) noexcept
 {
     return { std::min(lhs.x, rhs.x), std::min(lhs.y, rhs.y), std::min(lhs.z, rhs.z) };
 }
 
-constexpr const Vector3 Min(const Vector3& lhs, const Vector3& rhs) noexcept
+template <typename T>
+constexpr const Vector3<T> Min(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return { std::min(lhs.x, rhs.x), std::min(lhs.y, rhs.y), std::min(lhs.z, rhs.z) };
 }
 
-constexpr float HorizontalMin(const Vector3& v) noexcept
+template <typename T>
+constexpr T HorizontalMin(const Vector3<T>& v) noexcept
 {
     return std::min(v.x, std::min(v.y, v.z));
 }
 
-inline const Vector3 Abs(const Vector3& v) noexcept
+template <typename T>
+inline const Vector3<T> Abs(const Vector3<T>& v) noexcept
 {
     return { std::abs(v.x), std::abs(v.y), std::abs(v.z) };
 }
 
-constexpr const Vector3 Permute(const Vector3& v, unsigned int kx, unsigned int ky, unsigned int kz) noexcept
+template <typename T>
+constexpr const Vector3<T> Permute(const Vector3<T>& v, unsigned int kx, unsigned int ky, unsigned int kz) noexcept
 {
     return { v[kx], v[ky], v[kz] };
 }
 
-inline float Distance(const Point3& from, const Point3& to) noexcept
+template <typename T>
+inline T Distance(const Point3<T>& from, const Point3<T>& to) noexcept
 {
     return Norm(to - from);
 }
 
 // Reciprocal 1 / v
-constexpr const Vector3 Reciprocal(const Vector3& v) noexcept
+template <typename T>
+constexpr const Vector3<T> Reciprocal(const Vector3<T>& v) noexcept
 {
     return { 1.f / v.x, 1.f / v.y, 1.f / v.z };
 }
+
+using Point3f = Point3<float>;
+using Point2f = Point2<float>;
+using Point2ui = Point2<unsigned int>;
+using Vector3f = Vector3<float>;
+using Vector2f = Vector2<float>;
 
 } // Geometry namespace
 

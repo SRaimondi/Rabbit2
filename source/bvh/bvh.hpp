@@ -22,7 +22,7 @@ struct TriangleInfo
     // Index of the triangle in the list
     unsigned int triangle_index;
     BBox bounds;
-    Point3 centroid;
+    Point3f centroid;
 };
 
 // Linear BVH node with 32 byte size for optimal cache performance

@@ -5,7 +5,7 @@
 #include "camera.hpp"
 #include "geometry/common.hpp"
 
-Camera::Camera(const Geometry::Point3& eye, const Geometry::Point3& at, const Geometry::Vector3& up, float fov,
+Camera::Camera(const Geometry::Point3f& eye, const Geometry::Point3f& at, const Geometry::Vector3f& up, float fov,
                unsigned int image_width, unsigned int image_height) noexcept
     : eye{ eye }, inv_width{ 1.f / image_width }, inv_height{ 1.f / image_height }
 {
@@ -23,12 +23,12 @@ Camera::Camera(const Geometry::Point3& eye, const Geometry::Point3& at, const Ge
     left = -right;
 }
 
-const Geometry::Ray Camera::GenerateRay(unsigned int pixel_x, unsigned int pixel_y,
-                                        const Geometry::Point2& sample_offset) const noexcept
+const Geometry::Ray Camera::GenerateRay(const Geometry::Point2ui& pixel_coordinates,
+                                        const Geometry::Point2f& sample_offset) const noexcept
 {
     // Compute pixel coordinates on view plane
-    const float view_plane_x{ left + (right - left) * (pixel_x + sample_offset.x) * inv_width };
-    const float view_plane_y{ bottom + (top - bottom) * (pixel_y + sample_offset.y) * inv_height };
+    const float view_plane_x{ left + (right - left) * (pixel_coordinates.x + sample_offset.x) * inv_width };
+    const float view_plane_y{ bottom + (top - bottom) * (pixel_coordinates.y + sample_offset.y) * inv_height };
 
     return { eye, Geometry::Normalize(view_plane_x * u + view_plane_y * v - w) };
 }

@@ -16,52 +16,52 @@ class BBox
 {
 public:
     constexpr BBox() noexcept
-        : bounds{ Point3{ std::numeric_limits<float>::max() },
-                  Point3{ std::numeric_limits<float>::lowest() }}
+        : bounds{ Point3f{ std::numeric_limits<float>::max() },
+                  Point3f{ std::numeric_limits<float>::lowest() }}
     {}
 
-    constexpr BBox(const Point3& min, const Point3& max) noexcept
+    constexpr BBox(const Point3f& min, const Point3f& max) noexcept
         : bounds{ min, max }
     {}
 
-    constexpr BBox(const Point3& v0, const Point3& v1, const Point3& v2) noexcept
+    constexpr BBox(const Point3f& v0, const Point3f& v1, const Point3f& v2) noexcept
         : bounds{ Min(v0, Min(v1, v2)), Max(v0, Max(v1, v2)) }
     {}
 
-    constexpr const Point3& operator[](unsigned int i) const noexcept
+    constexpr const Point3f& operator[](unsigned int i) const noexcept
     {
         assert(i < 2);
         return bounds[i];
     }
 
-    constexpr const Point3& PMin() const noexcept
+    constexpr const Point3f& PMin() const noexcept
     {
         return bounds[0];
     }
 
-    constexpr const Point3& PMax() const noexcept
+    constexpr const Point3f& PMax() const noexcept
     {
         return bounds[1];
     }
 
-    constexpr const Vector3 Diagonal() const noexcept
+    constexpr const Vector3f Diagonal() const noexcept
     {
         return PMax() - PMin();
     }
 
     constexpr float Surface() const noexcept
     {
-        const Vector3 diagonal{ Diagonal() };
+        const Vector3f diagonal{ Diagonal() };
         return 2.f * (diagonal.x * diagonal.y + diagonal.x * diagonal.z + diagonal.y * diagonal.z);
     }
 
     constexpr float Volume() const noexcept
     {
-        const Vector3 diagonal{ Diagonal() };
+        const Vector3f diagonal{ Diagonal() };
         return diagonal.x * diagonal.y * diagonal.z;
     }
 
-    constexpr const Point3 Centroid() const noexcept
+    constexpr const Point3f Centroid() const noexcept
     {
         return PMin() + 0.5f * Diagonal();
     }
@@ -72,20 +72,20 @@ public:
     }
 
     // Compute offset of a point in the BBox
-    constexpr const Vector3 Offset(const Point3& p) const noexcept
+    constexpr const Vector3f Offset(const Point3f& p) const noexcept
     {
         return (p - PMin()) / Diagonal();
     }
 
     // Check for intersection between a ray and the BBox
     constexpr bool Intersect(const Ray& ray,
-                             const Vector3& inv_dir) const noexcept
+                             const Vector3f& inv_dir) const noexcept
     {
         // Compute intersection of ray with the bounds slabs
-        const Vector3 bounds_min{ (PMin() - ray.origin) * inv_dir };
-        const Vector3 bounds_max{ (PMax() - ray.origin) * inv_dir };
-        const Vector3 slabs_min{ Min(bounds_min, bounds_max) };
-        const Vector3 slabs_max{ Max(bounds_min, bounds_max) };
+        const Vector3f bounds_min{ (PMin() - ray.origin) * inv_dir };
+        const Vector3f bounds_max{ (PMax() - ray.origin) * inv_dir };
+        const Vector3f slabs_min{ Min(bounds_min, bounds_max) };
+        const Vector3f slabs_max{ Max(bounds_min, bounds_max) };
 
         // Select minimum and maximum
         const float t_min{ HorizontalMax(slabs_min) };
@@ -97,10 +97,10 @@ public:
 
 private:
     // Bounds
-    Point3 bounds[2];
+    Point3f bounds[2];
 };
 
-constexpr const BBox Union(const BBox& bbox, const Point3& p) noexcept
+constexpr const BBox Union(const BBox& bbox, const Point3f& p) noexcept
 {
     return { Min(bbox.PMin(), p), Max(bbox.PMax(), p) };
 }
