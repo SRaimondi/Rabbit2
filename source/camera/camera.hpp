@@ -13,9 +13,23 @@ public:
     Camera(const Geometry::Point3f& eye, const Geometry::Point3f& at, const Geometry::Vector3f& up,
            float fov, unsigned int image_width, unsigned int image_height) noexcept;
 
-    // Generate ray at given coordinates and offset
-    const Geometry::Ray GenerateRay(const Geometry::Point2ui& pixel_coordinates,
-                                    const Geometry::Point2f& sample_offset) const noexcept;
+    // Generate ray at given coordinates and offset in world space
+    const Geometry::Ray GenerateRayWorldSpace(const Geometry::Point2ui& pixel_coordinates,
+                                              const Geometry::Point2f& sample_offset) const noexcept;
+
+    // Generate ray in camera space
+    const Geometry::Ray GenerateRayLocalSpace(const Geometry::Point2ui& pixel_coordinates,
+                                              const Geometry::Point2f& sample_offset) const noexcept;
+
+    const Geometry::Matrixf CameraLookAt() const noexcept
+    {
+        Geometry::Matrixf look_at{ orientation };
+        look_at(0, 3) = eye.x;
+        look_at(1, 3) = eye.y;
+        look_at(2, 3) = eye.z;
+
+        return Geometry::Inverse(look_at);
+    }
 
 private:
     void SetupOrientation(const Geometry::Point3f& at,

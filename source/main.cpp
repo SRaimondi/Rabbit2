@@ -73,7 +73,7 @@ int main()
                 for (unsigned int column = 0; column != WIDTH; column++)
                 {
                     // Generate ray
-                    Ray ray{ camera.GenerateRay(Point2ui{ column, row }, Point2f{ 0.5f }) };
+                    Ray ray{ camera.GenerateRayWorldSpace(Point2ui{ column, row }, Point2f{ 0.5f }) };
 
                     // Intersect Ray with BVH
                     TriangleIntersection intersection;

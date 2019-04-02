@@ -17,8 +17,8 @@ Camera::Camera(const Geometry::Point3f& eye, const Geometry::Point3f& at, const 
     left = -right;
 }
 
-const Geometry::Ray Camera::GenerateRay(const Geometry::Point2ui& pixel_coordinates,
-                                        const Geometry::Point2f& sample_offset) const noexcept
+const Geometry::Ray Camera::GenerateRayWorldSpace(const Geometry::Point2ui& pixel_coordinates,
+                                                  const Geometry::Point2f& sample_offset) const noexcept
 {
     // Compute pixel coordinates on view plane
     const Geometry::Vector3f viewplane_p{
@@ -27,6 +27,17 @@ const Geometry::Ray Camera::GenerateRay(const Geometry::Point2ui& pixel_coordina
         -1.f };
 
     return { eye, Geometry::Normalize(orientation(viewplane_p)) };
+}
+
+const Geometry::Ray Camera::GenerateRayLocalSpace(const Geometry::Point2ui& pixel_coordinates,
+                                                  const Geometry::Point2f& sample_offset) const noexcept
+{
+    const Geometry::Vector3f direction{
+        left + (right - left) * (pixel_coordinates.x + sample_offset.x) * inv_width,
+        bottom + (top - bottom) * (pixel_coordinates.y + sample_offset.y) * inv_height,
+        -1.f };
+
+    return { Geometry::Point3f{}, Geometry::Normalize(direction) };
 }
 
 void Camera::SetupOrientation(const Geometry::Point3f& at,
