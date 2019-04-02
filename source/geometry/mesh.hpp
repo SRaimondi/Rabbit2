@@ -7,9 +7,11 @@
 
 #include "geometry/bbox.hpp"
 #include "geometry/intersection.hpp"
+#include "geometry/transform.hpp"
 
 #include <vector>
 #include <ostream>
+#include <memory>
 
 namespace Geometry
 {
@@ -46,7 +48,7 @@ public:
     static Mesh LoadPLY(const std::string& filename);
 
     // Create list of triangles for the mesh
-    std::vector<Triangle> CreateTriangles() const;
+    std::vector<Triangle> CreateTriangles(const std::shared_ptr<const Transform>& transform) const;
 
 private:
     friend std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
@@ -66,14 +68,14 @@ std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
 class Triangle
 {
 public:
-    Triangle(unsigned int fi, const Mesh& m) noexcept;
+    Triangle(unsigned int fi, const Mesh& m, const std::shared_ptr<const Transform>& transform) noexcept;
 
-    // Compute triangle BBox
+    // Compute triangle BBox in world space
     const BBox Bounds() const noexcept
     {
-        return { mesh.VertexAt(mesh.FaceIndexAt(first_index)),
-                 mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)),
-                 mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) };
+        return { transformation->ToWorld(mesh.VertexAt(mesh.FaceIndexAt(first_index))),
+                 transformation->ToWorld(mesh.VertexAt(mesh.FaceIndexAt(first_index + 1))),
+                 transformation->ToWorld(mesh.VertexAt(mesh.FaceIndexAt(first_index + 2))) };
     }
 
     // Intersect ray with triangle
@@ -82,7 +84,7 @@ public:
     // Check for intersection
     bool IntersectTest(const Ray& ray) const noexcept;
 
-    // Fill geometry information
+    // Fill geometry information, ray is assumed to be in world space so we can compute the hit point directly
     void ComputeIntersectionGeometry(const Ray& ray,
                                      TriangleIntersection& intersection) const noexcept;
 
@@ -91,17 +93,21 @@ private:
     const unsigned int first_index;
     // Mesh associated
     const Mesh& mesh;
+    // Transformation for the triangle
+    std::shared_ptr<const Transform> transformation;
 };
 
 inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
 {
+    const Ray local_ray{ transformation->ToLocal(ray) };
+
     // Translate vertices based on ray origin
-    Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - ray.origin };
-    Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - ray.origin };
-    Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - ray.origin };
+    Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - local_ray.origin };
+    Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - local_ray.origin };
+    Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - local_ray.origin };
 
     // Permute components of triangle vertices and ray direction
-    const unsigned int kz{ Abs(ray.direction).LargestDimension() };
+    const unsigned int kz{ Abs(local_ray.direction).LargestDimension() };
     unsigned int kx = kz + 1;
     if (kx == 3)
     {
@@ -112,7 +118,7 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
     {
         ky = 0;
     }
-    const Vector3f d{ Permute(ray.direction, kx, ky, kz) };
+    const Vector3f d{ Permute(local_ray.direction, kx, ky, kz) };
     v0t = Permute(v0t, kx, ky, kz);
     v1t = Permute(v1t, kx, ky, kz);
     v2t = Permute(v2t, kx, ky, kz);
@@ -170,13 +176,15 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
 
 inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
 {
+    const Ray local_ray{ transformation->ToLocal(ray) };
+
     // Translate vertices based on ray origin
-    Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - ray.origin };
-    Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - ray.origin };
-    Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - ray.origin };
+    Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - local_ray.origin };
+    Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - local_ray.origin };
+    Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - local_ray.origin };
 
     // Permute components of triangle vertices and ray direction
-    const unsigned int kz{ Abs(ray.direction).LargestDimension() };
+    const unsigned int kz{ Abs(local_ray.direction).LargestDimension() };
     unsigned int kx = kz + 1;
     if (kx == 3)
     {
@@ -187,7 +195,7 @@ inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
     {
         ky = 0;
     }
-    const Vector3f d{ Permute(ray.direction, kx, ky, kz) };
+    const Vector3f d{ Permute(local_ray.direction, kx, ky, kz) };
     v0t = Permute(v0t, kx, ky, kz);
     v1t = Permute(v1t, kx, ky, kz);
     v2t = Permute(v2t, kx, ky, kz);
@@ -242,10 +250,10 @@ inline void Triangle::ComputeIntersectionGeometry(const Ray& ray,
     // Compute hit point based on the input ray
     intersection.hit_point = ray(ray.extent_end);
     // Compute normal based on barycentric coordinates
-    intersection.normal = Normalize(
+    intersection.normal = Normalize(transformation->NormalToWorld(
         intersection.u * mesh.NormalAt(mesh.FaceIndexAt(first_index)) +
         intersection.v * mesh.NormalAt(mesh.FaceIndexAt(first_index + 1)) +
-        intersection.w * mesh.NormalAt(mesh.FaceIndexAt(first_index + 2)));
+        intersection.w * mesh.NormalAt(mesh.FaceIndexAt(first_index + 2))));
 }
 
 } // Geometry namespace

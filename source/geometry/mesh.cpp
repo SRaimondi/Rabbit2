@@ -132,20 +132,20 @@ Mesh Mesh::LoadPLY(const std::string& filename)
     return { std::move(vertices), std::move(smooth_normals), std::move(indices) };
 }
 
-std::vector<Triangle> Mesh::CreateTriangles() const
+std::vector<Triangle> Mesh::CreateTriangles(const std::shared_ptr<const Transform>& transform) const
 {
     std::vector<Triangle> triangles;
     triangles.reserve(indices.size() / 3);
     for (unsigned int index = 0; index != indices.size(); index += 3)
     {
-        triangles.emplace_back(index, *this);
+        triangles.emplace_back(index, *this, transform);
     }
 
     return triangles;
 }
 
-std::vector<Vector3f>
-Mesh::SmoothNormals(const std::vector<Point3f>& vertices, const std::vector<unsigned int>& indices)
+std::vector<Vector3f> Mesh::SmoothNormals(const std::vector<Point3f>& vertices,
+                                          const std::vector<unsigned int>& indices)
 {
     std::vector<Vector3f> normals(vertices.size(), Vector3f{ 0.f });
 
@@ -183,8 +183,8 @@ std::ostream& operator<<(std::ostream& os, const Mesh& mesh)
     return os;
 }
 
-Triangle::Triangle(unsigned int fi, const Mesh& m) noexcept
-    : first_index{ fi }, mesh{ m }
+Triangle::Triangle(unsigned int fi, const Mesh& m, const std::shared_ptr<const Transform>& transform) noexcept
+    : first_index{ fi }, mesh{ m }, transformation{ transform }
 {}
 
 } // Geometry namespace

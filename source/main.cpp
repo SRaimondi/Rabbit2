@@ -24,23 +24,25 @@ int main()
     {
         // Load bunny mesh
         const auto mesh_read_start{ std::chrono::high_resolution_clock::now() };
-        const Mesh dragon1_mesh{ Mesh::LoadPLY("../models/dragon1.ply") };
-        const Mesh dragon2_mesh{ Mesh::LoadPLY("../models/dragon2.ply") };
-        // const Mesh statue_mesh{ Mesh::LoadPLY("../models/statue.ply") };
+        const Mesh dragon{ Mesh::LoadPLY("../models/dragon.ply") };
         const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Read mesh in "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(mesh_read_end - mesh_read_start).count()
                   << " ms\n";
 
-        std::vector<Triangle> dragon1_triangles{ dragon1_mesh.CreateTriangles() };
-        std::vector<Triangle> dragon2_triangles{ dragon2_mesh.CreateTriangles() };
-        //std::vector<Triangle> statue_triangles{ statue_mesh.CreateTriangles() };
+        const Transform scale{ Scale(0.5f) };
+        const auto tr1{ std::make_shared<const Transform>(Translate(3.f, 0.f, 0.f) * RotateY(30.f)) };
+        const auto tr2{ std::make_shared<const Transform>(RotateZ(90.f) * RotateY(90.f)) };
+        const auto tr3{ std::make_shared<const Transform>(Translate(-3.f, 0.f, 0.f) * RotateY(120.f)) };
+        std::vector<Triangle> dragon1_triangles{ dragon.CreateTriangles(tr1) };
+        std::vector<Triangle> dragon2_triangles{ dragon.CreateTriangles(tr2) };
+        std::vector<Triangle> dragon3_triangles{ dragon.CreateTriangles(tr3) };
 
         std::vector<Triangle> scene_triangles;
         std::move(dragon1_triangles.begin(), dragon1_triangles.end(), std::back_inserter(scene_triangles));
         std::move(dragon2_triangles.begin(), dragon2_triangles.end(), std::back_inserter(scene_triangles));
-        // std::move(statue_triangles.begin(), statue_triangles.end(), std::back_inserter(scene_triangles));
+        std::move(dragon3_triangles.begin(), dragon3_triangles.end(), std::back_inserter(scene_triangles));
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
@@ -54,13 +56,13 @@ int main()
         constexpr unsigned int HEIGHT{ 1000 };
 
         // Create camera
-        const Camera camera{ Point3f{ -3.f, 2.f, 6.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
+        const Camera camera{ Point3f{ 0.f, 3.f, 10.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
                              60.f, WIDTH, HEIGHT };
 
         // Performance rendering process
         std::vector<unsigned char> raster(WIDTH * HEIGHT * 3, 0);
 
-        constexpr unsigned int NUM_TRIALS{ 100 };
+        constexpr unsigned int NUM_TRIALS{ 1 };
         unsigned int num_hits{ 0 };
 
         const auto start{ std::chrono::high_resolution_clock::now() };
@@ -81,9 +83,9 @@ int main()
                     {
                         num_hits++;
                         const unsigned int linear_index{ 3 * (row * WIDTH + column) };
-                        const float n_dot_wo{ Geometry::Clamp(Dot(intersection.normal, -ray.direction), 0.f, 1.f) };
-                        raster[linear_index] = raster[linear_index + 1] =
-                        raster[linear_index + 2] = static_cast<unsigned char>(255 * n_dot_wo);
+                        raster[linear_index] = static_cast<unsigned char>(255 * std::abs(intersection.normal.x));
+                        raster[linear_index + 1] = static_cast<unsigned char>(255 * std::abs(intersection.normal.y));
+                        raster[linear_index + 2] = static_cast<unsigned char>(255 * std::abs(intersection.normal.z));
                     }
                 }
             }

@@ -5,8 +5,7 @@
 #ifndef RABBIT2_MATRIX_HPP
 #define RABBIT2_MATRIX_HPP
 
-#include "ray.hpp"
-#include "intersection.hpp"
+#include "geometry.hpp"
 
 #include <cmath>
 #include <array>
@@ -57,7 +56,7 @@ public:
         return elements[row][column];
     }
 
-    const Point3<T> operator()(const Point3<T>& p) const noexcept
+    const Point3 <T> operator()(const Point3 <T>& p) const noexcept
     {
         const T x{ elements[0][0] * p.x + elements[0][1] * p.y + elements[0][2] * p.z + elements[0][3] };
         const T y{ elements[1][0] * p.x + elements[1][1] * p.y + elements[1][2] * p.z + elements[1][3] };
@@ -67,11 +66,18 @@ public:
         return { inv_w * x, inv_w * y, inv_w * z };
     }
 
-    const Vector3<T> operator()(const Vector3<T>& v) const noexcept
+    const Vector3 <T> operator()(const Vector3 <T>& v) const noexcept
     {
         return { elements[0][0] * v.x + elements[0][1] * v.y + elements[0][2] * v.z,
                  elements[1][0] * v.x + elements[1][1] * v.y + elements[1][2] * v.z,
                  elements[2][0] * v.x + elements[2][1] * v.y + elements[2][2] * v.z };
+    }
+
+    const Vector3 <T> TransformNormal(const Vector3 <T>& n) const noexcept
+    {
+        return { elements[0][0] * n.x + elements[1][0] * n.y + elements[2][0] * n.z,
+                 elements[0][1] * n.x + elements[1][1] * n.y + elements[2][1] * n.z,
+                 elements[0][2] * n.x + elements[1][2] * n.y + elements[2][2] * n.z };
     }
 
 private:
@@ -175,6 +181,15 @@ Matrix<T> Inverse(const Matrix<T>& m)
 }
 
 template <typename T>
+inline const Matrix<T> Transpose(const Matrix<T>& m) noexcept
+{
+    return { m(0, 0), m(1, 0), m(2, 0), m(3, 0),
+             m(0, 1), m(1, 1), m(2, 1), m(3, 1),
+             m(0, 2), m(1, 2), m(2, 2), m(3, 2),
+             m(0, 3), m(1, 3), m(2, 3), m(3, 3) };
+}
+
+template <typename T>
 inline const Matrix<T> operator*(const Matrix<T>& lhs, const Matrix<T>& rhs) noexcept
 {
     Matrix<T> product;
@@ -195,7 +210,7 @@ inline const Matrix<T> operator*(const Matrix<T>& lhs, const Matrix<T>& rhs) noe
 
 // Create look at matrix
 template <typename T>
-const Matrix<T> LookAt(const Point3<T>& eye, const Point3<T>& at, const Vector3<T>& up) noexcept
+const Matrix<T> LookAt(const Point3 <T>& eye, const Point3 <T>& at, const Vector3 <T>& up) noexcept
 {
     // Compute local base
     const Vector3f w{ Normalize(eye - at) };

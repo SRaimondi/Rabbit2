@@ -6,6 +6,7 @@
 #define RABBIT2_CAMERA_HPP
 
 #include "geometry/matrix.hpp"
+#include "geometry/ray.hpp"
 
 class Camera
 {
@@ -21,7 +22,7 @@ public:
     const Geometry::Ray GenerateRayLocalSpace(const Geometry::Point2ui& pixel_coordinates,
                                               const Geometry::Point2f& sample_offset) const noexcept;
 
-    const Geometry::Matrixf CameraLookAt() const noexcept
+    const Geometry::Matrixf CameraLookAt() const
     {
         return Geometry::Inverse(look_at);
     }
