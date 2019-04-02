@@ -25,7 +25,7 @@ add_executable(Rabbit2
         source/camera/camera.cpp
         source/camera/camera.hpp
         source/geometry/common.hpp
-        source/geometry/geometry.hpp)
+        source/geometry/geometry.hpp source/geometry/matrix.hpp)
 
 # find_package(OpenCL)
 

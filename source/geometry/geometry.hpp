@@ -83,15 +83,15 @@ struct Point2
 template <typename T>
 struct Vector3
 {
-    constexpr Vector3<T>() noexcept
+    constexpr Vector3() noexcept
         : x{ 0 }, y{ 0 }, z{ 0 }
     {}
 
-    constexpr explicit Vector3<T>(T v) noexcept
+    constexpr explicit Vector3(T v) noexcept
         : x{ v }, y{ v }, z{ v }
     {}
 
-    constexpr Vector3<T>(T x, T y, T z) noexcept
+    constexpr Vector3(T x, T y, T z) noexcept
         : x{ x }, y{ y }, z{ z }
     {}
 
@@ -112,7 +112,7 @@ struct Vector3
         }
     }
 
-    Vector3<T>& operator+=(const Vector3<T>& v) noexcept
+    Vector3& operator+=(const Vector3<T>& v) noexcept
     {
         x += v.x;
         y += v.y;

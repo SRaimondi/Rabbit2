@@ -324,7 +324,7 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
     const Vector3f centroids_bounds_diagonal{ centroids_bounds.Diagonal() };
     for (unsigned int split_axis = 0; split_axis != 3; split_axis++)
     {
-        if (centroids_bounds_diagonal[split_axis] != 0.f)
+        if (centroids_bounds_diagonal[split_axis] > 0.f)
         {
             // Compute buckets for SAH unless bounds on that dimension are degenerate
             const std::vector<BucketInfo> buckets{ ComputeBucketsInfo(triangle_info,
@@ -428,7 +428,6 @@ const std::vector<BucketInfo> BVH::ComputeBucketsInfo(const std::vector<Triangle
 std::pair<unsigned int, float> BVH::FindBestBucketIndex(const std::vector<BucketInfo>& buckets,
                                                         const BBox& node_bounds) const noexcept
 {
-    // Find best bucket for split
     const unsigned int scan_size{ configuration.num_buckets - 1 };
 
     // Forward scan
@@ -455,13 +454,16 @@ std::pair<unsigned int, float> BVH::FindBestBucketIndex(const std::vector<Bucket
     // Evaluate cost for splitting after each bucket
     const float inv_node_bounds_area{ 1.f / node_bounds.Surface() };
     std::vector<float> split_cost(scan_size);
+
     for (unsigned int i = 0; i < scan_size; i++)
     {
+        const BucketInfo& left_bucket{ forward_scan[i] };
+        const BucketInfo& right_bucket{ backward_scan[scan_size - 1 - i] };
+
+        // Evaluate SAH
         split_cost[i] = configuration.bbox_intersect_cost +
-                        (forward_scan[i].num_triangles *
-                         forward_scan[i].bounds.Surface() +
-                         backward_scan[scan_size - 1 - i].num_triangles *
-                         backward_scan[scan_size - 1 - i].bounds.Surface()) *
+                        (left_bucket.num_triangles * left_bucket.bounds.Surface() +
+                         right_bucket.num_triangles * right_bucket.bounds.Surface()) *
                         inv_node_bounds_area;
     }
 
@@ -471,8 +473,8 @@ std::pair<unsigned int, float> BVH::FindBestBucketIndex(const std::vector<Bucket
     {
         if (split_cost[i] < sah_result.second)
         {
-            sah_result.second = split_cost[i];
             sah_result.first = i;
+            sah_result.second = split_cost[i];
         }
     }
 
