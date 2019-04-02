@@ -73,6 +73,7 @@ public:
                  elements[2][0] * v.x + elements[2][1] * v.y + elements[2][2] * v.z };
     }
 
+    // The transform normal multiplies the matrix after transposing it
     const Vector3 <T> TransformNormal(const Vector3 <T>& n) const noexcept
     {
         return { elements[0][0] * n.x + elements[1][0] * n.y + elements[2][0] * n.z,

@@ -32,9 +32,9 @@ int main()
                   << " ms\n";
 
         const Transform scale{ Scale(0.5f) };
-        const auto tr1{ std::make_shared<const Transform>(Translate(3.f, 0.f, 0.f) * RotateY(30.f)) };
-        const auto tr2{ std::make_shared<const Transform>(RotateZ(90.f) * RotateY(90.f)) };
-        const auto tr3{ std::make_shared<const Transform>(Translate(-3.f, 0.f, 0.f) * RotateY(120.f)) };
+        const auto tr1{ std::make_shared<const Transform>(Translate(3.f, 0.f, 0.f) * RotateY(90.f) * Scale(0.5f)) };
+        const auto tr2{ std::make_shared<const Transform>(RotateY(90.f)) };
+        const auto tr3{ std::make_shared<const Transform>(Translate(-3.f, 0.f, 0.f) * RotateY(90.f) * Scale(2.f)) };
         std::vector<Triangle> dragon1_triangles{ dragon.CreateTriangles(tr1) };
         std::vector<Triangle> dragon2_triangles{ dragon.CreateTriangles(tr2) };
         std::vector<Triangle> dragon3_triangles{ dragon.CreateTriangles(tr3) };
