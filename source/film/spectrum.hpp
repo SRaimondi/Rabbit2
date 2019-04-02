@@ -18,7 +18,7 @@ struct Spectrum
     {}
 
     constexpr explicit Spectrum(T v) noexcept
-        : r{ v }, g{ v }, b{ 0 }
+        : r{ v }, g{ v }, b{ v }
     {}
 
     constexpr Spectrum(T r, T g, T b) noexcept
@@ -41,6 +41,25 @@ struct Spectrum
     // Spectrum components
     T r, g, b;
 };
+
+template <typename T>
+constexpr const Spectrum<T> operator*(T lhs, const Spectrum<T>& rhs) noexcept
+{
+    return { lhs * rhs.r, lhs * rhs.g, lhs * rhs.b };
+}
+
+template <typename T>
+constexpr const Spectrum<T> operator*(const Spectrum<T>& lhs, T rhs) noexcept
+{
+    return { lhs.r * rhs, lhs.g * rhs, lhs.b * rhs };
+}
+
+template <typename T>
+constexpr const Spectrum<T> operator/(const Spectrum<T>& lhs, T rhs) noexcept
+{
+    const T inv_rhs{ 1 / rhs };
+    return inv_rhs * lhs;
+}
 
 using Spectrumf = Spectrum<float>;
 

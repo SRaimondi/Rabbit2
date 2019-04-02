@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <random>
 
 int main()
 {
@@ -46,6 +47,8 @@ int main()
 
         constexpr unsigned int WIDTH{ 800 };
         constexpr unsigned int HEIGHT{ 800 };
+        constexpr unsigned int NUM_SAMPLES{ 64 };
+        constexpr float INV_SAMPLES{ 1.f / NUM_SAMPLES };
 
         Film film{ WIDTH, HEIGHT };
 
@@ -57,32 +60,40 @@ int main()
         constexpr unsigned int NUM_TRIALS{ 1 };
         unsigned int num_hits{ 0 };
 
+        std::mt19937 generator;
+        std::uniform_real_distribution<float> distribution;
+
         const auto start{ std::chrono::high_resolution_clock::now() };
         for (unsigned int trials = 0; trials != NUM_TRIALS; trials++)
         {
-            num_hits = 0;
             // Loop over the whole image, generate ray and intersect
             for (unsigned int row = 0; row != HEIGHT; row++)
             {
                 for (unsigned int column = 0; column != WIDTH; column++)
                 {
-                    // Generate ray
-                    Ray ray{ camera.GenerateRayWorldSpace(Point2ui{ column, row }, Point2f{ 0.5f }) };
-
-                    // Intersect Ray with BVH
-                    TriangleIntersection intersection;
-                    if (bvh.Intersect(ray, intersection))
+                    Spectrumf pixel_radiance;
+                    for (unsigned int sample = 0; sample != NUM_SAMPLES; sample++)
                     {
-                        num_hits++;
-                        const Vector3f n_abs{ Abs(intersection.normal) };
-                        film(row, column) = Spectrumf{ n_abs.x, n_abs.y, n_abs.z };
+                        Ray ray{ camera.GenerateRayWorldSpace(Point2ui{ column, row },
+                                                              Point2f{ distribution(generator),
+                                                                       distribution(generator) }) };
+
+                        // Intersect Ray with BVH
+                        TriangleIntersection intersection;
+                        if (bvh.Intersect(ray, intersection))
+                        {
+                            const Vector3f dir{ Normalize(ray.origin - intersection.hit_point) };
+                            const float n_dot_wo{ std::max(0.f, Dot(intersection.normal, dir)) };
+                            pixel_radiance += Spectrumf{ n_dot_wo };
+                        }
                     }
+
+                    film(row, column) = INV_SAMPLES * pixel_radiance;
                 }
             }
         }
         const auto end{ std::chrono::high_resolution_clock::now() };
 
-        std::cout << "Found " << num_hits << " hits\n";
         std::cout << "Average rendering time: "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / NUM_TRIALS << " ms\n";
 

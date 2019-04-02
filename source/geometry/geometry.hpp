@@ -232,7 +232,7 @@ constexpr const Vector3<T> operator/(const Vector3<T>& lhs, const Vector3<T>& rh
 template <typename T>
 constexpr const Vector3<T> operator/(const Vector3<T>& lhs, T rhs) noexcept
 {
-    const T inv_rhs{ 1.f / rhs };
+    const T inv_rhs{ 1 / rhs };
     return inv_rhs * lhs;
 }
 

@@ -101,15 +101,16 @@ private:
 
 inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
 {
-    const Ray local_ray{ transformation->ToLocal(ray) };
+    const Point3f local_origin{ transformation->ToLocal(ray.origin) };
+    const Vector3f local_direction{ transformation->ToLocal(ray.direction) };
 
     // Translate vertices based on ray origin
-    Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - local_ray.origin };
-    Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - local_ray.origin };
-    Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - local_ray.origin };
+    Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - local_origin };
+    Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - local_origin };
+    Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - local_origin };
 
     // Permute components of triangle vertices and ray direction
-    const unsigned int kz{ Abs(local_ray.direction).LargestDimension() };
+    const unsigned int kz{ Abs(local_direction).LargestDimension() };
     unsigned int kx = kz + 1;
     if (kx == 3)
     {
@@ -120,7 +121,7 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
     {
         ky = 0;
     }
-    const Vector3f d{ Permute(local_ray.direction, kx, ky, kz) };
+    const Vector3f d{ Permute(local_direction, kx, ky, kz) };
     v0t = Permute(v0t, kx, ky, kz);
     v1t = Permute(v1t, kx, ky, kz);
     v2t = Permute(v2t, kx, ky, kz);
@@ -178,15 +179,16 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
 
 inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
 {
-    const Ray local_ray{ transformation->ToLocal(ray) };
+    const Point3f local_origin{ transformation->ToLocal(ray.origin) };
+    const Vector3f local_direction{ transformation->ToLocal(ray.direction) };
 
     // Translate vertices based on ray origin
-    Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - local_ray.origin };
-    Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - local_ray.origin };
-    Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - local_ray.origin };
+    Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - local_origin };
+    Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - local_origin };
+    Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - local_origin };
 
     // Permute components of triangle vertices and ray direction
-    const unsigned int kz{ Abs(local_ray.direction).LargestDimension() };
+    const unsigned int kz{ Abs(local_direction).LargestDimension() };
     unsigned int kx = kz + 1;
     if (kx == 3)
     {
@@ -197,7 +199,7 @@ inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
     {
         ky = 0;
     }
-    const Vector3f d{ Permute(local_ray.direction, kx, ky, kz) };
+    const Vector3f d{ Permute(local_direction, kx, ky, kz) };
     v0t = Permute(v0t, kx, ky, kz);
     v1t = Permute(v1t, kx, ky, kz);
     v2t = Permute(v2t, kx, ky, kz);

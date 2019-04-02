@@ -27,19 +27,24 @@ public:
         return local_to_world(p);
     }
 
+    const Point3f ToLocal(const Point3f& p) const noexcept
+    {
+        return world_to_local(p);
+    }
+
     const Vector3f ToWorld(const Vector3f& v) const noexcept
     {
         return local_to_world(v);
     }
 
+    const Vector3f ToLocal(const Vector3f& v) const noexcept
+    {
+        return world_to_local(v);
+    }
+
     const Vector3f NormalToWorld(const Vector3f& n) const noexcept
     {
         return world_to_local.TransformNormal(n);
-    }
-
-    const Ray ToLocal(const Ray& ray) const noexcept
-    {
-        return { world_to_local(ray.origin), world_to_local(ray.direction), ray.extent_start, ray.extent_end };
     }
 
     // Compose transformation
