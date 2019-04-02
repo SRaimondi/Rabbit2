@@ -28,7 +28,7 @@ struct TriangleInfo
 // Linear BVH node with 32 byte size for optimal cache performance
 struct alignas(32) LinearBVHNode
 {
-    Geometry::BBox bounds;                        // 24 bytes
+    Geometry::BBox bounds;              // 24 bytes
     union                               // 4 bytes
     {
         uint32_t triangle_offset;       // For leafs
