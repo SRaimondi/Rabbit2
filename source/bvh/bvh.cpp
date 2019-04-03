@@ -354,7 +354,7 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
         }
     }
 
-    // Check if splitting is better than creating a leaf
+    // Check if splitting for the selected axis is better than creating a leaf
     const float leaf_cost{ (end - start) * configuration.triangle_intersect_cost };
     if (sah_result.second < leaf_cost)
     {
@@ -388,7 +388,7 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
     }
     else
     {
-        // Create leaf
+        // Split is not worth it, create leaf
         return false;
     }
 }
