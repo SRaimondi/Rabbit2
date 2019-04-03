@@ -32,18 +32,7 @@ struct Point3
     constexpr T operator[](unsigned int i) const noexcept
     {
         assert(i < 3);
-        if (i == 0)
-        {
-            return x;
-        }
-        else if (i == 1)
-        {
-            return y;
-        }
-        else
-        {
-            return z;
-        }
+        return (&x)[i];
     }
 
     // Point elements
@@ -68,14 +57,7 @@ struct Point2
     constexpr T operator[](unsigned int i) const noexcept
     {
         assert(i < 2);
-        if (i == 0)
-        {
-            return x;
-        }
-        else
-        {
-            return y;
-        }
+        return (&x)[i];
     }
 
     // Point elements
@@ -100,18 +82,7 @@ struct Vector3
     constexpr T operator[](unsigned int i) const noexcept
     {
         assert(i < 3);
-        if (i == 0)
-        {
-            return x;
-        }
-        else if (i == 1)
-        {
-            return y;
-        }
-        else
-        {
-            return z;
-        }
+        return (&x)[i];
     }
 
     Vector3& operator+=(const Vector3<T>& v) noexcept
@@ -160,14 +131,7 @@ struct Vector2
     constexpr T operator[](unsigned int i) const noexcept
     {
         assert(i < 2);
-        if (i == 0)
-        {
-            return x;
-        }
-        else
-        {
-            return y;
-        }
+        return (&x)[i];
     }
 
     // Vector components

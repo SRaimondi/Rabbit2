@@ -47,7 +47,7 @@ int main()
 
         constexpr unsigned int WIDTH{ 800 };
         constexpr unsigned int HEIGHT{ 800 };
-        constexpr unsigned int NUM_SAMPLES{ 64 };
+        constexpr unsigned int NUM_SAMPLES{ 1 };
         constexpr float INV_SAMPLES{ 1.f / NUM_SAMPLES };
 
         Film film{ WIDTH, HEIGHT };
@@ -57,7 +57,7 @@ int main()
                              60.f, WIDTH, HEIGHT };
 
         // Performance rendering process
-        constexpr unsigned int NUM_TRIALS{ 1 };
+        constexpr unsigned int NUM_TRIALS{ 30 };
 
         std::mt19937 generator;
         std::uniform_real_distribution<float> distribution;
