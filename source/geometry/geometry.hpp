@@ -18,11 +18,11 @@ template <typename T>
 struct Point3
 {
     constexpr Point3() noexcept
-        : x{ 0 }, y{ 0 }, z{ 0 }
+        : Point3{ 0 }
     {}
 
     constexpr explicit Point3(T v) noexcept
-        : x{ v }, y{ v }, z{ v }
+        : Point3{ v, v, v }
     {}
 
     constexpr Point3(T x, T y, T z)
@@ -54,11 +54,11 @@ template <typename T>
 struct Point2
 {
     constexpr Point2() noexcept
-        : x{ 0 }, y{ 0 }
+        : Point2{ 0 }
     {}
 
     constexpr explicit Point2(T v) noexcept
-        : x{ v }, y{ v }
+        : Point2{ v, v }
     {}
 
     constexpr Point2(T x, T y)
@@ -86,11 +86,11 @@ template <typename T>
 struct Vector3
 {
     constexpr Vector3() noexcept
-        : x{ 0 }, y{ 0 }, z{ 0 }
+        : Vector3{ 0 }
     {}
 
     constexpr explicit Vector3(T v) noexcept
-        : x{ v }, y{ v }, z{ v }
+        : Vector3{ v, v, v }
     {}
 
     constexpr Vector3(T x, T y, T z) noexcept
@@ -146,11 +146,11 @@ template <typename T>
 struct Vector2
 {
     constexpr Vector2() noexcept
-        : x{ 0 }, y{ 0 }
+        : Vector2{ 0 }
     {}
 
     constexpr explicit Vector2(T v) noexcept
-        : x{ v }, y{ v }
+        : Vector2{ v, v }
     {}
 
     constexpr Vector2(T x, T y) noexcept

@@ -14,11 +14,11 @@ template <typename T>
 struct Spectrum
 {
     constexpr Spectrum() noexcept
-        : r{ 0 }, g{ 0 }, b{ 0 }
+        : Spectrum{ 0 }
     {}
 
     constexpr explicit Spectrum(T v) noexcept
-        : r{ v }, g{ v }, b{ v }
+        : Spectrum{ v, v, v }
     {}
 
     constexpr Spectrum(T r, T g, T b) noexcept

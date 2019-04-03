@@ -58,7 +58,6 @@ int main()
 
         // Performance rendering process
         constexpr unsigned int NUM_TRIALS{ 1 };
-        unsigned int num_hits{ 0 };
 
         std::mt19937 generator;
         std::uniform_real_distribution<float> distribution;
