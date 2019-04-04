@@ -14,6 +14,12 @@ constexpr const T& Clamp(const T& v, const T& min, const T& max) noexcept
     return (v < min ? min : (v > max ? max : v));
 }
 
+template <typename T>
+constexpr T DivideUp(const T& a, const T& b) noexcept
+{
+    return (a + b - 1) / b;
+}
+
 } // Rabbit namespace
 
 #endif //RABBIT2_UTILITIES_HPP

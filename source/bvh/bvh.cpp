@@ -3,6 +3,7 @@
 //
 
 #include "bvh.hpp"
+#include "memory.hpp"
 
 #include <iostream>
 
@@ -35,15 +36,20 @@ struct BVHBuildNode
 };
 
 BVH::BVH(const BVHConfig& config, const std::vector<Geometry::Triangle>& tr)
-    : configuration{ config }, triangles{ tr }
+    : configuration{ config }, triangles{ tr }, flat_tree_nodes{ nullptr }
 {
     Build();
 }
 
 BVH::BVH(const BVHConfig& config, std::vector<Geometry::Triangle>&& tr)
-    : configuration{ config }, triangles{ std::move(tr) }
+    : configuration{ config }, triangles{ std::move(tr) }, flat_tree_nodes{ nullptr }
 {
     Build();
+}
+
+BVH::~BVH() noexcept
+{
+    FreeAligned(flat_tree_nodes);
 }
 
 bool BVH::Intersect(Geometry::Ray& ray, Geometry::TriangleIntersection& intersection) const noexcept
@@ -233,7 +239,7 @@ void BVH::Build()
 
     // Bring tree into flat representation
     unsigned int offset{ 0 };
-    flat_tree_nodes.resize(total_nodes);
+    flat_tree_nodes = AllocateAligned<LinearBVHNode>(total_nodes);
     FlattenTree(root, offset);
     assert(offset == total_nodes);
 }

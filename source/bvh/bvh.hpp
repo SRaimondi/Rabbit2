@@ -86,6 +86,8 @@ public:
 
     BVH(const BVHConfig& config, std::vector<Geometry::Triangle>&& tr);
 
+    ~BVH() noexcept;
+
     // Intersect Ray with BVH
     bool Intersect(Geometry::Ray& ray, Geometry::TriangleIntersection& intersection) const noexcept;
 
@@ -124,7 +126,8 @@ private:
     // BVH members
     const BVHConfig configuration;
     std::vector<Geometry::Triangle> triangles;
-    std::vector<LinearBVHNode> flat_tree_nodes;
+    LinearBVHNode* flat_tree_nodes;
+    // std::vector<LinearBVHNode> flat_tree_nodes;
 };
 
 } // Rabbit namespace
