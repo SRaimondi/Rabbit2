@@ -3,10 +3,10 @@
 #include "film/film.hpp"
 #include "geometry/common.hpp"
 #include "geometry/matrix.hpp"
+#include "sampling/pcg32.hpp"
 
 #include <iostream>
 #include <chrono>
-#include <random>
 
 int main()
 {
@@ -59,8 +59,8 @@ int main()
         // Performance rendering process
         constexpr unsigned int NUM_TRIALS{ 1 };
 
-        std::mt19937 generator;
-        std::uniform_real_distribution<float> distribution;
+        // Random number generator
+        Sampling::PCG32 rng;
 
         const auto start{ std::chrono::high_resolution_clock::now() };
         for (unsigned int trials = 0; trials != NUM_TRIALS; trials++)
@@ -74,15 +74,13 @@ int main()
                     for (unsigned int sample = 0; sample != NUM_SAMPLES; sample++)
                     {
                         Ray ray{ camera.GenerateRayWorldSpace(Point2ui{ column, row },
-                                                              Point2f{ distribution(generator),
-                                                                       distribution(generator) }) };
+                                                              Point2f{ rng.NextFloat(), rng.NextFloat() }) };
 
                         // Intersect Ray with BVH
                         TriangleIntersection intersection;
                         if (bvh.Intersect(ray, intersection))
                         {
-                            const Vector3f dir{ Normalize(ray.origin - intersection.hit_point) };
-                            const float n_dot_wo{ std::max(0.f, Dot(intersection.normal, dir)) };
+                            const float n_dot_wo{ Clamp(Dot(intersection.normal, -ray.direction), 0.f, 1.f) };
                             pixel_radiance += Spectrumf{ n_dot_wo };
                         }
                     }
