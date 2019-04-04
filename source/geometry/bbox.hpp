@@ -94,7 +94,7 @@ public:
         const float t_max{ HorizontalMin(slabs_max) };
 
         // Check if we did hit
-        return (t_min < t_max) && (t_min < ray.extent_end) && (t_max > ray.extent_start);
+        return (t_min <= t_max) && (t_min < ray.extent_end) && (t_max > ray.extent_start);
     }
 
 private:

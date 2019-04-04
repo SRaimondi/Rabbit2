@@ -18,21 +18,26 @@ int main()
         // Load bunny mesh
         const auto mesh_read_start{ std::chrono::high_resolution_clock::now() };
         const Mesh dragon{ Mesh::LoadPLY("../models/dragon.ply") };
+        const Mesh plane{ Mesh::LoadPLY("../models/plane.ply") };
         const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Read mesh in "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(mesh_read_end - mesh_read_start).count()
                   << " ms\n";
 
-        const Transform scale{ Scale(0.5f) };
+        const auto tr_plane{
+            std::make_shared<const Transform>(Translate(0.f, -1.16f, 0.f) * Scale(200.f, 1.f, 200.f)) };
         const auto tr1{ std::make_shared<const Transform>(Translate(3.f, 0.f, 0.f) * RotateY(90.f)) };
         const auto tr2{ std::make_shared<const Transform>(RotateY(90.f)) };
         const auto tr3{ std::make_shared<const Transform>(Translate(-3.f, 0.f, 0.f) * RotateY(90.f)) };
+
+        std::vector<Triangle> plane_triangles{ plane.CreateTriangles(tr_plane) };
         std::vector<Triangle> dragon1_triangles{ dragon.CreateTriangles(tr1) };
         std::vector<Triangle> dragon2_triangles{ dragon.CreateTriangles(tr2) };
         std::vector<Triangle> dragon3_triangles{ dragon.CreateTriangles(tr3) };
 
         std::vector<Triangle> scene_triangles;
+        std::move(plane_triangles.begin(), plane_triangles.end(), std::back_inserter(scene_triangles));
         std::move(dragon1_triangles.begin(), dragon1_triangles.end(), std::back_inserter(scene_triangles));
         std::move(dragon2_triangles.begin(), dragon2_triangles.end(), std::back_inserter(scene_triangles));
         std::move(dragon3_triangles.begin(), dragon3_triangles.end(), std::back_inserter(scene_triangles));
