@@ -3,7 +3,7 @@
 //
 
 #include "bvh.hpp"
-#include "memory.hpp"
+#include "utilities/memory.hpp"
 
 #include <iostream>
 

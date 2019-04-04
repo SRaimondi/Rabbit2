@@ -5,7 +5,7 @@
 #ifndef RABBIT2_SPECTRUM_HPP
 #define RABBIT2_SPECTRUM_HPP
 
-#include "utilities.hpp"
+#include "utilities/utilities.hpp"
 
 namespace Rabbit
 {
