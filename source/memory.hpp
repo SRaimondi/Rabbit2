@@ -18,17 +18,19 @@ constexpr size_t CACHE_LINE_SIZE{ 64 };
 template <typename T, size_t Alignment = CACHE_LINE_SIZE>
 T* AllocateAligned(size_t num_elements)
 {
-    const size_t size = DivideUp(num_elements * sizeof(T), Alignment) * Alignment;
+    const size_t size{ DivideUp(num_elements * sizeof(T), Alignment) * Alignment };
 #ifndef __APPLE__
     return static_cast<T*>(aligned_alloc(Alignment, size));
 #else
-    T* ptr = nullptr;
-    posix_memalign(reinterpret_cast<void**>(&ptr), Alignment, size);
-    if (!ptr)
+    T* ptr{ nullptr };
+    if (!posix_memalign(reinterpret_cast<void**>(&ptr), Alignment, size))
     {
-        return nullptr;
+        return ptr;
     }
-    return ptr;
+    else
+    {
+        throw std::runtime_error("Error in aligned memory allocation\n");
+    }
 #endif
 }
 
