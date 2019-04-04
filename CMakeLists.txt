@@ -32,7 +32,7 @@ add_executable(Rabbit2
         source/film/film.cpp
         source/film/film.hpp
         source/film/spectrum.hpp
-        source/utilities.hpp)
+        source/utilities.hpp source/kdtree/kdtree.cpp source/kdtree/kdtree.hpp)
 
 # find_package(OpenCL)
 

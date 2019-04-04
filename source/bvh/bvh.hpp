@@ -42,11 +42,11 @@ struct alignas(32) LinearBVHNode
 // Configuration of the BVH
 struct BVHConfig
 {
-    constexpr explicit BVHConfig(unsigned int max_triangle_in_leaf = 4,
+    constexpr explicit BVHConfig(unsigned int max_triangles_in_leaf = 4,
                                  float triangle_intersect_cost = 1.f,
                                  float bbox_intersect_cost = 0.2f,
                                  unsigned int num_buckets = 12) noexcept
-        : max_triangles_in_leaf{ std::min(255u, max_triangle_in_leaf) },
+        : max_triangles_in_leaf{ std::min(255u, max_triangles_in_leaf) },
           triangle_intersect_cost{ triangle_intersect_cost },
           bbox_intersect_cost{ bbox_intersect_cost },
           num_buckets{ std::max(2u, num_buckets) }
