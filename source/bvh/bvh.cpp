@@ -471,6 +471,7 @@ std::pair<unsigned int, float> BVH::FindBestBucketIndex(const std::vector<Bucket
 
         // Evaluate SAH
         split_cost[i] = configuration.bbox_intersect_cost +
+                        configuration.triangle_intersect_cost *
                         (left_bucket.num_triangles * left_bucket.bounds.Surface() +
                          right_bucket.num_triangles * right_bucket.bounds.Surface()) *
                         inv_node_bounds_area;

@@ -202,9 +202,9 @@ inline const Matrix<T> operator*(const Matrix<T>& lhs, const Matrix<T>& rhs) noe
         for (unsigned int column = 0; column != 4; column++)
         {
             product(row, column) = lhs(row, 0) * rhs(0, column) +
-                lhs(row, 1) * rhs(1, column) +
-                lhs(row, 2) * rhs(2, column) +
-                lhs(row, 3) * rhs(3, column);
+                                   lhs(row, 1) * rhs(1, column) +
+                                   lhs(row, 2) * rhs(2, column) +
+                                   lhs(row, 3) * rhs(3, column);
         }
     }
 

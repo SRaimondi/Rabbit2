@@ -43,7 +43,7 @@ int main()
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
-        const BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 64 }, scene_triangles };
+        const BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 32 }, scene_triangles };
         const auto bvh_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Built BVH in "
@@ -51,7 +51,7 @@ int main()
 
         constexpr unsigned int WIDTH{ 800 };
         constexpr unsigned int HEIGHT{ 800 };
-        constexpr unsigned int NUM_SAMPLES{ 1 };
+        constexpr unsigned int NUM_SAMPLES{ 4 };
         constexpr float INV_SAMPLES{ 1.f / NUM_SAMPLES };
 
         Film film{ WIDTH, HEIGHT };
@@ -61,7 +61,7 @@ int main()
                              60.f, WIDTH, HEIGHT };
 
         // Performance rendering process
-        constexpr unsigned int NUM_TRIALS{ 1 };
+        constexpr unsigned int NUM_TRIALS{ 30 };
 
         // Random number generator
         Sampling::PCG32 rng;
