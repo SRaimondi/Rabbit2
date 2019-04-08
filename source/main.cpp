@@ -20,7 +20,7 @@ int main()
         const Mesh plane{ Mesh::LoadPLY("../models/plane.ply") };
         const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
 
-        std::cout << "Read mesh in "
+        std::cout << "Read meshes in "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(mesh_read_end - mesh_read_start).count()
                   << " ms\n";
 

@@ -19,20 +19,20 @@ Film::Film(unsigned int width, unsigned int height)
 
 const Spectrumf& Film::operator()(unsigned int row, unsigned int column) const noexcept
 {
-    assert(row < height && column < width);
-    return raster[row * width + column];
+    assert(row < Height() && column < Width());
+    return raster[row * Width() + column];
 }
 
 Spectrumf& Film::operator()(unsigned int row, unsigned int column) noexcept
 {
-    assert(row < height && column < width);
-    return raster[row * width + column];
+    assert(row < Height() && column < Width());
+    return raster[row * Width() + column];
 }
 
 void Film::WritePNG(const std::string& filename) const
 {
-    std::vector<unsigned char> uchar_raster(width * height * 3, 0);
-    for (unsigned int i = 0; i != width * height; i++)
+    std::vector<unsigned char> uchar_raster(Width() * Height() * 3, 0);
+    for (unsigned int i = 0; i != Width() * Height(); i++)
     {
         const Spectrumf color{ raster[i].Clamp(0.f, 1.f) };
         uchar_raster[3 * i] = static_cast<unsigned char>(255 * color.r);
@@ -42,7 +42,7 @@ void Film::WritePNG(const std::string& filename) const
 
     // Write image
     stbi_flip_vertically_on_write(1);
-    if (!stbi_write_png(filename.c_str(), width, height, 3, uchar_raster.data(), 0))
+    if (!stbi_write_png(filename.c_str(), Width(), Height(), 3, uchar_raster.data(), 0))
     {
         std::ostringstream error_string;
         error_string << "Error writing PNG image " << filename << "\n";

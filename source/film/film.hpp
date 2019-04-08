@@ -19,10 +19,23 @@ class Film
 public:
     Film(unsigned int width, unsigned int height);
 
+    // Access element at given index
     const Spectrumf& operator()(unsigned int row, unsigned int column) const noexcept;
 
     Spectrumf& operator()(unsigned int row, unsigned int column) noexcept;
 
+    // Get size of the film
+    unsigned int Width() const noexcept
+    {
+        return width;
+    }
+
+    unsigned int Height() const noexcept
+    {
+        return height;
+    }
+
+    // Write Film to .png file
     void WritePNG(const std::string& filename) const;
 
 private:
