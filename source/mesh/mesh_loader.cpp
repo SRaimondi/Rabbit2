@@ -90,7 +90,7 @@ const Mesh LoadOBJ(const std::string& filename)
     // Now that we have our vertices and indices, we can compute the normals
     std::vector<Geometry::Vector3f> smooth_normals = SmoothNormals(vertices, indices);
 
-    return { std::move(vertices), std::move(smooth_normals), std::move(indices) };
+    return { std::move(vertices), std::move(smooth_normals), std::vector<Geometry::Point2f>{}, std::move(indices) };
 }
 
 const Mesh LoadPLY(const std::string& filename)
@@ -128,7 +128,7 @@ const Mesh LoadPLY(const std::string& filename)
     // Now that we have our vertices and indices, we can compute the normals
     std::vector<Geometry::Vector3f> smooth_normals = SmoothNormals(vertices, indices);
 
-    return { std::move(vertices), std::move(smooth_normals), std::move(indices) };
+    return { std::move(vertices), std::move(smooth_normals), std::vector<Geometry::Point2f>{}, std::move(indices) };
 }
 
 std::vector<Geometry::Vector3f> SmoothNormals(const std::vector<Geometry::Point3f>& vertices,
@@ -142,9 +142,9 @@ std::vector<Geometry::Vector3f> SmoothNormals(const std::vector<Geometry::Point3
         const unsigned int i1{ indices[f + 1] };
         const unsigned int i2{ indices[f + 2] };
 
-        const Geometry::Point3f v0{ vertices[i0] };
-        const Geometry::Point3f v1{ vertices[i1] };
-        const Geometry::Point3f v2{ vertices[i2] };
+        const Geometry::Point3f& v0{ vertices[i0] };
+        const Geometry::Point3f& v1{ vertices[i1] };
+        const Geometry::Point3f& v2{ vertices[i2] };
 
         // We avoid normalisation here to give a weight to the normal proportional to the triangle size
         const Geometry::Vector3f normal{ Cross(v1 - v0, v2 - v0) };

@@ -21,21 +21,38 @@ class Triangle;
 class Mesh
 {
 public:
-    Mesh(std::vector<Geometry::Point3f>&& v, std::vector<Geometry::Vector3f>&& n, std::vector<unsigned int>&& i);
+    Mesh(std::vector<Geometry::Point3f>&& v, std::vector<Geometry::Vector3f>&& n,
+         std::vector<Geometry::Point2f>&& uvs, std::vector<unsigned int>&& i);
 
-    const Geometry::Point3f& VertexAt(unsigned int vertex_index) const
+    const Geometry::Point3f& VertexAt(unsigned int vertex_index) const noexcept
     {
         assert(vertex_index < vertices.size());
         return vertices[vertex_index];
     }
 
-    const Geometry::Vector3f& NormalAt(unsigned int normal_index) const
+    bool HasNormals() const
+    {
+        return !normals.empty();
+    }
+
+    const Geometry::Vector3f& NormalAt(unsigned int normal_index) const noexcept
     {
         assert(normal_index < normals.size());
         return normals[normal_index];
     }
 
-    unsigned int FaceIndexAt(unsigned int index) const
+    bool HasUVs() const noexcept
+    {
+        return !uvs.empty();
+    }
+
+    const Geometry::Point2f& UVAt(unsigned int uv_index) const noexcept
+    {
+        assert(uv_index < uvs.size());
+        return uvs[uv_index];
+    }
+
+    unsigned int FaceIndexAt(unsigned int index) const noexcept
     {
         assert(index < indices.size());
         return indices[index];
@@ -48,7 +65,7 @@ private:
     // Mesh representation
     std::vector<Geometry::Point3f> vertices;
     std::vector<Geometry::Vector3f> normals;
-    std::vector<Geometry::Vector2f> uvs;
+    std::vector<Geometry::Point2f> uvs;
     std::vector<unsigned int> indices;
 };
 
@@ -244,11 +261,25 @@ inline void Triangle::ComputeIntersectionGeometry(const Geometry::Ray& ray,
 {
     // Compute hit point based on the input ray
     intersection.hit_point = ray(intersection_parameter);
-    // Compute normal based on barycentric coordinates
-    intersection.normal = Normalize(transformation->NormalToWorld(
-        intersection.u * mesh.NormalAt(mesh.FaceIndexAt(first_index)) +
-        intersection.v * mesh.NormalAt(mesh.FaceIndexAt(first_index + 1)) +
-        intersection.w * mesh.NormalAt(mesh.FaceIndexAt(first_index + 2))));
+
+    // Check if we have normals or we need to compute them based on vertices
+    if (mesh.HasNormals())
+    {
+        // Compute normal based on barycentric coordinates
+        intersection.normal = Geometry::Normalize(transformation->NormalToWorld(
+            intersection.u * mesh.NormalAt(mesh.FaceIndexAt(first_index)) +
+            intersection.v * mesh.NormalAt(mesh.FaceIndexAt(first_index + 1)) +
+            intersection.w * mesh.NormalAt(mesh.FaceIndexAt(first_index + 2))));
+    }
+    else
+    {
+        // Compute normal based on vertices
+        const Geometry::Point3f& v0{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) };
+        const Geometry::Point3f& v1{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) };
+        const Geometry::Point3f& v2{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) };
+
+        intersection.normal = Geometry::Normalize(Geometry::Cross(v1 - v0, v2 - v0));
+    }
 }
 
 } // Rabbit namespace

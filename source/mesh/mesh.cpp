@@ -7,8 +7,9 @@
 namespace Rabbit
 {
 
-Mesh::Mesh(std::vector<Geometry::Point3f>&& v, std::vector<Geometry::Vector3f>&& n, std::vector<unsigned int>&& i)
-    : vertices{ std::move(v) }, normals{ std::move(n) }, indices{ std::move(i) }
+Mesh::Mesh(std::vector<Geometry::Point3f>&& v, std::vector<Geometry::Vector3f>&& n,
+           std::vector<Geometry::Point2f>&& uvs, std::vector<unsigned int>&& i)
+    : vertices{ std::move(v) }, normals{ std::move(n) }, uvs{ std::move(uvs) }, indices{ std::move(i) }
 {}
 
 std::vector<Triangle> Mesh::CreateTriangles(const std::shared_ptr<const Geometry::Transform>& transform) const
