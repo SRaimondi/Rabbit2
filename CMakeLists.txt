@@ -13,8 +13,8 @@ add_executable(Rabbit2
         source/io/file_io.cpp
         source/io/file_io.hpp
         external/tinyply.hpp
-        source/geometry/mesh.cpp
-        source/geometry/mesh.hpp
+        source/mesh/mesh.cpp
+        source/mesh/mesh.hpp
         external/tinyobj.hpp
         source/geometry/bbox.hpp
         source/bvh/bvh.cpp
@@ -37,7 +37,9 @@ add_executable(Rabbit2
         #source/kdtree/kdtree.hpp
         source/utilities/memory.hpp
         source/sampling/pcg32.hpp
-        source/geometry/interval.hpp)
+        source/geometry/interval.hpp
+        source/mesh/mesh_loader.cpp
+        source/mesh/mesh_loader.hpp)
 
 # find_package(OpenCL)
 

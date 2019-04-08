@@ -1,4 +1,5 @@
 #include "bvh/bvh.hpp"
+#include "mesh/mesh_loader.hpp"
 #include "camera/camera.hpp"
 #include "film/film.hpp"
 #include "geometry/common.hpp"
@@ -16,8 +17,8 @@ int main()
     {
         // Load bunny mesh
         const auto mesh_read_start{ std::chrono::high_resolution_clock::now() };
-        const Mesh dragon{ Mesh::LoadPLY("../models/dragon.ply") };
-        const Mesh plane{ Mesh::LoadPLY("../models/plane.ply") };
+        const Mesh dragon{ LoadMesh("../models/dragon.ply") };
+        const Mesh plane{ LoadMesh("../models/plane.ply") };
         const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Read meshes in "
@@ -51,7 +52,7 @@ int main()
 
         constexpr unsigned int WIDTH{ 800 };
         constexpr unsigned int HEIGHT{ 800 };
-        constexpr unsigned int NUM_SAMPLES{ 4 };
+        constexpr unsigned int NUM_SAMPLES{ 32 };
         constexpr float INV_SAMPLES{ 1.f / NUM_SAMPLES };
 
         Film film{ WIDTH, HEIGHT };
@@ -61,7 +62,7 @@ int main()
                              60.f, WIDTH, HEIGHT };
 
         // Performance rendering process
-        constexpr unsigned int NUM_TRIALS{ 30 };
+        constexpr unsigned int NUM_TRIALS{ 10 };
 
         // Random number generator
         Sampling::PCG32 rng;

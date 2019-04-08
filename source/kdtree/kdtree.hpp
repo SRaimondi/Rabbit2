@@ -5,7 +5,7 @@
 #ifndef RABBIT2_KDTREE_HPP
 #define RABBIT2_KDTREE_HPP
 
-#include "geometry/mesh.hpp"
+#include "mesh/mesh.hpp"
 
 namespace Rabbit
 {

@@ -1,8 +1,8 @@
 //
-// Created by Simon on 2019-03-26.
+// Created by simon on 08/04/2019.
 //
 
-#include "mesh.hpp"
+#include "mesh_loader.hpp"
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tinyobj.hpp"
@@ -15,14 +15,10 @@
 
 namespace Rabbit
 {
-namespace Geometry
+namespace MeshLoader
 {
 
-Mesh::Mesh(std::vector<Point3f>&& v, std::vector<Vector3f>&& n, std::vector<unsigned int>&& i)
-    : vertices{ std::move(v) }, normals{ std::move(n) }, indices{ std::move(i) }
-{}
-
-Mesh Mesh::LoadOBJ(const std::string& filename)
+const Mesh LoadOBJ(const std::string& filename)
 {
     using namespace tinyobj;
 
@@ -47,7 +43,7 @@ Mesh Mesh::LoadOBJ(const std::string& filename)
     }
 
     // Store vertices
-    std::vector<Point3f> vertices(attrib.vertices.size() / 3);
+    std::vector<Geometry::Point3f> vertices(attrib.vertices.size() / 3);
     if (std::is_same<float, real_t>::value)
     {
         std::memcpy(vertices.data(), attrib.vertices.data(), attrib.vertices.size() * sizeof(float));
@@ -56,7 +52,8 @@ Mesh Mesh::LoadOBJ(const std::string& filename)
     {
         for (size_t v = 0; v != vertices.size(); v++)
         {
-            vertices[v] = Point3f{ attrib.vertices[3 * v], attrib.vertices[3 * v + 1], attrib.vertices[3 * v + 2] };
+            vertices[v] = Geometry::Point3f{ attrib.vertices[3 * v], attrib.vertices[3 * v + 1],
+                                             attrib.vertices[3 * v + 2] };
         }
     }
 
@@ -91,12 +88,12 @@ Mesh Mesh::LoadOBJ(const std::string& filename)
     }
 
     // Now that we have our vertices and indices, we can compute the normals
-    std::vector<Vector3f> smooth_normals = SmoothNormals(vertices, indices);
+    std::vector<Geometry::Vector3f> smooth_normals = SmoothNormals(vertices, indices);
 
     return { std::move(vertices), std::move(smooth_normals), std::move(indices) };
 }
 
-Mesh Mesh::LoadPLY(const std::string& filename)
+const Mesh LoadPLY(const std::string& filename)
 {
     using namespace tinyply;
 
@@ -123,33 +120,21 @@ Mesh Mesh::LoadPLY(const std::string& filename)
     ply_file.read(file);
 
     // Allocate space for vertices / indices and copy
-    std::vector<Point3f> vertices(ply_vertices->count);
+    std::vector<Geometry::Point3f> vertices(ply_vertices->count);
     std::memcpy(vertices.data(), ply_vertices->buffer.get(), ply_vertices->buffer.size_bytes());
     std::vector<unsigned int> indices(ply_indices->count * 3);
     std::memcpy(indices.data(), ply_indices->buffer.get(), ply_indices->buffer.size_bytes());
 
     // Now that we have our vertices and indices, we can compute the normals
-    std::vector<Vector3f> smooth_normals = SmoothNormals(vertices, indices);
+    std::vector<Geometry::Vector3f> smooth_normals = SmoothNormals(vertices, indices);
 
     return { std::move(vertices), std::move(smooth_normals), std::move(indices) };
 }
 
-std::vector<Triangle> Mesh::CreateTriangles(const std::shared_ptr<const Transform>& transform) const
+std::vector<Geometry::Vector3f> SmoothNormals(const std::vector<Geometry::Point3f>& vertices,
+                                              const std::vector<unsigned int>& indices)
 {
-    std::vector<Triangle> triangles;
-    triangles.reserve(indices.size() / 3);
-    for (unsigned int index = 0; index != indices.size(); index += 3)
-    {
-        triangles.emplace_back(index, *this, transform);
-    }
-
-    return triangles;
-}
-
-std::vector<Vector3f> Mesh::SmoothNormals(const std::vector<Point3f>& vertices,
-                                          const std::vector<unsigned int>& indices)
-{
-    std::vector<Vector3f> normals(vertices.size(), Vector3f{ 0.f });
+    std::vector<Geometry::Vector3f> normals(vertices.size(), Geometry::Vector3f{ 0.f });
 
     for (size_t f = 0; f != indices.size(); f += 3)
     {
@@ -157,37 +142,56 @@ std::vector<Vector3f> Mesh::SmoothNormals(const std::vector<Point3f>& vertices,
         const unsigned int i1{ indices[f + 1] };
         const unsigned int i2{ indices[f + 2] };
 
-        const Point3f v0{ vertices[i0] };
-        const Point3f v1{ vertices[i1] };
-        const Point3f v2{ vertices[i2] };
+        const Geometry::Point3f v0{ vertices[i0] };
+        const Geometry::Point3f v1{ vertices[i1] };
+        const Geometry::Point3f v2{ vertices[i2] };
 
         // We avoid normalisation here to give a weight to the normal proportional to the triangle size
-        const Vector3f normal{ Cross(v1 - v0, v2 - v0) };
+        const Geometry::Vector3f normal{ Cross(v1 - v0, v2 - v0) };
 
         normals[i0] += normal;
         normals[i1] += normal;
         normals[i2] += normal;
     }
 
-    for (Vector3f& n : normals)
+    for (Geometry::Vector3f& n : normals)
     {
-        NormalizeInPlace(n);
+        Geometry::NormalizeInPlace(n);
     }
 
     return normals;
 }
 
-std::ostream& operator<<(std::ostream& os, const Mesh& mesh)
-{
-    os << "Vertices: " << mesh.vertices.size() << "\n";
-    os << "Triangles: " << mesh.indices.size() / 3 << "\n";
+} // MeshLoader namespace
 
-    return os;
+const Mesh LoadMesh(const std::string& filename)
+{
+    // Check file extension
+    const std::size_t extension_position{ filename.find_last_of('.') };
+    if (extension_position == std::string::npos)
+    {
+        std::ostringstream error_message;
+        error_message << "Could not determine file extension for " << filename << "\n";
+        throw std::runtime_error(error_message.str());
+    }
+    const std::string extension{ filename.substr(extension_position) };
+
+    // Forward method based on extension
+    if (extension == ".ply")
+    {
+        return MeshLoader::LoadPLY(filename);
+    }
+    else if (extension == ".obj")
+    {
+        return MeshLoader::LoadOBJ(filename);
+    }
+    else
+    {
+        std::ostringstream error_message;
+        error_message << "Unrecognized extension " << extension << "\n";
+        throw std::runtime_error(error_message.str());
+    }
 }
 
-Triangle::Triangle(unsigned int fi, const Mesh& m, const std::shared_ptr<const Transform>& transform) noexcept
-    : first_index{ fi }, mesh{ m }, transformation{ transform }
-{}
-
-} // Geometry namespace
 } // Rabbit namespace
+

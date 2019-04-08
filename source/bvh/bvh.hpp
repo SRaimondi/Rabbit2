@@ -5,7 +5,7 @@
 #ifndef RABBIT2_BVH_HPP
 #define RABBIT2_BVH_HPP
 
-#include "geometry/mesh.hpp"
+#include "mesh/mesh.hpp"
 
 #include <memory>
 
@@ -82,9 +82,9 @@ struct BucketInfo;
 class BVH
 {
 public:
-    BVH(const BVHConfig& config, const std::vector<Geometry::Triangle>& tr);
+    BVH(const BVHConfig& config, const std::vector<Triangle>& tr);
 
-    BVH(const BVHConfig& config, std::vector<Geometry::Triangle>&& tr);
+    BVH(const BVHConfig& config, std::vector<Triangle>&& tr);
 
     ~BVH() noexcept;
 
@@ -102,7 +102,7 @@ private:
     // Recursively build a subpart of the tree for the given range of triangles start to end (not included)
     std::unique_ptr<BVHBuildNode> RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
                                                  unsigned int start, unsigned int end,
-                                                 std::vector<Geometry::Triangle>& ordered_triangles) noexcept;
+                                                 std::vector<Triangle>& ordered_triangles) noexcept;
 
     // Partition triangles in current range, the two partitions are going to be [start, mid) and [mid, end)
     bool PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
@@ -125,7 +125,7 @@ private:
 
     // BVH members
     const BVHConfig configuration;
-    std::vector<Geometry::Triangle> triangles;
+    std::vector<Triangle> triangles;
     // Nodes representing the flat tree
     unsigned int total_nodes;
     LinearBVHNode* flat_tree_nodes;

@@ -35,13 +35,13 @@ struct BVHBuildNode
     Geometry::BBox bounds;
 };
 
-BVH::BVH(const BVHConfig& config, const std::vector<Geometry::Triangle>& tr)
+BVH::BVH(const BVHConfig& config, const std::vector<Triangle>& tr)
     : configuration{ config }, triangles{ tr }, total_nodes{ 0 }, flat_tree_nodes{ nullptr }
 {
     Build();
 }
 
-BVH::BVH(const BVHConfig& config, std::vector<Geometry::Triangle>&& tr)
+BVH::BVH(const BVHConfig& config, std::vector<Triangle>&& tr)
     : configuration{ config }, triangles{ std::move(tr) }, total_nodes{ 0 }, flat_tree_nodes{ nullptr }
 {
     Build();
@@ -225,7 +225,7 @@ void BVH::Build()
 
     // The building process has the freedom of swapping the triangles around such that triangles in the same leaf
     // are also close in memory
-    std::vector<Geometry::Triangle> ordered_triangles;
+    std::vector<Triangle> ordered_triangles;
     ordered_triangles.reserve(triangles.size());
 
     // Start building
@@ -245,7 +245,7 @@ void BVH::Build()
 
 std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
                                                   unsigned int start, unsigned int end,
-                                                  std::vector<Geometry::Triangle>& ordered_triangles) noexcept
+                                                  std::vector<Triangle>& ordered_triangles) noexcept
 {
     // Increase by 1 the number of created nodes
     total_nodes++;
