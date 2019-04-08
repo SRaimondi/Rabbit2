@@ -327,10 +327,10 @@ bool BVH::PartitionTriangles(std::vector<TriangleInfo>& triangle_info,
     {
         centroids_bounds = Union(centroids_bounds, triangle_info[i].centroid);
     }
+    const Geometry::Vector3f centroids_bounds_diagonal{ centroids_bounds.Diagonal() };
 
     // Loop over the 3 axis and compute SAH
     std::array<std::pair<unsigned int, float>, 3> sah_axis;
-    const Geometry::Vector3f centroids_bounds_diagonal{ centroids_bounds.Diagonal() };
     for (unsigned int split_axis = 0; split_axis != 3; split_axis++)
     {
         if (centroids_bounds_diagonal[split_axis] > 0.f)
