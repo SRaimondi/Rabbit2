@@ -81,6 +81,7 @@ public:
 
     // Check for intersection between a ray and the BBox
     constexpr bool Intersect(const Ray& ray,
+                             const Intervalf& interval,
                              const Vector3f& inv_dir) const noexcept
     {
         // Compute intersection of ray with the bounds slabs
@@ -94,7 +95,7 @@ public:
         const float t_max{ HorizontalMin(slabs_max) };
 
         // Check if we did hit
-        return (t_min <= t_max) && (t_min < ray.extent_end) && (t_max > ray.extent_start);
+        return (t_min <= t_max) && (t_min < interval.end) && (t_max > interval.start);
     }
 
 private:

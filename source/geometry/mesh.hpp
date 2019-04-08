@@ -81,13 +81,14 @@ public:
     }
 
     // Intersect ray with triangle
-    bool Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept;
+    bool Intersect(const Ray& ray, Intervalf& interval, TriangleIntersection& intersection) const noexcept;
 
     // Check for intersection
-    bool IntersectTest(const Ray& ray) const noexcept;
+    bool IntersectTest(const Ray& ray, const Intervalf& interval) const noexcept;
 
     // Fill geometry information, ray is assumed to be in world space so we can compute the hit point directly
     void ComputeIntersectionGeometry(const Ray& ray,
+                                     float intersection_parameter,
                                      TriangleIntersection& intersection) const noexcept;
 
 private:
@@ -99,7 +100,7 @@ private:
     std::shared_ptr<const Transform> transformation;
 };
 
-inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) const noexcept
+inline bool Triangle::Intersect(const Ray& ray, Intervalf& interval, TriangleIntersection& intersection) const noexcept
 {
     const Point3f local_origin{ transformation->ToLocal(ray.origin) };
     const Vector3f local_direction{ transformation->ToLocal(ray.direction) };
@@ -158,11 +159,11 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
     v1t.z *= sz;
     v2t.z *= sz;
     const float t_scaled{ e0 * v0t.z + e1 * v1t.z + e2 * v2t.z };
-    if (det < 0.f && (t_scaled >= 0.f || t_scaled < ray.extent_end * det || t_scaled > ray.extent_start * det))
+    if (det < 0.f && (t_scaled >= 0.f || t_scaled < interval.end * det || t_scaled > interval.start * det))
     {
         return false;
     }
-    else if (det > 0.f && (t_scaled <= 0.f || t_scaled > ray.extent_end * det || t_scaled < ray.extent_start * det))
+    else if (det > 0.f && (t_scaled <= 0.f || t_scaled > interval.end * det || t_scaled < interval.start * det))
     {
         return false;
     }
@@ -172,12 +173,12 @@ inline bool Triangle::Intersect(Ray& ray, TriangleIntersection& intersection) co
     intersection.u = e0 * inv_det;
     intersection.v = e1 * inv_det;
     intersection.w = e2 * inv_det;
-    ray.extent_end = t_scaled * inv_det;
+    interval.end = t_scaled * inv_det;
 
     return true;
 }
 
-inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
+inline bool Triangle::IntersectTest(const Ray& ray, const Intervalf& interval) const noexcept
 {
     const Point3f local_origin{ transformation->ToLocal(ray.origin) };
     const Vector3f local_direction{ transformation->ToLocal(ray.direction) };
@@ -236,11 +237,11 @@ inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
     v1t.z *= sz;
     v2t.z *= sz;
     const float t_scaled{ e0 * v0t.z + e1 * v1t.z + e2 * v2t.z };
-    if (det < 0.f && (t_scaled >= 0.f || t_scaled < ray.extent_end * det || t_scaled > ray.extent_start * det))
+    if (det < 0.f && (t_scaled >= 0.f || t_scaled < interval.end * det || t_scaled > interval.start * det))
     {
         return false;
     }
-    else if (det > 0.f && (t_scaled <= 0.f || t_scaled > ray.extent_end * det || t_scaled < ray.extent_start * det))
+    else if (det > 0.f && (t_scaled <= 0.f || t_scaled > interval.end * det || t_scaled < interval.start * det))
     {
         return false;
     }
@@ -249,10 +250,11 @@ inline bool Triangle::IntersectTest(const Ray& ray) const noexcept
 }
 
 inline void Triangle::ComputeIntersectionGeometry(const Ray& ray,
+                                                  float intersection_parameter,
                                                   TriangleIntersection& intersection) const noexcept
 {
     // Compute hit point based on the input ray
-    intersection.hit_point = ray(ray.extent_end);
+    intersection.hit_point = ray(intersection_parameter);
     // Compute normal based on barycentric coordinates
     intersection.normal = Normalize(transformation->NormalToWorld(
         intersection.u * mesh.NormalAt(mesh.FaceIndexAt(first_index)) +

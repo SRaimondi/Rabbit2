@@ -15,27 +15,26 @@ namespace Geometry
 template <typename T>
 struct Interval
 {
-    constexpr Interval() noexcept
-        : min{ std::numeric_limits<T>::lowest() }, max{ std::numeric_limits<T>::max() }
-    {}
-
-    constexpr Interval(T min, T max) noexcept
-        : min{ min }, max{ max }
+    constexpr explicit Interval(T start = std::numeric_limits<T>::lowest(),
+                                T end = std::numeric_limits<T>::max()) noexcept
+        : start{ start }, end{ end }
     {}
 
     constexpr bool IsInsideInclusive(T value) const noexcept
     {
-        return value >= min && value <= max;
+        return value >= start && value <= end;
     }
 
     constexpr bool IsInsideExclusive(T value) const noexcept
     {
-        return value > min && value < max;
+        return value > start && value < end;
     }
 
     // Minimum and maximum of the interval
-    T min, max;
+    T start, end;
 };
+
+using Intervalf = Interval<float>;
 
 } // Geometry namespace
 } // Rabbit namespace

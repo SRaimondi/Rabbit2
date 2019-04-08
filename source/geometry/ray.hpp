@@ -6,8 +6,7 @@
 #define RABBIT2_RAY_HPP
 
 #include "geometry.hpp"
-
-#include <limits>
+#include "interval.hpp"
 
 namespace Rabbit
 {
@@ -17,28 +16,28 @@ namespace Geometry
 // Ray class
 struct alignas(32) Ray
 {
-    constexpr Ray() noexcept
-        : extent_start{ DEFAULT_EXTENT_START }, extent_end{ DEFAULT_EXTENT_END }
+    constexpr Ray() noexcept = default;
+
+    constexpr Ray(const Point3f& o, const Vector3f& d) noexcept
+        : origin{ o }, direction{ d }
     {}
 
-    constexpr Ray(const Point3f& o, const Vector3f& d,
-                  float start = DEFAULT_EXTENT_START, float end = DEFAULT_EXTENT_END) noexcept
-        : origin{ o }, extent_start{ start }, direction{ d }, extent_end{ end }
-    {}
+    constexpr static Intervalf DefaultInterval() noexcept
+    {
+        constexpr float DEFAULT_START{ 0.0001f };
+        constexpr float DEFAULT_END{ std::numeric_limits<float>::max() };
+
+        return Intervalf{ DEFAULT_START, DEFAULT_END };
+    }
 
     constexpr const Point3f operator()(float t) const noexcept
     {
         return origin + t * direction;
     }
 
-    static constexpr float DEFAULT_EXTENT_START{ 0.001f };
-    static constexpr float DEFAULT_EXTENT_END{ std::numeric_limits<float>::max() };
-
     // Ray description
     Point3f origin;
-    float extent_start;
     Vector3f direction;
-    float extent_end;
 };
 
 } // Geometry namespace

@@ -62,7 +62,7 @@ int main()
 
         constexpr unsigned int WIDTH{ 800 };
         constexpr unsigned int HEIGHT{ 800 };
-        constexpr unsigned int NUM_SAMPLES{ 16 };
+        constexpr unsigned int NUM_SAMPLES{ 128 };
         constexpr float INV_SAMPLES{ 1.f / NUM_SAMPLES };
 
         Film film{ WIDTH, HEIGHT };
@@ -88,12 +88,13 @@ int main()
                     Spectrumf pixel_radiance;
                     for (unsigned int sample = 0; sample != NUM_SAMPLES; sample++)
                     {
-                        Ray ray{ camera.GenerateRayWorldSpace(Point2ui{ column, row },
-                                                              Point2f{ rng.NextFloat(), rng.NextFloat() }) };
+                        const Ray ray{ camera.GenerateRayWorldSpace(Point2ui{ column, row },
+                                                                    Point2f{ rng.NextFloat(), rng.NextFloat() }) };
 
                         // Intersect Ray with BVH
                         TriangleIntersection intersection;
-                        if (bvh.Intersect(ray, intersection))
+                        Intervalf interval{ Ray::DefaultInterval() };
+                        if (bvh.Intersect(ray, interval, intersection))
                         {
                             const float n_dot_wo{ Clamp(Dot(intersection.normal, -ray.direction), 0.f, 1.f) };
                             pixel_radiance += Spectrumf{ n_dot_wo };

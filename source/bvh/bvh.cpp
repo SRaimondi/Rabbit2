@@ -52,7 +52,8 @@ BVH::~BVH() noexcept
     FreeAligned(flat_tree_nodes);
 }
 
-bool BVH::Intersect(Geometry::Ray& ray, Geometry::TriangleIntersection& intersection) const noexcept
+bool BVH::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
+                    Geometry::TriangleIntersection& intersection) const noexcept
 {
 #ifndef NDEBUG
     if (triangles.empty())
@@ -74,7 +75,7 @@ bool BVH::Intersect(Geometry::Ray& ray, Geometry::TriangleIntersection& intersec
         // Get current node
         const LinearBVHNode current_node{ flat_tree_nodes[current_node_index] };
         // Check ray against node
-        if (current_node.bounds.Intersect(ray, inv_dir))
+        if (current_node.bounds.Intersect(ray, interval, inv_dir))
         {
             // Check for leaf or interior
             if (current_node.num_triangles != 0)
@@ -82,7 +83,7 @@ bool BVH::Intersect(Geometry::Ray& ray, Geometry::TriangleIntersection& intersec
                 for (unsigned int i = 0; i != current_node.num_triangles; i++)
                 {
                     const unsigned int triangle_index{ current_node.triangle_offset + i };
-                    if (triangles[triangle_index].Intersect(ray, intersection))
+                    if (triangles[triangle_index].Intersect(ray, interval, intersection))
                     {
                         // Update index
                         intersection.triangle_index = triangle_index;
@@ -124,7 +125,7 @@ bool BVH::Intersect(Geometry::Ray& ray, Geometry::TriangleIntersection& intersec
     // If we did hit something, fill the intersection and return true
     if (intersection.IsValid())
     {
-        triangles[intersection.triangle_index].ComputeIntersectionGeometry(ray, intersection);
+        triangles[intersection.triangle_index].ComputeIntersectionGeometry(ray, interval.end, intersection);
         return true;
     }
     else
@@ -133,7 +134,7 @@ bool BVH::Intersect(Geometry::Ray& ray, Geometry::TriangleIntersection& intersec
     }
 }
 
-bool BVH::IntersectTest(const Geometry::Ray& ray) const noexcept
+bool BVH::IntersectTest(const Geometry::Ray& ray, const Geometry::Intervalf& interval) const noexcept
 {
 #ifndef NDEBUG
     if (triangles.empty())
@@ -155,7 +156,7 @@ bool BVH::IntersectTest(const Geometry::Ray& ray) const noexcept
         // Get current node
         const LinearBVHNode current_node{ flat_tree_nodes[current_node_index] };
         // Check ray against node
-        if (current_node.bounds.Intersect(ray, inv_dir))
+        if (current_node.bounds.Intersect(ray, interval, inv_dir))
         {
             // Check for leaf or interior
             if (current_node.num_triangles != 0)
@@ -163,7 +164,7 @@ bool BVH::IntersectTest(const Geometry::Ray& ray) const noexcept
                 for (unsigned int i = 0; i != current_node.num_triangles; i++)
                 {
                     const unsigned int triangle_index{ current_node.triangle_offset + i };
-                    if (triangles[triangle_index].IntersectTest(ray))
+                    if (triangles[triangle_index].IntersectTest(ray, interval))
                     {
                         // As soon as we hit something, return true
                         return true;

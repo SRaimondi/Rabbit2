@@ -89,10 +89,11 @@ public:
     ~BVH() noexcept;
 
     // Intersect Ray with BVH
-    bool Intersect(Geometry::Ray& ray, Geometry::TriangleIntersection& intersection) const noexcept;
+    bool Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
+                   Geometry::TriangleIntersection& intersection) const noexcept;
 
     // Check for intersection
-    bool IntersectTest(const Geometry::Ray& ray) const noexcept;
+    bool IntersectTest(const Geometry::Ray& ray, const Geometry::Intervalf& interval) const noexcept;
 
 private:
     // Build tree
