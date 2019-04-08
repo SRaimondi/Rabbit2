@@ -35,8 +35,7 @@ T* AllocateAligned(size_t num_elements)
 }
 
 // Define utility function to free aligned memory
-template <typename T>
-void FreeAligned(T* mem)
+inline void FreeAligned(void* mem)
 {
     std::free(mem);
 }
