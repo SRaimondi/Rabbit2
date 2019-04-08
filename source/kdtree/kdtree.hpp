@@ -39,10 +39,10 @@ struct KDTreeNode
     }
 
     // Create leaf node
-    KDTreeNode(unsigned int axis, unsigned int above_child, float split_pos) noexcept
+    KDTreeNode(float split_pos, unsigned int axis, unsigned int above_child) noexcept
         : split_position{ split_pos }, flags{ axis }
     {
-        above_child |= (static_cast<uint32_t>(above_child) << 2u);
+        above_child_index |= (static_cast<uint32_t>(above_child) << 2u);
     }
 
     // Access node fields and hide the internal representation
@@ -121,9 +121,14 @@ public:
     bool IntersectTest(const Geometry::Ray& ray) const noexcept;
 
 private:
-    // KDTree members
+    // Build KDTree
+    void Build();
+
+    // KDTree building configuration
     const KDTreeConfig configuration;
+    // Triangles stored in the tree
     std::vector<Geometry::Triangle> triangles;
+    // Indices of the triangles in a leaf node
     std::vector<unsigned int> triangle_indices;
 };
 
