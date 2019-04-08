@@ -1,9 +1,7 @@
 #include "bvh/bvh.hpp"
-#include "kdtree/kdtree.hpp"
 #include "camera/camera.hpp"
 #include "film/film.hpp"
 #include "geometry/common.hpp"
-#include "geometry/matrix.hpp"
 #include "sampling/pcg32.hpp"
 
 #include <iostream>
@@ -51,18 +49,9 @@ int main()
         std::cout << "Built BVH in "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(bvh_end - bvh_start).count() << " ms\n";
 
-        // Create KDTree
-        const auto kdtree_start{ std::chrono::high_resolution_clock::now() };
-        const KDTree kdtree{ KDTreeConfig{}, scene_triangles };
-        const auto kdtree_end{ std::chrono::high_resolution_clock::now() };
-
-        std::cout << "Built KDTree in "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(kdtree_end - kdtree_start).count()
-                  << " ms\n";
-
         constexpr unsigned int WIDTH{ 800 };
         constexpr unsigned int HEIGHT{ 800 };
-        constexpr unsigned int NUM_SAMPLES{ 128 };
+        constexpr unsigned int NUM_SAMPLES{ 1 };
         constexpr float INV_SAMPLES{ 1.f / NUM_SAMPLES };
 
         Film film{ WIDTH, HEIGHT };
@@ -96,7 +85,7 @@ int main()
                         Intervalf interval{ Ray::DefaultInterval() };
                         if (bvh.Intersect(ray, interval, intersection))
                         {
-                            const float n_dot_wo{ Clamp(Dot(intersection.normal, -ray.direction), 0.f, 1.f) };
+                            const float n_dot_wo{ Clamp(Dot(intersection.normal, -ray.Direction()), 0.f, 1.f) };
                             pixel_radiance += Spectrumf{ n_dot_wo };
                         }
                     }

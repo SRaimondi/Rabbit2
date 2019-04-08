@@ -102,8 +102,8 @@ private:
 
 inline bool Triangle::Intersect(const Ray& ray, Intervalf& interval, TriangleIntersection& intersection) const noexcept
 {
-    const Point3f local_origin{ transformation->ToLocal(ray.origin) };
-    const Vector3f local_direction{ transformation->ToLocal(ray.direction) };
+    const Point3f local_origin{ transformation->ToLocal(ray.Origin()) };
+    const Vector3f local_direction{ transformation->ToLocal(ray.Direction()) };
 
     // Translate vertices based on ray origin
     Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - local_origin };
@@ -159,11 +159,11 @@ inline bool Triangle::Intersect(const Ray& ray, Intervalf& interval, TriangleInt
     v1t.z *= sz;
     v2t.z *= sz;
     const float t_scaled{ e0 * v0t.z + e1 * v1t.z + e2 * v2t.z };
-    if (det < 0.f && (t_scaled >= 0.f || t_scaled < interval.end * det || t_scaled > interval.start * det))
+    if (det < 0.f && (t_scaled >= 0.f || t_scaled < interval.End() * det || t_scaled > interval.Start() * det))
     {
         return false;
     }
-    else if (det > 0.f && (t_scaled <= 0.f || t_scaled > interval.end * det || t_scaled < interval.start * det))
+    else if (det > 0.f && (t_scaled <= 0.f || t_scaled > interval.End() * det || t_scaled < interval.Start() * det))
     {
         return false;
     }
@@ -173,15 +173,15 @@ inline bool Triangle::Intersect(const Ray& ray, Intervalf& interval, TriangleInt
     intersection.u = e0 * inv_det;
     intersection.v = e1 * inv_det;
     intersection.w = e2 * inv_det;
-    interval.end = t_scaled * inv_det;
+    interval.SetEnd(t_scaled * inv_det);
 
     return true;
 }
 
 inline bool Triangle::IntersectTest(const Ray& ray, const Intervalf& interval) const noexcept
 {
-    const Point3f local_origin{ transformation->ToLocal(ray.origin) };
-    const Vector3f local_direction{ transformation->ToLocal(ray.direction) };
+    const Point3f local_origin{ transformation->ToLocal(ray.Origin()) };
+    const Vector3f local_direction{ transformation->ToLocal(ray.Direction()) };
 
     // Translate vertices based on ray origin
     Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - local_origin };
@@ -237,11 +237,11 @@ inline bool Triangle::IntersectTest(const Ray& ray, const Intervalf& interval) c
     v1t.z *= sz;
     v2t.z *= sz;
     const float t_scaled{ e0 * v0t.z + e1 * v1t.z + e2 * v2t.z };
-    if (det < 0.f && (t_scaled >= 0.f || t_scaled < interval.end * det || t_scaled > interval.start * det))
+    if (det < 0.f && (t_scaled >= 0.f || t_scaled < interval.End() * det || t_scaled > interval.Start() * det))
     {
         return false;
     }
-    else if (det > 0.f && (t_scaled <= 0.f || t_scaled > interval.end * det || t_scaled < interval.start * det))
+    else if (det > 0.f && (t_scaled <= 0.f || t_scaled > interval.End() * det || t_scaled < interval.Start() * det))
     {
         return false;
     }

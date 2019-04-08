@@ -13,8 +13,9 @@ namespace Geometry
 {
 
 template <typename T>
-struct Interval
+class Interval
 {
+public:
     constexpr explicit Interval(T start = std::numeric_limits<T>::lowest(),
                                 T end = std::numeric_limits<T>::max()) noexcept
         : start{ start }, end{ end }
@@ -30,6 +31,27 @@ struct Interval
         return value > start && value < end;
     }
 
+    constexpr T Start() const noexcept
+    {
+        return start;
+    }
+
+    void SetStart(T new_start) noexcept
+    {
+        start = new_start;
+    }
+
+    constexpr T End() const noexcept
+    {
+        return end;
+    }
+
+    void SetEnd(T new_end) noexcept
+    {
+        end = new_end;
+    }
+
+private:
     // Minimum and maximum of the interval
     T start, end;
 };

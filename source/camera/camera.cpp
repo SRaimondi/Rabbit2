@@ -23,7 +23,7 @@ const Geometry::Ray Camera::GenerateRayWorldSpace(const Geometry::Point2ui& pixe
                                                   const Geometry::Point2f& sample_offset) const noexcept
 {
     const Geometry::Ray local_ray{ GenerateRayLocalSpace(pixel_coordinates, sample_offset) };
-    return { look_at(local_ray.origin), look_at(local_ray.direction) };
+    return { look_at(local_ray.Origin()), look_at(local_ray.Direction()) };
 }
 
 const Geometry::Ray Camera::GenerateRayLocalSpace(const Geometry::Point2ui& pixel_coordinates,

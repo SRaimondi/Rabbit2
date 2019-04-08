@@ -63,8 +63,8 @@ bool BVH::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
 #endif
 
     // Compute values needed for traversal
-    const Geometry::Vector3f inv_dir{ Geometry::Reciprocal(ray.direction) };
-    const std::array<bool, 3> dir_is_neg{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
+    const Geometry::Vector3f reciprocal_dir{ ray.ReciprocalDirection() };
+    const std::array<bool, 3> dir_is_neg{ reciprocal_dir.x < 0.f, reciprocal_dir.y < 0.f, reciprocal_dir.z < 0.f };
 
     // Follow ray through BVH
     unsigned int to_visit_offset{ 0 };
@@ -75,7 +75,7 @@ bool BVH::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
         // Get current node
         const LinearBVHNode current_node{ flat_tree_nodes[current_node_index] };
         // Check ray against node
-        if (current_node.bounds.Intersect(ray, interval, inv_dir))
+        if (current_node.bounds.Intersect(ray, interval, reciprocal_dir))
         {
             // Check for leaf or interior
             if (current_node.num_triangles != 0)
@@ -125,7 +125,7 @@ bool BVH::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
     // If we did hit something, fill the intersection and return true
     if (intersection.IsValid())
     {
-        triangles[intersection.triangle_index].ComputeIntersectionGeometry(ray, interval.end, intersection);
+        triangles[intersection.triangle_index].ComputeIntersectionGeometry(ray, interval.End(), intersection);
         return true;
     }
     else
@@ -144,8 +144,8 @@ bool BVH::IntersectTest(const Geometry::Ray& ray, const Geometry::Intervalf& int
 #endif
 
     // Compute values needed for traversal
-    const Geometry::Vector3f inv_dir{ Geometry::Reciprocal(ray.direction) };
-    const std::array<bool, 3> dir_is_neg{ inv_dir.x < 0.f, inv_dir.y < 0.f, inv_dir.z < 0.f };
+    const Geometry::Vector3f reciprocal_dir{ ray.ReciprocalDirection() };
+    const std::array<bool, 3> dir_is_neg{ reciprocal_dir.x < 0.f, reciprocal_dir.y < 0.f, reciprocal_dir.z < 0.f };
 
     // Follow ray through BVH
     unsigned int to_visit_offset{ 0 };
@@ -156,7 +156,7 @@ bool BVH::IntersectTest(const Geometry::Ray& ray, const Geometry::Intervalf& int
         // Get current node
         const LinearBVHNode current_node{ flat_tree_nodes[current_node_index] };
         // Check ray against node
-        if (current_node.bounds.Intersect(ray, interval, inv_dir))
+        if (current_node.bounds.Intersect(ray, interval, reciprocal_dir))
         {
             // Check for leaf or interior
             if (current_node.num_triangles != 0)

@@ -85,8 +85,8 @@ public:
                              const Vector3f& inv_dir) const noexcept
     {
         // Compute intersection of ray with the bounds slabs
-        const Vector3f bounds_min{ (PMin() - ray.origin) * inv_dir };
-        const Vector3f bounds_max{ (PMax() - ray.origin) * inv_dir };
+        const Vector3f bounds_min{ (PMin() - ray.Origin()) * inv_dir };
+        const Vector3f bounds_max{ (PMax() - ray.Origin()) * inv_dir };
         const Vector3f slabs_min{ Min(bounds_min, bounds_max) };
         const Vector3f slabs_max{ Max(bounds_min, bounds_max) };
 
@@ -95,7 +95,7 @@ public:
         const float t_max{ HorizontalMin(slabs_max) };
 
         // Check if we did hit
-        return (t_min <= t_max) && (t_min < interval.end) && (t_max > interval.start);
+        return (t_min <= t_max) && (t_min < interval.End()) && (t_max > interval.Start());
     }
 
 private:
