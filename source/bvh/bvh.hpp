@@ -102,7 +102,6 @@ private:
     // Recursively build a subpart of the tree for the given range of triangles start to end (not included)
     std::unique_ptr<BVHBuildNode> RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
                                                  unsigned int start, unsigned int end,
-                                                 unsigned int& total_nodes,
                                                  std::vector<Geometry::Triangle>& ordered_triangles) noexcept;
 
     // Partition triangles in current range, the two partitions are going to be [start, mid) and [mid, end)
@@ -127,6 +126,8 @@ private:
     // BVH members
     const BVHConfig configuration;
     std::vector<Geometry::Triangle> triangles;
+    // Nodes representing the flat tree
+    unsigned int total_nodes;
     LinearBVHNode* flat_tree_nodes;
 };
 

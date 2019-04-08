@@ -36,13 +36,13 @@ struct BVHBuildNode
 };
 
 BVH::BVH(const BVHConfig& config, const std::vector<Geometry::Triangle>& tr)
-    : configuration{ config }, triangles{ tr }, flat_tree_nodes{ nullptr }
+    : configuration{ config }, triangles{ tr }, total_nodes{ 0 }, flat_tree_nodes{ nullptr }
 {
     Build();
 }
 
 BVH::BVH(const BVHConfig& config, std::vector<Geometry::Triangle>&& tr)
-    : configuration{ config }, triangles{ std::move(tr) }, flat_tree_nodes{ nullptr }
+    : configuration{ config }, triangles{ std::move(tr) }, total_nodes{ 0 }, flat_tree_nodes{ nullptr }
 {
     Build();
 }
@@ -229,10 +229,8 @@ void BVH::Build()
     ordered_triangles.reserve(triangles.size());
 
     // Start building
-    unsigned int total_nodes{ 0 };
     const std::unique_ptr<BVHBuildNode> root{ RecursiveBuild(triangle_info,
                                                              0, static_cast<unsigned int>(triangle_info.size()),
-                                                             total_nodes,
                                                              ordered_triangles) };
 
     // Move the content of the ordered_triangles in the local triangles
@@ -247,7 +245,6 @@ void BVH::Build()
 
 std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& triangle_info,
                                                   unsigned int start, unsigned int end,
-                                                  unsigned int& total_nodes,
                                                   std::vector<Geometry::Triangle>& ordered_triangles) noexcept
 {
     // Increase by 1 the number of created nodes
@@ -284,9 +281,9 @@ std::unique_ptr<BVHBuildNode> BVH::RecursiveBuild(std::vector<TriangleInfo>& tri
             // Recursively build tree
             return std::make_unique<BVHBuildNode>(partition_result.split_axis,
                                                   RecursiveBuild(triangle_info, start, partition_result.mid_index,
-                                                                 total_nodes, ordered_triangles),
+                                                                 ordered_triangles),
                                                   RecursiveBuild(triangle_info, partition_result.mid_index, end,
-                                                                 total_nodes, ordered_triangles));
+                                                                 ordered_triangles));
         }
         else
         {
