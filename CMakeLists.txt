@@ -36,7 +36,8 @@ add_executable(Rabbit2
         source/kdtree/kdtree.cpp
         source/kdtree/kdtree.hpp
         source/utilities/memory.hpp
-        source/sampling/pcg32.hpp)
+        source/sampling/pcg32.hpp
+        source/geometry/interval.hpp)
 
 # find_package(OpenCL)
 

@@ -1,4 +1,5 @@
 #include "bvh/bvh.hpp"
+#include "kdtree/kdtree.hpp"
 #include "camera/camera.hpp"
 #include "film/film.hpp"
 #include "geometry/common.hpp"
@@ -44,11 +45,20 @@ int main()
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
-        const BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 64 }, std::move(scene_triangles) };
+        const BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 64 }, scene_triangles };
         const auto bvh_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Built BVH in "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(bvh_end - bvh_start).count() << " ms\n";
+
+        // Create KDTree
+        const auto kdtree_start{ std::chrono::high_resolution_clock::now() };
+        const KDTree kdtree{ KDTreeConfig{}, scene_triangles };
+        const auto kdtree_end{ std::chrono::high_resolution_clock::now() };
+
+        std::cout << "Built KDTree in "
+                  << std::chrono::duration_cast<std::chrono::milliseconds>(kdtree_end - kdtree_start).count()
+                  << " ms\n";
 
         constexpr unsigned int WIDTH{ 800 };
         constexpr unsigned int HEIGHT{ 800 };

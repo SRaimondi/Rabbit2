@@ -127,7 +127,6 @@ private:
     const BVHConfig configuration;
     std::vector<Geometry::Triangle> triangles;
     LinearBVHNode* flat_tree_nodes;
-    // std::vector<LinearBVHNode> flat_tree_nodes;
 };
 
 } // Rabbit namespace

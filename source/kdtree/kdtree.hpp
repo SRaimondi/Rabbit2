@@ -88,11 +88,12 @@ struct KDTreeNode
 // Configuration of the KDTree
 struct KDTreeConfig
 {
-    constexpr KDTreeConfig(unsigned int max_triangles_in_leaf,
-                           unsigned int intersection_cost,
-                           unsigned int traversal_cost,
-                           float empty_bonus)
-        : max_triangles_in_leaf{ max_triangles_in_leaf }, intersection_cost{ intersection_cost },
+    constexpr explicit KDTreeConfig(unsigned int max_triangles_in_leaf = 1u,
+                                    unsigned int intersection_cost = 80u,
+                                    unsigned int traversal_cost = 1u,
+                                    float empty_bonus = 0.5f)
+        : max_triangles_in_leaf{ max_triangles_in_leaf },
+          intersection_cost{ intersection_cost },
           traversal_cost{ traversal_cost },
           empty_bonus{ empty_bonus }
     {}
@@ -130,6 +131,12 @@ private:
     std::vector<Geometry::Triangle> triangles;
     // Indices of the triangles in a leaf node
     std::vector<unsigned int> triangle_indices;
+    // Flat nodes
+    KDTreeNode* nodes;
+    // Number of allocated nodes and index of the next node to write to
+    unsigned int num_allocated_nodes, next_free_node;
+    // Bounds of the tree
+    Geometry::BBox tree_bounds;
 };
 
 } // Rabbit namespace
