@@ -43,7 +43,7 @@ int main()
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
-        const BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 32 }, scene_triangles };
+        const BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 128 }, scene_triangles };
         const auto bvh_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Built BVH in "
