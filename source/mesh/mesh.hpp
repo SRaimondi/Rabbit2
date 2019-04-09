@@ -305,7 +305,7 @@ inline void Triangle::ComputeIntersectionGeometry(const Geometry::Ray& ray,
         const Geometry::Point3f& v1{ mesh.VertexAt(description.v1) };
         const Geometry::Point3f& v2{ mesh.VertexAt(description.v2) };
 
-        intersection.normal = Geometry::Normalize(Geometry::Cross(v1 - v0, v2 - v0));
+        intersection.normal = Geometry::Normalize(transformation->NormalToWorld(Geometry::Cross(v1 - v0, v2 - v0)));
     }
 
     // Check if we have UV coordinates
