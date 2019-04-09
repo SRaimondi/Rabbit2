@@ -20,7 +20,7 @@ public:
 
     OcclusionTester(const Geometry::Point3f& start, const Geometry::Point3f& end) noexcept
         : occlusion_ray{ start, end - start },
-          occlusion_interval{ Geometry::EPS < float > , 1.f - Geometry::EPS < float > }
+          occlusion_interval{ Geometry::EPS<float>, 1.f - Geometry::EPS<float> }
     {}
 
     bool IsOccluded(const Scene& scene) const noexcept
@@ -37,16 +37,23 @@ private:
 class LightInterface
 {
 public:
-    explicit LightInterface(unsigned int ns) noexcept
+    explicit LightInterface(unsigned int ns = 1u) noexcept
         : num_samples{ ns }
     {}
+
+    // Check if the light is a delta light, defaults to true
+    virtual bool IsDeltaLight() const noexcept;
 
     // Sample incoming light at given intersection
     virtual Spectrumf SampleLi(const Geometry::TriangleIntersection& reference_intersection,
                                const Geometry::Point2f& u, Geometry::Vector3f& sampled_wi, float& sampled_wi_pdf,
                                OcclusionTester& occlusion_tester) const noexcept = 0;
 
-    //
+    // Get number of samples for the light
+    unsigned int NumSamples() const noexcept
+    {
+        return num_samples;
+    }
 
 protected:
     // Number of samples for this light
