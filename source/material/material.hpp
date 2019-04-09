@@ -14,7 +14,7 @@ namespace Rabbit
 class MaterialInterface
 {
 public:
-    // Checkers for the properties of the Material
+    virtual // Checkers for the properties of the Material
     bool IsDiffuse() const noexcept;
 
     bool IsSpecular() const noexcept;

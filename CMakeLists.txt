@@ -42,7 +42,11 @@ add_executable(Rabbit2
         source/mesh/mesh_loader.hpp
         source/sampling/montecarlo.hpp
         source/texture/texture.hpp
-        source/texture/constant_texture.hpp source/material/material.cpp source/material/material.hpp)
+        source/texture/constant_texture.hpp
+        source/material/material.cpp
+        source/material/material.hpp
+        source/material/diffuse_material.cpp
+        source/material/diffuse_material.hpp)
 
 # find_package(OpenCL)
 

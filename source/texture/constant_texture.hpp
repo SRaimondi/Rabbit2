@@ -18,14 +18,14 @@ public:
         : value{ value }
     {}
 
-    T Evaluate(const Geometry::Point2f& uv) const noexcept override;
+    T Evaluate(const Geometry::Vector2f& uv) const noexcept override;
 
 private:
     const T value;
 };
 
 template <typename T>
-T ConstantTexture<T>::Evaluate(const Rabbit::Geometry::Point2f&) const noexcept
+T ConstantTexture<T>::Evaluate(const Rabbit::Geometry::Vector2f&) const noexcept
 {
     return value;
 }

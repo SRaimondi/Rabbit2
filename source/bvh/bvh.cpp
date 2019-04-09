@@ -86,7 +86,7 @@ bool BVH::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
                     if (triangles[triangle_index].Intersect(ray, interval, intersection))
                     {
                         // Update index
-                        intersection.triangle_index = triangle_index;
+                        intersection.hit_triangle = &triangles[triangle_index];
                     }
                 }
                 // Check if we still have node to visit
@@ -125,7 +125,7 @@ bool BVH::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
     // If we did hit something, fill the intersection and return true
     if (intersection.IsValid())
     {
-        triangles[intersection.triangle_index].ComputeIntersectionGeometry(ray, interval.End(), intersection);
+        intersection.hit_triangle->ComputeIntersectionGeometry(ray, interval.End(), intersection);
         return true;
     }
     else

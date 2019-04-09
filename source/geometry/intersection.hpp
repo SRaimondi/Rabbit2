@@ -9,22 +9,23 @@
 
 namespace Rabbit
 {
+
+// Forward declare triangle class
+class Triangle;
+
 namespace Geometry
 {
 
 struct TriangleIntersection
 {
-    // Index for triangle to indicate no hit
-    static constexpr uint32_t INVALID_TRIANGLE_IDX{ std::numeric_limits<uint32_t>::max() };
-
     TriangleIntersection() noexcept
-        : u{ 0.f }, v{ 0.f }, w{ 0.f }, triangle_index{ INVALID_TRIANGLE_IDX }
+        : u{ 0.f }, v{ 0.f }, w{ 0.f }, hit_triangle{ nullptr }
     {}
 
     // Check if intersection represents and hit
     bool IsValid() const noexcept
     {
-        return triangle_index != INVALID_TRIANGLE_IDX;
+        return hit_triangle != nullptr;
     }
 
     // Hit point
@@ -32,12 +33,14 @@ struct TriangleIntersection
     // Normal at hit point + local frame
     Vector3f normal;
     Vector3f s, t;
+    // Outgoing light direction at intersection
+    Vector3f wo;
     // UV coordinates
     Vector2f uv;
     // Barycentric coordinates
     float u, v, w;
-    // Index of the triangle that generated the intersection
-    uint32_t triangle_index;
+    // Pointer to triangle that generated the intersection
+    const Triangle* hit_triangle;
 };
 
 } // Geometry namespace

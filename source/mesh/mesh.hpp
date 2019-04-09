@@ -8,6 +8,7 @@
 #include "geometry/bbox.hpp"
 #include "geometry/intersection.hpp"
 #include "geometry/transform.hpp"
+#include "material/material.hpp"
 
 #include <vector>
 #include <ostream>
@@ -85,7 +86,8 @@ public:
     }
 
     // Create list of triangles for the mesh
-    std::vector<Triangle> CreateTriangles(const std::shared_ptr<const Geometry::Transform>& transform) const;
+    std::vector<Triangle> CreateTriangles(const std::shared_ptr<const Geometry::Transform>& transform,
+                                          const std::shared_ptr<const MaterialInterface>& material) const;
 
 private:
     // Mesh representation
@@ -95,13 +97,12 @@ private:
     std::vector<TriangleDescription> triangles;
 };
 
-std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
-
 class Triangle
 {
 public:
     Triangle(const TriangleDescription& description, const Mesh& m,
-             const std::shared_ptr<const Geometry::Transform>& transform) noexcept;
+             const std::shared_ptr<const Geometry::Transform>& transform,
+             const std::shared_ptr<const MaterialInterface>& material) noexcept;
 
     // Compute triangle BBox in world space
     const Geometry::BBox Bounds() const noexcept
@@ -123,8 +124,11 @@ public:
                                      float intersection_parameter,
                                      Geometry::TriangleIntersection& intersection) const noexcept;
 
+    // Pointer to the material
+    std::shared_ptr<const MaterialInterface> material;
+
 private:
-    // Pointer to the triangle description
+    // Reference to the triangle description
     const TriangleDescription& description;
     // Mesh associated
     const Mesh& mesh;
@@ -310,6 +314,9 @@ inline void Triangle::ComputeIntersectionGeometry(const Geometry::Ray& ray,
 
     // Create local base around normal
     Geometry::CreateLocalBase(intersection.normal, intersection.s, intersection.t);
+
+    // Set outgoing direction
+    intersection.wo = Geometry::Normalize(-ray.Direction());
 
     // Check if we have UV coordinates
     if (mesh.HasUVs())

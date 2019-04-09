@@ -17,7 +17,7 @@ public:
     virtual ~TextureInterface() = default;
 
     // Evaluate texture at given uv coordinates
-    virtual T Evaluate(const Geometry::Point2f& uv) const noexcept = 0;
+    virtual T Evaluate(const Geometry::Vector2f& uv) const noexcept = 0;
 };
 
 } // Rabbit namespace

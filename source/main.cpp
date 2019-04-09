@@ -4,6 +4,8 @@
 #include "film/film.hpp"
 #include "geometry/common.hpp"
 #include "sampling/pcg32.hpp"
+#include "material/diffuse_material.hpp"
+#include "texture/constant_texture.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -31,10 +33,13 @@ int main()
         const auto tr2{ std::make_shared<const Transform>(RotateY(90.f)) };
         const auto tr3{ std::make_shared<const Transform>(Translate(-3.f, 0.f, 0.f) * RotateY(90.f)) };
 
-        std::vector<Triangle> plane_triangles{ plane.CreateTriangles(tr_plane) };
-        std::vector<Triangle> dragon1_triangles{ dragon.CreateTriangles(tr1) };
-        std::vector<Triangle> dragon2_triangles{ dragon.CreateTriangles(tr2) };
-        std::vector<Triangle> dragon3_triangles{ dragon.CreateTriangles(tr3) };
+        const auto material{ std::make_shared<const DiffuseMaterial>(
+            std::make_shared<const ConstantTexture<Spectrumf>>(Spectrumf{ 0.9f })) };
+
+        std::vector<Triangle> plane_triangles{ plane.CreateTriangles(tr_plane, material) };
+        std::vector<Triangle> dragon1_triangles{ dragon.CreateTriangles(tr1, material) };
+        std::vector<Triangle> dragon2_triangles{ dragon.CreateTriangles(tr2, material) };
+        std::vector<Triangle> dragon3_triangles{ dragon.CreateTriangles(tr3, material) };
 
         std::vector<Triangle> scene_triangles;
         std::move(plane_triangles.begin(), plane_triangles.end(), std::back_inserter(scene_triangles));
@@ -58,7 +63,7 @@ int main()
         Film film{ WIDTH, HEIGHT };
 
         // Create camera
-        const Camera camera{ Point3f{ 5.f, 3.f, 5.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
+        const Camera camera{ Point3f{ 5.f, 4.f, 5.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
                              60.f, WIDTH, HEIGHT };
 
         // Performance rendering process
@@ -86,8 +91,10 @@ int main()
                         Intervalf interval{ Ray::DefaultInterval() };
                         if (bvh.Intersect(ray, interval, intersection))
                         {
-                            const float n_dot_wo{ Clamp(Dot(intersection.normal, -ray.Direction()), 0.f, 1.f) };
-                            pixel_radiance += Spectrumf{ n_dot_wo };
+                            const Vector3f light_dir{ Normalize(Vector3f{ 0.f, 1.f, 0.f }) };
+                            pixel_radiance += intersection.hit_triangle->material->F(intersection, intersection.wo,
+                                                                                     light_dir) *
+                                              Clamp(Dot(intersection.normal, light_dir), 0.f, 1.f);
                         }
                     }
 
