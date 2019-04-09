@@ -64,7 +64,7 @@ void ImageIntegrator::RenderImage(const Scene& scene, const Camera& camera, Film
                                                  Geometry::TriangleIntersection intersection;
                                                  if (scene.Intersect(ray, ray_interval, intersection))
                                                  {
-                                                     Geometry::Intervalf shadow_interval{
+                                                     constexpr Geometry::Intervalf shadow_interval{
                                                          Geometry::Ray::DefaultInterval() };
 
                                                      if (!scene.IntersectTest(
