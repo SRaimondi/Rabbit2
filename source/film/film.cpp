@@ -17,16 +17,16 @@ Film::Film(unsigned int width, unsigned int height)
     : width{ width }, height{ height }, raster{ width * height }
 {}
 
-const Spectrumf& Film::operator()(unsigned int row, unsigned int column) const noexcept
+const Spectrumf& Film::operator()(unsigned int pixel_x, unsigned int pixel_y) const noexcept
 {
-    assert(row < Height() && column < Width());
-    return raster[row * Width() + column];
+    assert(pixel_y < Height() && pixel_x < Width());
+    return raster[pixel_y * Width() + pixel_x];
 }
 
-Spectrumf& Film::operator()(unsigned int row, unsigned int column) noexcept
+Spectrumf& Film::operator()(unsigned int pixel_x, unsigned int pixel_y) noexcept
 {
-    assert(row < Height() && column < Width());
-    return raster[row * Width() + column];
+    assert(pixel_y < Height() && pixel_x < Width());
+    return raster[pixel_y * Width() + pixel_x];
 }
 
 void Film::WritePNG(const std::string& filename) const

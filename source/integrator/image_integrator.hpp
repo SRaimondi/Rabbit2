@@ -31,7 +31,7 @@ public:
     void RenderImage(const Scene& scene, const Camera& camera, Film& film) const noexcept;
 
 private:
-    std::vector<Tile> GenerateTiles(unsigned int image_width, unsigned int image_height) const noexcept;
+    const std::vector<Tile> GenerateTiles(unsigned int image_width, unsigned int image_height) const noexcept;
 
     // Size of tiles to render
     const Geometry::Point2ui tile_size;

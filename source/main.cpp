@@ -1,11 +1,9 @@
-#include "scene/scene.hpp"
 #include "mesh/mesh_loader.hpp"
-#include "camera/camera.hpp"
-#include "film/film.hpp"
 #include "geometry/common.hpp"
 #include "sampling/pcg32.hpp"
 #include "material/diffuse_material.hpp"
 #include "texture/constant_texture.hpp"
+#include "integrator/image_integrator.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -66,8 +64,7 @@ int main()
 
         constexpr unsigned int WIDTH{ 1920 };
         constexpr unsigned int HEIGHT{ 1080 };
-        constexpr unsigned int NUM_SAMPLES{ 32 };
-        constexpr float INV_SAMPLES{ 1.f / NUM_SAMPLES };
+        constexpr unsigned int NUM_SAMPLES{ 64 };
 
         Film film{ WIDTH, HEIGHT };
 
@@ -75,46 +72,15 @@ int main()
         const Camera camera{ Point3f{ 5.f, 4.f, 5.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
                              60.f, WIDTH, HEIGHT };
 
-        // Performance rendering process
-        constexpr unsigned int NUM_TRIALS{ 1 };
-
-        // Random number generator
-        Sampling::PCG32 rng;
+        // Create integrator
+        const ImageIntegrator image_integrator{ Geometry::Point2ui{ 16, 16 }, NUM_SAMPLES };
 
         const auto start{ std::chrono::high_resolution_clock::now() };
-        for (unsigned int trials = 0; trials != NUM_TRIALS; trials++)
-        {
-            // Loop over the whole image, generate ray and intersect
-            for (unsigned int row = 0; row != HEIGHT; row++)
-            {
-                for (unsigned int column = 0; column != WIDTH; column++)
-                {
-                    Spectrumf pixel_radiance;
-                    for (unsigned int sample = 0; sample != NUM_SAMPLES; sample++)
-                    {
-                        const Ray ray{ camera.GenerateRayWorldSpace(Point2ui{ column, row },
-                                                                    Point2f{ rng.NextFloat(), rng.NextFloat() }) };
-
-                        // Intersect Ray with BVH
-                        TriangleIntersection intersection;
-                        Intervalf interval{ Ray::DefaultInterval() };
-                        if (scene.Intersect(ray, interval, intersection))
-                        {
-                            const Vector3f light_dir{ Normalize(Vector3f{ 0.f, 1.f, 0.f }) };
-                            pixel_radiance += intersection.hit_triangle->material->F(intersection, intersection.wo,
-                                                                                     light_dir) *
-                                              2.f * Clamp(Dot(intersection.normal, light_dir), 0.f, 1.f);
-                        }
-                    }
-
-                    film(row, column) = INV_SAMPLES * pixel_radiance;
-                }
-            }
-        }
+        image_integrator.RenderImage(scene, camera, film);
         const auto end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Average rendering time: "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() / NUM_TRIALS << " ms\n";
+                  << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " ms\n";
 
         film.WritePNG("render.png");
     }

@@ -20,9 +20,9 @@ public:
     Film(unsigned int width, unsigned int height);
 
     // Access element at given index
-    const Spectrumf& operator()(unsigned int row, unsigned int column) const noexcept;
+    const Spectrumf& operator()(unsigned int pixel_x, unsigned int pixel_y) const noexcept;
 
-    Spectrumf& operator()(unsigned int row, unsigned int column) noexcept;
+    Spectrumf& operator()(unsigned int pixel_x, unsigned int pixel_y) noexcept;
 
     // Get size of the film
     unsigned int Width() const noexcept
