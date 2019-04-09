@@ -16,16 +16,16 @@ namespace Rabbit
 class EmittingMaterial : public MaterialInterface
 {
 public:
-    explicit EmittingMaterial(const std::shared_ptr<const TextureInterface<Spectrumf>>& e) noexcept;
+    explicit EmittingMaterial(const std::shared_ptr<const TextureInterface<const Spectrumf>>& e) noexcept;
 
     bool IsEmitting() const noexcept override;
 
-    Spectrumf Le(const Geometry::TriangleIntersection& intersection,
-                 const Geometry::Vector3f& w) const noexcept override;
+    const Spectrumf Le(const Geometry::TriangleIntersection& intersection,
+                       const Geometry::Vector3f& w) const noexcept override;
 
 private:
     // Emission texture
-    std::shared_ptr<const TextureInterface<Spectrumf>> emission;
+    std::shared_ptr<const TextureInterface<const Spectrumf>> emission;
 };
 
 } // Rabbit namespace

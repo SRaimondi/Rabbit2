@@ -17,7 +17,7 @@ ImageIntegrator::ImageIntegrator(std::unique_ptr<const RayIntegratorInterface> r
     : ray_integrator{ std::move(ray_integrator) }, tile_size{ tile_size }, samples_per_pixel{ spp }
 {}
 
-void ImageIntegrator::RenderImage(const Scene& scene, const Camera& camera, Film& film) const noexcept
+void ImageIntegrator::RenderImage(const Scene& scene, const CameraInterface& camera, Film& film) const noexcept
 {
     // Generate tiles
     const std::vector<Tile> tiles{ GenerateTiles(film.Width(), film.Height()) };

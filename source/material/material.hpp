@@ -22,17 +22,17 @@ public:
     virtual bool IsEmitting() const noexcept;
 
     // Evaluate BRDF value, defaults to 0
-    virtual Spectrumf F(const Geometry::TriangleIntersection& intersection,
-                        const Geometry::Vector3f& wo, const Geometry::Vector3f& wi) const noexcept;
+    virtual const Spectrumf F(const Geometry::TriangleIntersection& intersection,
+                              const Geometry::Vector3f& wo, const Geometry::Vector3f& wi) const noexcept;
 
     // Sample a new direction for the BRDF, defaults to cosine sampling
-    virtual Spectrumf SampleF(const Geometry::TriangleIntersection& intersection,
-                              const Geometry::Vector3f& wo, const Geometry::Point2f& u,
-                              Geometry::Vector3f& sampled_wi, float& sampled_wi_pdf) const noexcept;
+    virtual const Spectrumf SampleF(const Geometry::TriangleIntersection& intersection,
+                                    const Geometry::Vector3f& wo, const Geometry::Point2f& u,
+                                    Geometry::Vector3f& sampled_wi, float& sampled_wi_pdf) const noexcept;
 
     // Evaluate emission in a given direction, defaults to 0
-    virtual Spectrumf Le(const Geometry::TriangleIntersection& intersection,
-                         const Geometry::Vector3f& w) const noexcept;
+    virtual const Spectrumf Le(const Geometry::TriangleIntersection& intersection,
+                               const Geometry::Vector3f& w) const noexcept;
 };
 
 } // Rabbit namespace

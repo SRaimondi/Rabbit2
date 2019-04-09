@@ -29,7 +29,7 @@ public:
     ImageIntegrator(std::unique_ptr<const RayIntegratorInterface> ray_integrator,
                     const Geometry::Point2ui& tile_size, unsigned int spp) noexcept;
 
-    void RenderImage(const Scene& scene, const Camera& camera, Film& film) const noexcept;
+    void RenderImage(const Scene& scene, const CameraInterface& camera, Film& film) const noexcept;
 
 private:
     const std::vector<Tile> GenerateTiles(unsigned int image_width, unsigned int image_height) const noexcept;

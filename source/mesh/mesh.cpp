@@ -13,7 +13,7 @@ Mesh::Mesh(std::vector<Geometry::Point3f>&& v, std::vector<Geometry::Vector3f>&&
 {}
 
 std::vector<Triangle> Mesh::CreateTriangles(const std::shared_ptr<const Geometry::Transform>& transform,
-                                            const std::shared_ptr<const MaterialInterface>& material) const
+                                            const std::shared_ptr<const MaterialInterface>& material) const noexcept
 {
     std::vector<Triangle> mesh_triangles;
     mesh_triangles.reserve(triangles.size());
@@ -23,6 +23,16 @@ std::vector<Triangle> Mesh::CreateTriangles(const std::shared_ptr<const Geometry
     }
 
     return mesh_triangles;
+}
+
+void Mesh::CreateTriangles(const std::shared_ptr<const Geometry::Transform>& transform,
+                           const std::shared_ptr<const MaterialInterface>& material,
+                           std::vector<Triangle>& triangles_list) const noexcept
+{
+    for (const TriangleDescription& triangle: triangles)
+    {
+        triangles_list.emplace_back(triangle, *this, transform, material);
+    }
 }
 
 Triangle::Triangle(const TriangleDescription& description, const Mesh& m,

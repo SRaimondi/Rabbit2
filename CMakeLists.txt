@@ -22,7 +22,6 @@ add_executable(Rabbit2
         source/geometry/ray.hpp
         source/geometry/intersection.hpp
         external/stb_image_write.hpp
-        source/camera/camera.cpp
         source/camera/camera.hpp
         source/geometry/common.hpp
         source/geometry/geometry.hpp
@@ -55,7 +54,11 @@ add_executable(Rabbit2
         source/scene/scene.hpp
         source/integrator/ray_integrator.hpp
         source/light/light.hpp
-        source/light/light.cpp source/integrator/debug_integrator.cpp source/integrator/debug_integrator.hpp)
+        source/light/light.cpp
+        source/integrator/debug_integrator.cpp
+        source/integrator/debug_integrator.hpp
+        source/camera/perspective_camera.cpp
+        source/camera/perspective_camera.hpp)
 
 # find_package(OpenCL)
 

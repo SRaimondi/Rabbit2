@@ -23,15 +23,16 @@ bool MaterialInterface::IsEmitting() const noexcept
     return false;
 }
 
-Spectrumf MaterialInterface::F(const Geometry::TriangleIntersection&, const Geometry::Vector3f&,
-                               const Geometry::Vector3f&) const noexcept
+const Spectrumf MaterialInterface::F(const Geometry::TriangleIntersection&, const Geometry::Vector3f&,
+                                     const Geometry::Vector3f&) const noexcept
 {
     return Rabbit::Spectrumf{ 0.f };
 }
 
-Spectrumf MaterialInterface::SampleF(const Geometry::TriangleIntersection& intersection, const Geometry::Vector3f& wo,
-                                     const Geometry::Point2f& u, Geometry::Vector3f& sampled_wi,
-                                     float& sampled_wi_pdf) const noexcept
+const Spectrumf MaterialInterface::SampleF(const Geometry::TriangleIntersection& intersection,
+                                           const Geometry::Vector3f& wo,
+                                           const Geometry::Point2f& u, Geometry::Vector3f& sampled_wi,
+                                           float& sampled_wi_pdf) const noexcept
 {
     // Sample direction using cosine weighted sampling
     const Geometry::Vector3f local_wi{ Sampling::CosineSampleHemisphere(u) };
@@ -43,7 +44,7 @@ Spectrumf MaterialInterface::SampleF(const Geometry::TriangleIntersection& inter
     return F(intersection, wo, sampled_wi);
 }
 
-Spectrumf MaterialInterface::Le(const Geometry::TriangleIntersection&, const Geometry::Vector3f&) const noexcept
+const Spectrumf MaterialInterface::Le(const Geometry::TriangleIntersection&, const Geometry::Vector3f&) const noexcept
 {
     return Rabbit::Spectrumf{ 0.f };
 }

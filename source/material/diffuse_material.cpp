@@ -17,8 +17,8 @@ bool DiffuseMaterial::IsDiffuse() const noexcept
     return true;
 }
 
-Spectrumf DiffuseMaterial::F(const Geometry::TriangleIntersection& intersection, const Geometry::Vector3f&,
-                             const Geometry::Vector3f&) const noexcept
+const Spectrumf DiffuseMaterial::F(const Geometry::TriangleIntersection& intersection, const Geometry::Vector3f&,
+                                   const Geometry::Vector3f&) const noexcept
 {
     return reflectance->Evaluate(intersection.uv) * Geometry::INV_PI<float>;
 }

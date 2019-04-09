@@ -87,7 +87,12 @@ public:
 
     // Create list of triangles for the mesh
     std::vector<Triangle> CreateTriangles(const std::shared_ptr<const Geometry::Transform>& transform,
-                                          const std::shared_ptr<const MaterialInterface>& material) const;
+                                          const std::shared_ptr<const MaterialInterface>& material) const noexcept;
+
+    // Appen triangles to given list
+    void CreateTriangles(const std::shared_ptr<const Geometry::Transform>& transform,
+                         const std::shared_ptr<const MaterialInterface>& material,
+                         std::vector<Triangle>& triangles_list) const noexcept;
 
 private:
     // Mesh representation
