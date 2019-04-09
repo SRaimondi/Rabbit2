@@ -14,12 +14,12 @@ namespace Rabbit
 class MaterialInterface
 {
 public:
-    virtual // Checkers for the properties of the Material
-    bool IsDiffuse() const noexcept;
+    // Checkers for the properties of the Material
+    virtual bool IsDiffuse() const noexcept;
 
-    bool IsSpecular() const noexcept;
+    virtual bool IsSpecular() const noexcept;
 
-    bool IsEmitting() const noexcept;
+    virtual bool IsEmitting() const noexcept;
 
     // Evaluate BRDF value, defaults to 0
     virtual Spectrumf F(const Geometry::TriangleIntersection& intersection,

@@ -46,7 +46,7 @@ add_executable(Rabbit2
         source/material/material.cpp
         source/material/material.hpp
         source/material/diffuse_material.cpp
-        source/material/diffuse_material.hpp)
+        source/material/diffuse_material.hpp source/material/emitting_material.cpp source/material/emitting_material.hpp)
 
 # find_package(OpenCL)
 
