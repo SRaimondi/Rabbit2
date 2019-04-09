@@ -18,11 +18,43 @@ namespace Rabbit
 
 class Triangle;
 
+struct TriangleDescription
+{
+    constexpr TriangleDescription(unsigned int v0,
+                                  unsigned int v1,
+                                  unsigned int v2,
+                                  unsigned int n0 = INVALID_INDEX,
+                                  unsigned int n1 = INVALID_INDEX,
+                                  unsigned int n2 = INVALID_INDEX,
+                                  unsigned int uv0 = INVALID_INDEX,
+                                  unsigned int uv1 = INVALID_INDEX,
+                                  unsigned int uv2 = INVALID_INDEX)
+        : v0{ v0 }, v1{ v1 }, v2{ v2 },
+          n0{ n0 }, n1{ n1 }, n2{ n2 },
+          uv0{ uv0 }, uv1{ uv1 }, uv2{ uv2 }
+    {}
+
+    static constexpr unsigned int INVALID_INDEX{ std::numeric_limits<unsigned int>::max() };
+
+    // Vertices indices
+    const unsigned int v0;
+    const unsigned int v1;
+    const unsigned int v2;
+    // Normals indices
+    const unsigned int n0;
+    const unsigned int n1;
+    const unsigned int n2;
+    // UV indices
+    const unsigned int uv0;
+    const unsigned int uv1;
+    const unsigned int uv2;
+};
+
 class Mesh
 {
 public:
     Mesh(std::vector<Geometry::Point3f>&& v, std::vector<Geometry::Vector3f>&& n,
-         std::vector<Geometry::Point2f>&& uvs, std::vector<unsigned int>&& i);
+         std::vector<Geometry::Vector2f>&& uvs, std::vector<TriangleDescription>&& tr);
 
     const Geometry::Point3f& VertexAt(unsigned int vertex_index) const noexcept
     {
@@ -46,16 +78,10 @@ public:
         return !uvs.empty();
     }
 
-    const Geometry::Point2f& UVAt(unsigned int uv_index) const noexcept
+    const Geometry::Vector2f& UVAt(unsigned int uv_index) const noexcept
     {
         assert(uv_index < uvs.size());
         return uvs[uv_index];
-    }
-
-    unsigned int FaceIndexAt(unsigned int index) const noexcept
-    {
-        assert(index < indices.size());
-        return indices[index];
     }
 
     // Create list of triangles for the mesh
@@ -65,8 +91,8 @@ private:
     // Mesh representation
     std::vector<Geometry::Point3f> vertices;
     std::vector<Geometry::Vector3f> normals;
-    std::vector<Geometry::Point2f> uvs;
-    std::vector<unsigned int> indices;
+    std::vector<Geometry::Vector2f> uvs;
+    std::vector<TriangleDescription> triangles;
 };
 
 std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
@@ -74,14 +100,15 @@ std::ostream& operator<<(std::ostream& os, const Mesh& mesh);
 class Triangle
 {
 public:
-    Triangle(unsigned int fi, const Mesh& m, const std::shared_ptr<const Geometry::Transform>& transform) noexcept;
+    Triangle(const TriangleDescription& description, const Mesh& m,
+             const std::shared_ptr<const Geometry::Transform>& transform) noexcept;
 
     // Compute triangle BBox in world space
     const Geometry::BBox Bounds() const noexcept
     {
-        return { transformation->ToWorld(mesh.VertexAt(mesh.FaceIndexAt(first_index))),
-                 transformation->ToWorld(mesh.VertexAt(mesh.FaceIndexAt(first_index + 1))),
-                 transformation->ToWorld(mesh.VertexAt(mesh.FaceIndexAt(first_index + 2))) };
+        return { transformation->ToWorld(mesh.VertexAt(description.v0)),
+                 transformation->ToWorld(mesh.VertexAt(description.v1)),
+                 transformation->ToWorld(mesh.VertexAt(description.v2)) };
     }
 
     // Intersect ray with triangle
@@ -97,8 +124,8 @@ public:
                                      Geometry::TriangleIntersection& intersection) const noexcept;
 
 private:
-    // Index of the first vertex
-    const unsigned int first_index;
+    // Pointer to the triangle description
+    const TriangleDescription& description;
     // Mesh associated
     const Mesh& mesh;
     // Transformation for the triangle
@@ -112,9 +139,9 @@ inline bool Triangle::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& i
     const Geometry::Vector3f local_direction{ transformation->ToLocal(ray.Direction()) };
 
     // Translate vertices based on ray origin
-    Geometry::Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - local_origin };
-    Geometry::Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - local_origin };
-    Geometry::Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - local_origin };
+    Geometry::Vector3f v0t{ mesh.VertexAt(description.v0) - local_origin };
+    Geometry::Vector3f v1t{ mesh.VertexAt(description.v1) - local_origin };
+    Geometry::Vector3f v2t{ mesh.VertexAt(description.v2) - local_origin };
 
     // Permute components of triangle vertices and ray direction
     const unsigned int kz{ Abs(local_direction).LargestDimension() };
@@ -190,9 +217,9 @@ inline bool Triangle::IntersectTest(const Geometry::Ray& ray, const Geometry::In
     const Geometry::Vector3f local_direction{ transformation->ToLocal(ray.Direction()) };
 
     // Translate vertices based on ray origin
-    Geometry::Vector3f v0t{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) - local_origin };
-    Geometry::Vector3f v1t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) - local_origin };
-    Geometry::Vector3f v2t{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) - local_origin };
+    Geometry::Vector3f v0t{ mesh.VertexAt(description.v0) - local_origin };
+    Geometry::Vector3f v1t{ mesh.VertexAt(description.v1) - local_origin };
+    Geometry::Vector3f v2t{ mesh.VertexAt(description.v2) - local_origin };
 
     // Permute components of triangle vertices and ray direction
     const unsigned int kz{ Abs(local_direction).LargestDimension() };
@@ -267,18 +294,26 @@ inline void Triangle::ComputeIntersectionGeometry(const Geometry::Ray& ray,
     {
         // Compute normal based on barycentric coordinates
         intersection.normal = Geometry::Normalize(transformation->NormalToWorld(
-            intersection.u * mesh.NormalAt(mesh.FaceIndexAt(first_index)) +
-            intersection.v * mesh.NormalAt(mesh.FaceIndexAt(first_index + 1)) +
-            intersection.w * mesh.NormalAt(mesh.FaceIndexAt(first_index + 2))));
+            intersection.u * mesh.NormalAt(description.n0) +
+            intersection.v * mesh.NormalAt(description.n1) +
+            intersection.w * mesh.NormalAt(description.n2)));
     }
     else
     {
         // Compute normal based on vertices
-        const Geometry::Point3f& v0{ mesh.VertexAt(mesh.FaceIndexAt(first_index)) };
-        const Geometry::Point3f& v1{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 1)) };
-        const Geometry::Point3f& v2{ mesh.VertexAt(mesh.FaceIndexAt(first_index + 2)) };
+        const Geometry::Point3f& v0{ mesh.VertexAt(description.v0) };
+        const Geometry::Point3f& v1{ mesh.VertexAt(description.v1) };
+        const Geometry::Point3f& v2{ mesh.VertexAt(description.v2) };
 
         intersection.normal = Geometry::Normalize(Geometry::Cross(v1 - v0, v2 - v0));
+    }
+
+    // Check if we have UV coordinates
+    if (mesh.HasUVs())
+    {
+        intersection.uv = intersection.u * mesh.UVAt(description.uv0) +
+                          intersection.v * mesh.UVAt(description.uv1) +
+                          intersection.w * mesh.UVAt(description.uv2);
     }
 }
 

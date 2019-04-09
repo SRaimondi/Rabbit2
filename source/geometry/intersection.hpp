@@ -36,7 +36,7 @@ struct TriangleIntersection
     // Barycentric coordinate for vertex v1
     float v;
     // UV coordinates
-    Point2f uv;
+    Vector2f uv;
     // Barycentric coordinate for vertex v2
     float w;
     // Index of the triangle that generated the intersection

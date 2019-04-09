@@ -18,7 +18,7 @@ namespace Rabbit
 namespace MeshLoader
 {
 
-const Mesh LoadOBJ(const std::string& filename)
+const Mesh LoadOBJ(const std::string& filename, bool load_uv)
 {
     using namespace tinyobj;
 
@@ -90,10 +90,10 @@ const Mesh LoadOBJ(const std::string& filename)
     // Now that we have our vertices and indices, we can compute the normals
     std::vector<Geometry::Vector3f> smooth_normals = SmoothNormals(vertices, indices);
 
-    return { std::move(vertices), std::move(smooth_normals), std::vector<Geometry::Point2f>{}, std::move(indices) };
+    return { std::move(vertices), std::move(smooth_normals), std::vector<Geometry::Vector2f>{}, std::move(indices) };
 }
 
-const Mesh LoadPLY(const std::string& filename)
+const Mesh LoadPLY(const std::string& filename, bool load_uv)
 {
     using namespace tinyply;
 
@@ -128,7 +128,7 @@ const Mesh LoadPLY(const std::string& filename)
     // Now that we have our vertices and indices, we can compute the normals
     std::vector<Geometry::Vector3f> smooth_normals = SmoothNormals(vertices, indices);
 
-    return { std::move(vertices), std::move(smooth_normals), std::vector<Geometry::Point2f>{}, std::move(indices) };
+    return { std::move(vertices), std::move(smooth_normals), std::vector<Geometry::Vector2f>{}, std::move(indices) };
 }
 
 std::vector<Geometry::Vector3f> SmoothNormals(const std::vector<Geometry::Point3f>& vertices,
@@ -164,7 +164,7 @@ std::vector<Geometry::Vector3f> SmoothNormals(const std::vector<Geometry::Point3
 
 } // MeshLoader namespace
 
-const Mesh LoadMesh(const std::string& filename)
+const Mesh LoadMesh(const std::string& filename, bool load_uv)
 {
     // Check file extension
     const std::size_t extension_position{ filename.find_last_of('.') };
@@ -179,11 +179,11 @@ const Mesh LoadMesh(const std::string& filename)
     // Forward method based on extension
     if (extension == ".ply")
     {
-        return MeshLoader::LoadPLY(filename);
+        return MeshLoader::LoadPLY(filename, load_uv);
     }
     else if (extension == ".obj")
     {
-        return MeshLoader::LoadOBJ(filename);
+        return MeshLoader::LoadOBJ(filename, load_uv);
     }
     else
     {
