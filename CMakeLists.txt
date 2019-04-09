@@ -46,7 +46,7 @@ add_executable(Rabbit2
         source/material/material.cpp
         source/material/material.hpp
         source/material/diffuse_material.cpp
-        source/material/diffuse_material.hpp source/material/emitting_material.cpp source/material/emitting_material.hpp source/integrator/image_integrator.cpp source/integrator/image_integrator.hpp source/scene/scene.cpp source/scene/scene.hpp source/integrator/ray_integrator.hpp)
+        source/material/diffuse_material.hpp source/material/emitting_material.cpp source/material/emitting_material.hpp source/integrator/image_integrator.cpp source/integrator/image_integrator.hpp source/scene/scene.cpp source/scene/scene.hpp source/integrator/ray_integrator.hpp source/light/light.hpp)
 
 # find_package(OpenCL)
 

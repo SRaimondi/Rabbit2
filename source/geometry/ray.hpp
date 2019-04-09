@@ -7,6 +7,7 @@
 
 #include "geometry.hpp"
 #include "interval.hpp"
+#include "common.hpp"
 
 namespace Rabbit
 {
@@ -25,10 +26,7 @@ public:
 
     constexpr static Intervalf DefaultInterval() noexcept
     {
-        constexpr float DEFAULT_START{ 0.0001f };
-        constexpr float DEFAULT_END{ std::numeric_limits<float>::max() };
-
-        return Intervalf{ DEFAULT_START, DEFAULT_END };
+        return Intervalf{ EPS<float>, std::numeric_limits<float>::max() };
     }
 
     constexpr const Point3f& Origin() const noexcept

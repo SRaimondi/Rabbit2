@@ -4,6 +4,7 @@
 
 #include "image_integrator.hpp"
 #include "sampling/pcg32.hpp"
+#include "light/light.hpp"
 
 #include <thread>
 #include <atomic>
@@ -64,12 +65,10 @@ void ImageIntegrator::RenderImage(const Scene& scene, const Camera& camera, Film
                                                  Geometry::TriangleIntersection intersection;
                                                  if (scene.Intersect(ray, ray_interval, intersection))
                                                  {
-                                                     constexpr Geometry::Intervalf shadow_interval{
-                                                         Geometry::Ray::DefaultInterval() };
 
-                                                     if (!scene.IntersectTest(
-                                                         Geometry::Ray{ intersection.hit_point, light_dir },
-                                                         shadow_interval))
+                                                     const OcclusionTester occlusion_tester{ intersection.hit_point,
+                                                                                             light_dir };
+                                                     if (!occlusion_tester.IsOccluded(scene))
                                                      {
                                                          pixel_radiance +=
                                                              intersection.hit_triangle->material->F(intersection,

@@ -36,6 +36,9 @@ constexpr T INV_2PI{ T(1) / TWO_PI<T> };
 template <typename T>
 constexpr T INV_4PI{ T(1) / FOUR_PI<T> };
 
+template <typename T>
+constexpr T EPS{ T(0.0001) };
+
 // Convert radians to degrees
 template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
 constexpr T Radians(const T& deg) noexcept
