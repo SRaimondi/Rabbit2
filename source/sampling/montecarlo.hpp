@@ -79,6 +79,19 @@ constexpr float CosineSampleHemispherePdf(float cos_theta) noexcept
     return cos_theta * Geometry::INV_PI<float>;
 }
 
+inline Geometry::Point3f UniformSampleTriangle(const Geometry::Point2f& u) noexcept
+{
+    const float sampled_b0{ std::sqrt(u[0]) };
+    const float sampled_b1{ u[1] * sampled_b0 };
+
+    return { 1.f - sampled_b0, sampled_b1, sampled_b0 - sampled_b1 };
+}
+
+constexpr float UniformSampleTrianglePdf(float area)
+{
+    return 1.f / area;
+}
+
 } // Sampling namespace
 } // Rabbit namespace
 

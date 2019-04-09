@@ -37,7 +37,20 @@ private:
 class LightInterface
 {
 public:
-    // Evaluate incoming light at a given
+    explicit LightInterface(unsigned int ns) noexcept
+        : num_samples{ ns }
+    {}
+
+    // Sample incoming light at given intersection
+    virtual Spectrumf SampleLi(const Geometry::TriangleIntersection& reference_intersection,
+                               const Geometry::Point2f& u, Geometry::Vector3f& sampled_wi, float& sampled_wi_pdf,
+                               OcclusionTester& occlusion_tester) const noexcept = 0;
+
+    //
+
+protected:
+    // Number of samples for this light
+    const unsigned int num_samples;
 };
 
 } // Rabbit interface
