@@ -1,0 +1,8 @@
+//
+// Created by Simon on 2019-04-09.
+//
+
+#ifndef RABBIT2_IMAGE_INTEGRATOR_HPP
+#define RABBIT2_IMAGE_INTEGRATOR_HPP
+
+#endif //RABBIT2_IMAGE_INTEGRATOR_HPP

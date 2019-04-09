@@ -1,4 +1,4 @@
-#include "bvh/bvh.hpp"
+#include "scene/scene.hpp"
 #include "mesh/mesh_loader.hpp"
 #include "camera/camera.hpp"
 #include "film/film.hpp"
@@ -55,14 +55,17 @@ int main()
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
-        const BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 128 }, scene_triangles };
+        BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 128 }, scene_triangles };
         const auto bvh_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Built BVH in "
                   << std::chrono::duration_cast<std::chrono::milliseconds>(bvh_end - bvh_start).count() << " ms\n";
 
-        constexpr unsigned int WIDTH{ 800 };
-        constexpr unsigned int HEIGHT{ 800 };
+        // Create scene
+        const Scene scene{ std::move(bvh) };
+
+        constexpr unsigned int WIDTH{ 1920 };
+        constexpr unsigned int HEIGHT{ 1080 };
         constexpr unsigned int NUM_SAMPLES{ 32 };
         constexpr float INV_SAMPLES{ 1.f / NUM_SAMPLES };
 
@@ -95,7 +98,7 @@ int main()
                         // Intersect Ray with BVH
                         TriangleIntersection intersection;
                         Intervalf interval{ Ray::DefaultInterval() };
-                        if (bvh.Intersect(ray, interval, intersection))
+                        if (scene.Intersect(ray, interval, intersection))
                         {
                             const Vector3f light_dir{ Normalize(Vector3f{ 0.f, 1.f, 0.f }) };
                             pixel_radiance += intersection.hit_triangle->material->F(intersection, intersection.wo,

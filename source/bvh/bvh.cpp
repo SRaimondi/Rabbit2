@@ -47,6 +47,16 @@ BVH::BVH(const BVHConfig& config, std::vector<Triangle>&& tr)
     Build();
 }
 
+BVH::BVH(BVH&& other) noexcept
+    : configuration{ other.configuration }, triangles{ std::move(other.triangles) },
+      total_nodes{ other.total_nodes }, flat_tree_nodes{ nullptr }
+{
+    // Take ownership of nodes
+    flat_tree_nodes = other.flat_tree_nodes;
+    other.flat_tree_nodes = nullptr;
+    other.total_nodes = 0;
+}
+
 BVH::~BVH() noexcept
 {
     FreeAligned(flat_tree_nodes);

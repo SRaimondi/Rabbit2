@@ -86,6 +86,14 @@ public:
 
     BVH(const BVHConfig& config, std::vector<Triangle>&& tr);
 
+    // We allow move construction
+    BVH(BVH&& other) noexcept;
+
+    // But disable assignment and move assignment
+    BVH& operator=(const BVH& rhs) = delete;
+
+    BVH& operator=(BVH&& rhs) = delete;
+
     ~BVH() noexcept;
 
     // Intersect Ray with BVH
