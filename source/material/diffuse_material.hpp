@@ -16,7 +16,7 @@ namespace Rabbit
 class DiffuseMaterial : public MaterialInterface
 {
 public:
-    explicit DiffuseMaterial(const std::shared_ptr<const TextureInterface<Spectrumf>>& r) noexcept;
+    explicit DiffuseMaterial(const std::shared_ptr<const TextureInterface<const Spectrumf>>& r) noexcept;
 
     bool IsDiffuse() const noexcept override;
 
@@ -25,7 +25,7 @@ public:
 
 private:
     // Reflectance texture
-    std::shared_ptr<const TextureInterface<Spectrumf>> reflectance;
+    std::shared_ptr<const TextureInterface<const Spectrumf>> reflectance;
 };
 
 } // Rabbit namespace

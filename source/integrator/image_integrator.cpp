@@ -12,8 +12,9 @@
 namespace Rabbit
 {
 
-ImageIntegrator::ImageIntegrator(const Geometry::Point2ui& tile_size, unsigned int spp) noexcept
-    : tile_size{ tile_size }, samples_per_pixel{ spp }
+ImageIntegrator::ImageIntegrator(std::unique_ptr<const RayIntegratorInterface> ray_integrator,
+                                 const Geometry::Point2ui& tile_size, unsigned int spp) noexcept
+    : ray_integrator{ std::move(ray_integrator) }, tile_size{ tile_size }, samples_per_pixel{ spp }
 {}
 
 void ImageIntegrator::RenderImage(const Scene& scene, const Camera& camera, Film& film) const noexcept
@@ -32,62 +33,50 @@ void ImageIntegrator::RenderImage(const Scene& scene, const Camera& camera, Film
     std::vector<std::thread> threads;
     for (unsigned int t = 0; t != num_threads; t++)
     {
-        threads.emplace_back([&scene, &camera, &film, &tiles, &next_tile_index](unsigned int spp) -> void
-                             {
-                                 //FIXME
-                                 Sampling::PCG32 rng;
-                                 const float inv_num_samples{ 1.f / spp };
-                                 const Geometry::Vector3f light_dir{ Normalize(Geometry::Vector3f{ -1.f, 1.f, 0.f }) };
+        threads.emplace_back(
+            [&scene, &camera, &film, &tiles, &next_tile_index](const RayIntegratorInterface* integrator,
+                                                               unsigned int spp) -> void
+            {
+                //FIXME
+                Sampling::PCG32 rng;
 
-                                 // Get next tile to render
-                                 unsigned int tile_to_render{ next_tile_index++ };
-                                 while (tile_to_render < tiles.size())
-                                 {
-                                     // Get reference to the tile for the thread
-                                     const Tile& current_tile{ tiles[tile_to_render] };
-                                     // Loop over tile domain
-                                     for (unsigned int pixel_y = current_tile.tile_start.y;
-                                          pixel_y != current_tile.tile_end.y; pixel_y++)
-                                     {
-                                         for (unsigned int pixel_x = current_tile.tile_start.x;
-                                              pixel_x != current_tile.tile_end.x; pixel_x++)
-                                         {
-                                             Spectrumf pixel_radiance;
-                                             for (unsigned int sample = 0; sample != spp; sample++)
-                                             {
-                                                 // Generate ray
-                                                 Geometry::Intervalf ray_interval{ Geometry::Ray::DefaultInterval() };
-                                                 const Geometry::Ray ray{ camera.GenerateRayWorldSpace(
-                                                     Geometry::Point2ui{ pixel_x, pixel_y },
-                                                     Geometry::Point2f{ rng.NextFloat(), rng.NextFloat() }) };
+                // Precompute inverse number of samples for scaling
+                const float inv_num_samples{ 1.f / spp };
 
-                                                 // Intersect ray with scene
-                                                 Geometry::TriangleIntersection intersection;
-                                                 if (scene.Intersect(ray, ray_interval, intersection))
-                                                 {
+                // Get next tile to render
+                unsigned int tile_to_render{ next_tile_index++ };
+                while (tile_to_render < tiles.size())
+                {
+                    // Get reference to the tile for the thread
+                    const Tile& current_tile{ tiles[tile_to_render] };
+                    // Loop over tile domain
+                    for (unsigned int pixel_y = current_tile.tile_start.y;
+                         pixel_y != current_tile.tile_end.y; pixel_y++)
+                    {
+                        for (unsigned int pixel_x = current_tile.tile_start.x;
+                             pixel_x != current_tile.tile_end.x; pixel_x++)
+                        {
+                            Spectrumf pixel_radiance{ 0.f };
+                            for (unsigned int sample = 0; sample != spp; sample++)
+                            {
+                                // Generate ray
+                                Geometry::Intervalf ray_interval{ Geometry::Ray::DefaultInterval() };
+                                const Geometry::Ray ray{ camera.GenerateRayWorldSpace(
+                                    Geometry::Point2ui{ pixel_x, pixel_y },
+                                    Geometry::Point2f{ rng.NextFloat(), rng.NextFloat() }) };
 
-                                                     const OcclusionTester occlusion_tester{ intersection.hit_point,
-                                                                                             light_dir };
-                                                     if (!occlusion_tester.IsOccluded(scene))
-                                                     {
-                                                         pixel_radiance +=
-                                                             intersection.hit_triangle->material->F(intersection,
-                                                                                                    intersection.wo,
-                                                                                                    light_dir) *
-                                                             2.f * Clamp(Dot(intersection.normal, light_dir), 0.f, 1.f);
-                                                     }
-                                                 }
-                                             }
+                                pixel_radiance += integrator->IncomingRadiance(ray, ray_interval, scene);
+                            }
 
-                                             // Set pixel radiance in film
-                                             film(pixel_x, pixel_y) = inv_num_samples * pixel_radiance;
-                                         }
-                                     }
+                            // Set pixel radiance in film
+                            film(pixel_x, pixel_y) = inv_num_samples * pixel_radiance;
+                        }
+                    }
 
-                                     // Go to next tile
-                                     tile_to_render = next_tile_index++;
-                                 }
-                             }, samples_per_pixel);
+                    // Go to next tile
+                    tile_to_render = next_tile_index++;
+                }
+            }, ray_integrator.get(), samples_per_pixel);
     }
 
     // Wait for all threads to finish

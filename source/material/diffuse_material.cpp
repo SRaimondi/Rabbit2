@@ -8,7 +8,7 @@
 namespace Rabbit
 {
 
-DiffuseMaterial::DiffuseMaterial(const std::shared_ptr<const TextureInterface<Spectrumf>>& r) noexcept
+DiffuseMaterial::DiffuseMaterial(const std::shared_ptr<const TextureInterface<const Spectrumf>>& r) noexcept
     : reflectance{ r }
 {}
 

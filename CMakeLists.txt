@@ -55,7 +55,7 @@ add_executable(Rabbit2
         source/scene/scene.hpp
         source/integrator/ray_integrator.hpp
         source/light/light.hpp
-        source/light/light.cpp)
+        source/light/light.cpp source/integrator/debug_integrator.cpp source/integrator/debug_integrator.hpp)
 
 # find_package(OpenCL)
 

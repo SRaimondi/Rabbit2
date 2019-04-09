@@ -5,9 +5,9 @@
 #ifndef RABBIT2_IMAGE_INTEGRATOR_HPP
 #define RABBIT2_IMAGE_INTEGRATOR_HPP
 
-#include "scene/scene.hpp"
 #include "camera/camera.hpp"
 #include "film/film.hpp"
+#include "ray_integrator.hpp"
 
 namespace Rabbit
 {
@@ -26,13 +26,15 @@ struct Tile
 class ImageIntegrator
 {
 public:
-    ImageIntegrator(const Geometry::Point2ui& tile_size, unsigned int spp) noexcept;
+    ImageIntegrator(std::unique_ptr<const RayIntegratorInterface> ray_integrator,
+                    const Geometry::Point2ui& tile_size, unsigned int spp) noexcept;
 
     void RenderImage(const Scene& scene, const Camera& camera, Film& film) const noexcept;
 
 private:
     const std::vector<Tile> GenerateTiles(unsigned int image_width, unsigned int image_height) const noexcept;
 
+    std::unique_ptr<const RayIntegratorInterface> ray_integrator;
     // Size of tiles to render
     const Geometry::Point2ui tile_size;
     // Number of samples for each pixel
