@@ -62,7 +62,7 @@ int main()
                              60.f, WIDTH, HEIGHT };
 
         // Performance rendering process
-        constexpr unsigned int NUM_TRIALS{ 10 };
+        constexpr unsigned int NUM_TRIALS{ 1 };
 
         // Random number generator
         Sampling::PCG32 rng;

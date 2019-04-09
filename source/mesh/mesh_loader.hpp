@@ -22,7 +22,7 @@ std::vector<Geometry::Vector3f> SmoothNormals(const std::vector<Geometry::Point3
 } // MeshLoader namespace
 
 // Load mesh from file
-const Mesh LoadMesh(const std::string& filename, bool load_uv = true);
+const Mesh LoadMesh(const std::string& filename, bool load_uv = false);
 
 } // Rabbit namespace
 
