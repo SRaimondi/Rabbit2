@@ -113,7 +113,7 @@ public:
     }
 
     // Intersect ray with triangle
-    bool Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
+    void Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
                    Geometry::TriangleIntersection& intersection) const noexcept;
 
     // Check for intersection
@@ -136,7 +136,7 @@ private:
     std::shared_ptr<const Geometry::Transform> transformation;
 };
 
-inline bool Triangle::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
+inline void Triangle::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
                                 Geometry::TriangleIntersection& intersection) const noexcept
 {
     const Geometry::Point3f local_origin{ transformation->ToLocal(ray.Origin()) };
@@ -183,12 +183,12 @@ inline bool Triangle::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& i
     // Perform triangle edge and determinant tests
     if ((e0 < 0.f || e1 < 0.f || e2 < 0.f) && (e0 > 0.f || e1 > 0.f || e2 > 0.f))
     {
-        return false;
+        return;
     }
     const float det{ e0 + e1 + e2 };
     if (det == 0.f)
     {
-        return false;
+        return;
     }
 
     // Compute scaled hit distance to triangle and test against ray range
@@ -198,11 +198,11 @@ inline bool Triangle::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& i
     const float t_scaled{ e0 * v0t.z + e1 * v1t.z + e2 * v2t.z };
     if (det < 0.f && (t_scaled >= 0.f || t_scaled < interval.End() * det || t_scaled > interval.Start() * det))
     {
-        return false;
+        return;
     }
     else if (det > 0.f && (t_scaled <= 0.f || t_scaled > interval.End() * det || t_scaled < interval.Start() * det))
     {
-        return false;
+        return;
     }
 
     // Compute barycentric coordinates and value for triangle intersection
@@ -212,7 +212,8 @@ inline bool Triangle::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& i
     intersection.w = e2 * inv_det;
     interval.SetEnd(t_scaled * inv_det);
 
-    return true;
+    // Set pointer
+    intersection.hit_triangle = this;
 }
 
 inline bool Triangle::IntersectTest(const Geometry::Ray& ray, const Geometry::Intervalf& interval) const noexcept

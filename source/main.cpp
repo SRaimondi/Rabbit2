@@ -33,13 +33,19 @@ int main()
         const auto tr2{ std::make_shared<const Transform>(RotateY(90.f)) };
         const auto tr3{ std::make_shared<const Transform>(Translate(-3.f, 0.f, 0.f) * RotateY(90.f)) };
 
-        const auto material{ std::make_shared<const DiffuseMaterial>(
-            std::make_shared<const ConstantTexture<Spectrumf>>(Spectrumf{ 0.9f })) };
+        const auto material_plane{ std::make_shared<const DiffuseMaterial>(
+            std::make_shared<const ConstantTexture<Spectrumf>>(Spectrumf{ 0.9f, 0.1f, 0.2f })) };
+        const auto material_dragon1{ std::make_shared<const DiffuseMaterial>(
+            std::make_shared<const ConstantTexture<Spectrumf>>(Spectrumf{ 0.9f, 0.6f, 0.2f })) };
+        const auto material_dragon2{ std::make_shared<const DiffuseMaterial>(
+            std::make_shared<const ConstantTexture<Spectrumf>>(Spectrumf{ 0.1f, 0.8f, 0.2f })) };
+        const auto material_dragon3{ std::make_shared<const DiffuseMaterial>(
+            std::make_shared<const ConstantTexture<Spectrumf>>(Spectrumf{ 0.1f, 0.8f, 0.9f })) };
 
-        std::vector<Triangle> plane_triangles{ plane.CreateTriangles(tr_plane, material) };
-        std::vector<Triangle> dragon1_triangles{ dragon.CreateTriangles(tr1, material) };
-        std::vector<Triangle> dragon2_triangles{ dragon.CreateTriangles(tr2, material) };
-        std::vector<Triangle> dragon3_triangles{ dragon.CreateTriangles(tr3, material) };
+        std::vector<Triangle> plane_triangles{ plane.CreateTriangles(tr_plane, material_plane) };
+        std::vector<Triangle> dragon1_triangles{ dragon.CreateTriangles(tr1, material_dragon1) };
+        std::vector<Triangle> dragon2_triangles{ dragon.CreateTriangles(tr2, material_dragon2) };
+        std::vector<Triangle> dragon3_triangles{ dragon.CreateTriangles(tr3, material_dragon3) };
 
         std::vector<Triangle> scene_triangles;
         std::move(plane_triangles.begin(), plane_triangles.end(), std::back_inserter(scene_triangles));
@@ -94,7 +100,7 @@ int main()
                             const Vector3f light_dir{ Normalize(Vector3f{ 0.f, 1.f, 0.f }) };
                             pixel_radiance += intersection.hit_triangle->material->F(intersection, intersection.wo,
                                                                                      light_dir) *
-                                              Clamp(Dot(intersection.normal, light_dir), 0.f, 1.f);
+                                              2.f * Clamp(Dot(intersection.normal, light_dir), 0.f, 1.f);
                         }
                     }
 

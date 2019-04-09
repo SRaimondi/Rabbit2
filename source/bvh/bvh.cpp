@@ -82,12 +82,8 @@ bool BVH::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& interval,
             {
                 for (unsigned int i = 0; i != current_node.num_triangles; i++)
                 {
-                    const unsigned int triangle_index{ current_node.triangle_offset + i };
-                    if (triangles[triangle_index].Intersect(ray, interval, intersection))
-                    {
-                        // Update index
-                        intersection.hit_triangle = &triangles[triangle_index];
-                    }
+                    // Intersect ray with triangles in leaf
+                    triangles[current_node.triangle_offset + i].Intersect(ray, interval, intersection);
                 }
                 // Check if we still have node to visit
                 if (to_visit_offset == 0)
