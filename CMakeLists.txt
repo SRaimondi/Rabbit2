@@ -39,7 +39,10 @@ add_executable(Rabbit2
         source/sampling/pcg32.hpp
         source/geometry/interval.hpp
         source/mesh/mesh_loader.cpp
-        source/mesh/mesh_loader.hpp source/sampling/montecarlo.hpp source/texture/texture.hpp source/texture/constant_texture.hpp)
+        source/mesh/mesh_loader.hpp
+        source/sampling/montecarlo.hpp
+        source/texture/texture.hpp
+        source/texture/constant_texture.hpp source/material/material.cpp source/material/material.hpp)
 
 # find_package(OpenCL)
 

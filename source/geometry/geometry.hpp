@@ -329,7 +329,22 @@ inline T Distance(const Point3<T>& from, const Point3<T>& to) noexcept
 template <typename T>
 constexpr const Vector3<T> Reciprocal(const Vector3<T>& v) noexcept
 {
-    return { 1.f / v.x, 1.f / v.y, 1.f / v.z };
+    return { 1 / v.x, 1 / v.y, 1 / v.z };
+}
+
+// Create local base around given vector
+template <typename T>
+inline void CreateLocalBase(const Vector3<T>& n, Vector3<T>& s, Vector3<T>& t) noexcept
+{
+    if (std::abs(n.x) > std::abs(n.y))
+    {
+        s = Vector3<T>{ -n.z, T(0), n.x } / std::sqrt(n.x * n.x + n.z * n.z);
+    }
+    else
+    {
+        s = Vector3<T>{ T(0), n.z, -n.y } / std::sqrt(n.y * n.y + n.z * n.z);
+    }
+    t = Cross(s, n);
 }
 
 using Point3f = Point3<float>;

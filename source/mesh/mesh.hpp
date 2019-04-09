@@ -308,6 +308,9 @@ inline void Triangle::ComputeIntersectionGeometry(const Geometry::Ray& ray,
         intersection.normal = Geometry::Normalize(transformation->NormalToWorld(Geometry::Cross(v1 - v0, v2 - v0)));
     }
 
+    // Create local base around normal
+    Geometry::CreateLocalBase(intersection.normal, intersection.s, intersection.t);
+
     // Check if we have UV coordinates
     if (mesh.HasUVs())
     {
