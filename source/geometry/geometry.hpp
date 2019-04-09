@@ -158,6 +158,18 @@ constexpr const Point3<T> operator+(const Point3<T>& lhs, const Vector3<T>& rhs)
 }
 
 template <typename T>
+constexpr const Point3<T> operator-(const Point3<T>& lhs, const Vector3<T>& rhs) noexcept
+{
+    return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z };
+}
+
+template <typename T>
+constexpr const Point2<T> operator-(const Point2<T>& lhs, const Vector2<T>& rhs) noexcept
+{
+    return { lhs.x + rhs.x, lhs.y + rhs.y };
+}
+
+template <typename T>
 constexpr const Vector3<T> operator-(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return { lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z };
@@ -189,6 +201,12 @@ constexpr const Vector3<T> operator*(T lhs, const Vector3<T>& rhs) noexcept
 
 template <typename T>
 constexpr const Vector2<T> operator*(T lhs, const Vector2<T>& rhs) noexcept
+{
+    return { lhs * rhs.x, lhs * rhs.y };
+}
+
+template <typename T>
+constexpr const Point2<T> operator*(T lhs, const Point2<T>& rhs) noexcept
 {
     return { lhs * rhs.x, lhs * rhs.y };
 }
