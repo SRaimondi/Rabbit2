@@ -58,7 +58,7 @@ add_executable(Rabbit2
         source/integrator/debug_integrator.cpp
         source/integrator/debug_integrator.hpp
         source/camera/perspective_camera.cpp
-        source/camera/perspective_camera.hpp)
+        source/camera/perspective_camera.hpp source/camera/orthographic_camera.cpp source/camera/orthographic_camera.hpp)
 
 # find_package(OpenCL)
 
