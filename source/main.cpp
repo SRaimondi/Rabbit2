@@ -21,10 +21,10 @@ int main()
     {
         // Load bunny mesh
         const auto mesh_read_start{ std::chrono::high_resolution_clock::now() };
-        const Mesh cornel_box{ LoadMesh("../models/cornel.ply") };
-        const Mesh cornel_cube{ LoadMesh("../models/cornel_box.ply") };
-        const Mesh cornel_sphere{ LoadMesh("../models/cornel_sphere.ply") };
-        const Mesh cornel_light{ LoadMesh("../models/cornel_light.ply") };
+        const Mesh cornel_box{ LoadMesh("../models/cornell/cornell_box.ply") };
+        const Mesh cornel_cube{ LoadMesh("../models/cornell/cornell_cube.ply") };
+        const Mesh cornel_sphere{ LoadMesh("../models/cornell/cornell_sphere.ply") };
+        const Mesh cornel_light{ LoadMesh("../models/cornell/cornell_light.ply") };
         const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Read meshes in "
@@ -69,7 +69,7 @@ int main()
         const PerspectiveCamera perspective_camera{ Point3f{ 0.f, 0.f, 30.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
                                                     60.f, WIDTH, HEIGHT };
         const OrthographicCamera orthographic_camera{ Point3f{ 0.f, 0.f, 30.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
-                                                      90.f, WIDTH, HEIGHT };
+                                                      Point2f{ -20.f }, Point2f{ 20.f }, WIDTH, HEIGHT };
 
         // Create integrator
         const ImageIntegrator image_integrator{ std::make_unique<const DebugIntegrator>(DebugMode::NORMAL),

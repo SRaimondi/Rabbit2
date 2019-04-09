@@ -8,16 +8,13 @@ namespace Rabbit
 {
 
 OrthographicCamera::OrthographicCamera(const Geometry::Point3f& eye, const Geometry::Point3f& at,
-                                       const Geometry::Vector3f& up, float fov, unsigned int image_width,
-                                       unsigned int image_height) noexcept
-    : look_at{ Geometry::LookAt(eye, at, up) }, inv_width{ 1.f / image_width }, inv_height{ 1.f / image_height }
-{
-    // Compute view volume
-    top = std::tan(Geometry::Radians(0.5f * fov));
-    bottom = -top;
-    right = top * image_width / image_height;
-    left = -right;
-}
+                                       const Geometry::Vector3f& up,
+                                       const Geometry::Point2f& bottom_left, const Geometry::Point2f& top_right,
+                                       unsigned int image_width, unsigned int image_height) noexcept
+    : look_at{ Geometry::LookAt(eye, at, up) }, left{ bottom_left.x }, right{ top_right.x },
+      bottom{ bottom_left.y }, top{ top_right.y },
+      inv_width{ 1.f / image_width }, inv_height{ 1.f / image_height }
+{}
 
 const Geometry::Ray OrthographicCamera::GenerateRayWorldSpace(const Geometry::Point2ui& pixel_coordinates,
                                                               const Geometry::Point2f& sample_offset) const noexcept

@@ -14,7 +14,8 @@ class OrthographicCamera : public CameraInterface
 {
 public:
     OrthographicCamera(const Geometry::Point3f& eye, const Geometry::Point3f& at, const Geometry::Vector3f& up,
-                       float fov, unsigned int image_width, unsigned int image_height) noexcept;
+                       const Geometry::Point2f& bottom_left, const Geometry::Point2f& top_right,
+                       unsigned int image_width, unsigned int image_height) noexcept;
 
     const Geometry::Ray GenerateRayWorldSpace(const Geometry::Point2ui& pixel_coordinates,
                                               const Geometry::Point2f& sample_offset) const noexcept override;
@@ -26,7 +27,7 @@ private:
     // Look at matrix
     Geometry::Matrixf look_at;
     // View volume
-    float left, right, top, bottom;
+    float left, right, bottom, top;
     // Inverse size of the image
     const float inv_width, inv_height;
 };
