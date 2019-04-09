@@ -23,12 +23,12 @@ public:
 
     constexpr bool IsInsideInclusive(T value) const noexcept
     {
-        return value >= start && value <= end;
+        return value >= Start() && value <= End();
     }
 
     constexpr bool IsInsideExclusive(T value) const noexcept
     {
-        return value > start && value < end;
+        return value > Start() && value < End();
     }
 
     constexpr T Start() const noexcept

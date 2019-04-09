@@ -25,13 +25,13 @@ void ImageIntegrator::RenderImage(const Scene& scene, const Camera& camera, Film
                                              static_cast<unsigned int>(tiles.size())) };
 
     // Atomic tile counter to synchronize access to tiles between threads
-    std::atomic_uint current_todo_tile{ 0 };
+    std::atomic_uint next_tile_index{ 0 };
 
     // Launch threads
     std::vector<std::thread> threads;
     for (unsigned int t = 0; t != num_threads; t++)
     {
-        threads.emplace_back([&scene, &camera, &film, &tiles, &current_todo_tile](unsigned int spp) -> void
+        threads.emplace_back([&scene, &camera, &film, &tiles, &next_tile_index](unsigned int spp) -> void
                              {
                                  //FIXME
                                  Sampling::PCG32 rng;
@@ -39,7 +39,7 @@ void ImageIntegrator::RenderImage(const Scene& scene, const Camera& camera, Film
                                  const Geometry::Vector3f light_dir{ Normalize(Geometry::Vector3f{ -1.f, 1.f, 0.f }) };
 
                                  // Get next tile to render
-                                 unsigned int tile_to_render{ current_todo_tile++ };
+                                 unsigned int tile_to_render{ next_tile_index++ };
                                  while (tile_to_render < tiles.size())
                                  {
                                      // Get reference to the tile for the thread
@@ -86,7 +86,7 @@ void ImageIntegrator::RenderImage(const Scene& scene, const Camera& camera, Film
                                      }
 
                                      // Go to next tile
-                                     tile_to_render = current_todo_tile++;
+                                     tile_to_render = next_tile_index++;
                                  }
                              }, samples_per_pixel);
     }
@@ -107,6 +107,7 @@ const std::vector<Tile> ImageIntegrator::GenerateTiles(unsigned int image_width,
 
     // Generate tiles
     std::vector<Tile> tiles;
+    tiles.reserve(num_tiles_width * num_tiles_height);
     for (unsigned int tile_h = 0; tile_h != num_tiles_height; tile_h++)
     {
         for (unsigned int tile_w = 0; tile_w != num_tiles_width; tile_w++)
