@@ -58,19 +58,13 @@ add_executable(Rabbit2
         source/integrator/debug_integrator.cpp
         source/integrator/debug_integrator.hpp
         source/camera/perspective_camera.cpp
-        source/camera/perspective_camera.hpp source/camera/orthographic_camera.cpp source/camera/orthographic_camera.hpp)
-
-# find_package(OpenCL)
+        source/camera/perspective_camera.hpp
+        source/camera/orthographic_camera.cpp
+        source/camera/orthographic_camera.hpp)
 
 if (APPLE)
     target_compile_definitions(Rabbit2 PRIVATE CL_SILENCE_DEPRECATION)
 endif (APPLE)
-
-# if (OpenCL_FOUND)
-#     target_link_libraries(Rabbit2 OpenCL::OpenCL)
-# else ()
-#     message(FATAL_ERROR "OpenCL not found")
-# endif ()
 
 # Specify flags for build
 IF (CMAKE_BUILD_TYPE MATCHES Debug)
