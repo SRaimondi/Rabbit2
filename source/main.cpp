@@ -6,8 +6,10 @@
 #include "texture/constant_texture.hpp"
 #include "integrator/image_integrator.hpp"
 #include "integrator/debug_integrator.hpp"
+#include "integrator/direct_light_integrator.hpp"
 #include "camera/perspective_camera.hpp"
 #include "camera/orthographic_camera.hpp"
+#include "light/point_light.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -35,16 +37,18 @@ int main()
         const auto identity_tr{ std::make_shared<const Transform>() };
 
         // Materials
-        const auto diffuse_material{ std::make_shared<const DiffuseMaterial>(
+        const auto diffuse_white_material{ std::make_shared<const DiffuseMaterial>(
             std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 1.f })) };
+        const auto diffuse_green_material{ std::make_shared<const DiffuseMaterial>(
+            std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 0.1f, 0.9f, 0.1f })) };
         const auto emitting_material{ std::make_shared<const EmittingMaterial>(
             std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 10.f })) };
 
 
         std::vector<Triangle> scene_triangles;
-        cornell_box.CreateTriangles(identity_tr, diffuse_material, scene_triangles);
-        cornell_cube.CreateTriangles(identity_tr, diffuse_material, scene_triangles);
-        cornell_sphere.CreateTriangles(identity_tr, diffuse_material, scene_triangles);
+        cornell_box.CreateTriangles(identity_tr, diffuse_white_material, scene_triangles);
+        cornell_cube.CreateTriangles(identity_tr, diffuse_green_material, scene_triangles);
+        cornell_sphere.CreateTriangles(identity_tr, diffuse_white_material, scene_triangles);
         cornell_light.CreateTriangles(identity_tr, emitting_material, scene_triangles);
 
         // Create BVH
@@ -56,31 +60,35 @@ int main()
                   << std::chrono::duration_cast<std::chrono::milliseconds>(bvh_end - bvh_start).count() << " ms\n";
 
         // Create scene
-        const Scene scene{ std::move(bvh) };
+        Scene scene{ std::move(bvh) };
 
+        // Add lights
+        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 6.f, 5.f, 0.f }, Spectrumf{ 100.f }));
+        scene.AddLight(std::make_unique<const PointLight>(Point3f{ -6.f, 5.f, 0.f }, Spectrumf{ 100.f }));
+
+        // Create film
         constexpr unsigned int WIDTH{ 1080 };
         constexpr unsigned int HEIGHT{ 1080 };
         constexpr unsigned int NUM_SAMPLES{ 64 };
-
-        Film perspective_film{ WIDTH, HEIGHT };
+        Film film{ WIDTH, HEIGHT };
 
         // Create cameras
         const PerspectiveCamera perspective_camera{ Point3f{ 0.f, 0.f, 30.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
                                                     60.f, WIDTH, HEIGHT };
 
         // Create integrator
-        const ImageIntegrator image_integrator{ std::make_unique<const DebugIntegrator>(DebugMode::NORMAL),
+        const ImageIntegrator image_integrator{ std::make_unique<const DirectLightIntegrator>(),
                                                 Geometry::Point2ui{ 16, 16 }, NUM_SAMPLES };
 
         const auto start{ std::chrono::high_resolution_clock::now() };
-        image_integrator.RenderImage(scene, perspective_camera, perspective_film);
+        image_integrator.RenderImage(scene, perspective_camera, film);
         const auto end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Rendering time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
                   << " ms\n";
 
         // Write out image
-        perspective_film.WritePNG("render_perspective.png");
+        film.WritePNG("render_perspective.png");
     }
     catch (const std::exception& ex)
     {

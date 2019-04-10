@@ -22,4 +22,5 @@ const Spectrumf DiffuseMaterial::F(const Geometry::TriangleIntersection& interse
 {
     return reflectance->Evaluate(intersection.uv) * Geometry::INV_PI<float>;
 }
+
 } // Rabbit namespace

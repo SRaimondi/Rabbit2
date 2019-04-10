@@ -38,6 +38,11 @@ struct Spectrum
         return { ::Rabbit::Clamp(r, min, max), ::Rabbit::Clamp(g, min, max), ::Rabbit::Clamp(b, min, max) };
     }
 
+    constexpr bool IsBlack() const noexcept
+    {
+        return r == T(0) && g == T(0) && b == T(0);
+    }
+
     // Spectrum components
     T r, g, b;
 };
@@ -52,6 +57,12 @@ template <typename T>
 constexpr const Spectrum<T> operator*(const Spectrum<T>& lhs, T rhs) noexcept
 {
     return { lhs.r * rhs, lhs.g * rhs, lhs.b * rhs };
+}
+
+template <typename T>
+constexpr const Spectrum<T> operator*(const Spectrum<T>& lhs, const Spectrum<T>& rhs) noexcept
+{
+    return { lhs.r * rhs.r, lhs.g * rhs.g, lhs.b * rhs.b };
 }
 
 template <typename T>
