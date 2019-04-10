@@ -27,6 +27,7 @@ int main()
         const Mesh cornell_cube{ LoadMesh("../models/cornell/cornell_cube.ply") };
         const Mesh cornell_sphere{ LoadMesh("../models/cornell/cornell_sphere.ply") };
         const Mesh cornell_light{ LoadMesh("../models/cornell/cornell_light.ply") };
+        const Mesh cornell_dragon{ LoadMesh("../models/cornell/cornell_dragon.ply") };
         const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Read meshes in "
@@ -50,6 +51,7 @@ int main()
         cornell_cube.CreateTriangles(identity_tr, diffuse_green_material, scene_triangles);
         cornell_sphere.CreateTriangles(identity_tr, diffuse_white_material, scene_triangles);
         cornell_light.CreateTriangles(identity_tr, emitting_material, scene_triangles);
+        cornell_dragon.CreateTriangles(identity_tr, diffuse_white_material, scene_triangles);
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
@@ -63,8 +65,7 @@ int main()
         Scene scene{ std::move(bvh) };
 
         // Add lights
-        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 6.f, 5.f, 0.f }, Spectrumf{ 100.f }));
-        scene.AddLight(std::make_unique<const PointLight>(Point3f{ -6.f, 5.f, 0.f }, Spectrumf{ 100.f }));
+        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 5.f, 30.f }, Spectrumf{ 600.f }));
 
         // Create film
         constexpr unsigned int WIDTH{ 1080 };
