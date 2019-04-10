@@ -320,6 +320,12 @@ constexpr const Vector3<T> Permute(const Vector3<T>& v, unsigned int kx, unsigne
 }
 
 template <typename T>
+constexpr T DistanceSquared(const Point3<T>& from, const Point3<T>& to) noexcept
+{
+    return SquaredNorm(to - from);
+}
+
+template <typename T>
 inline T Distance(const Point3<T>& from, const Point3<T>& to) noexcept
 {
     return Norm(to - from);

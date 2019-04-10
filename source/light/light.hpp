@@ -14,14 +14,20 @@ namespace Rabbit
 class OcclusionTester
 {
 public:
-    OcclusionTester(const Geometry::Point3f& start, const Geometry::Vector3f& direction) noexcept
-        : occlusion_ray{ start, direction }, occlusion_interval{ Geometry::Ray::DefaultInterval() }
-    {}
+    OcclusionTester() noexcept = default;
 
-    OcclusionTester(const Geometry::Point3f& start, const Geometry::Point3f& end) noexcept
-        : occlusion_ray{ start, end - start },
-          occlusion_interval{ Geometry::EPS<float>, 1.f - Geometry::EPS<float> }
-    {}
+    void OriginDirection(const Geometry::Point3f& start, const Geometry::Vector3f& direction) noexcept
+    {
+        occlusion_ray = Geometry::Ray{ start, direction };
+        occlusion_interval = Geometry::Ray::DefaultInterval();
+    }
+
+    void FromTo(const Geometry::Point3f& start, const Geometry::Point3f& end) noexcept
+    {
+        occlusion_ray = Geometry::Ray{ start, Geometry::Normalize(end - start) };
+        occlusion_interval = Geometry::Intervalf{ Geometry::EPS<float>,
+                                                  Geometry::Distance(start, end) - Geometry::EPS<float> };
+    }
 
     bool IsOccluded(const Scene& scene) const noexcept
     {
@@ -30,8 +36,8 @@ public:
 
 private:
     // Ray for test and interval
-    const Geometry::Ray occlusion_ray;
-    const Geometry::Intervalf occlusion_interval;
+    Geometry::Ray occlusion_ray;
+    Geometry::Intervalf occlusion_interval;
 };
 
 class LightInterface

@@ -49,7 +49,7 @@ int main()
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
-        BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 128 }, scene_triangles };
+        BVH bvh{ BVHConfig{ 4, 1.f, 0.2f, 128 }, std::move(scene_triangles) };
         const auto bvh_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Built BVH in "
@@ -60,7 +60,7 @@ int main()
 
         constexpr unsigned int WIDTH{ 1080 };
         constexpr unsigned int HEIGHT{ 1080 };
-        constexpr unsigned int NUM_SAMPLES{ 128 };
+        constexpr unsigned int NUM_SAMPLES{ 64 };
 
         Film perspective_film{ WIDTH, HEIGHT };
 
@@ -75,6 +75,9 @@ int main()
         const auto start{ std::chrono::high_resolution_clock::now() };
         image_integrator.RenderImage(scene, perspective_camera, perspective_film);
         const auto end{ std::chrono::high_resolution_clock::now() };
+
+        std::cout << "Rendering time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+                  << " ms\n";
 
         // Write out image
         perspective_film.WritePNG("render_perspective.png");
