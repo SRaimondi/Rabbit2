@@ -60,7 +60,11 @@ add_executable(Rabbit2
         source/camera/perspective_camera.cpp
         source/camera/perspective_camera.hpp
         source/camera/orthographic_camera.cpp
-        source/camera/orthographic_camera.hpp source/light/point_light.cpp source/light/point_light.hpp)
+        source/camera/orthographic_camera.hpp
+        source/light/point_light.cpp
+        source/light/point_light.hpp
+        source/integrator/direct_light_integrator.cpp
+        source/integrator/direct_light_integrator.hpp source/geometry/occlusion_test.hpp)
 
 if (APPLE)
     target_compile_definitions(Rabbit2 PRIVATE CL_SILENCE_DEPRECATION)

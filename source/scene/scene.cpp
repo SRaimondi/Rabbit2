@@ -3,6 +3,7 @@
 //
 
 #include "scene.hpp"
+#include "light/light.hpp"
 
 namespace Rabbit
 {

@@ -6,6 +6,7 @@
 #define RABBIT2_SCENE_HPP
 
 #include "bvh/bvh.hpp"
+#include "light/light.hpp"
 
 namespace Rabbit
 {
@@ -28,9 +29,23 @@ public:
         return bvh.IntersectTest(ray, interval);
     }
 
+    // Add light to the scene
+    void AddLight(std::unique_ptr<const LightInterface> light) noexcept
+    {
+        lights.push_back(std::move(light));
+    }
+
+    // Access light
+    const std::vector<std::unique_ptr<const LightInterface>>& Lights() const noexcept
+    {
+        return lights;
+    }
+
 private:
     // Accelerator for triangles
     const BVH bvh;
+    // List of lights
+    std::vector<std::unique_ptr<const LightInterface>> lights;
 };
 
 } // Rabbit namespace

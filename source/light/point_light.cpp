@@ -3,6 +3,7 @@
 //
 
 #include "point_light.hpp"
+#include "geometry/occlusion_test.hpp"
 
 namespace Rabbit
 {
