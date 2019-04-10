@@ -26,7 +26,7 @@ private:
     // Look at matrix
     Geometry::Matrixf look_at;
     // View volume
-    float left, right, top, bottom;
+    Geometry::Point2f bottom_left, top_right;
     // Inverse size of the image
     const float inv_width, inv_height;
 };

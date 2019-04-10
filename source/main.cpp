@@ -21,10 +21,10 @@ int main()
     {
         // Load bunny mesh
         const auto mesh_read_start{ std::chrono::high_resolution_clock::now() };
-        const Mesh cornel_box{ LoadMesh("../models/cornell/cornell_box.ply") };
-        const Mesh cornel_cube{ LoadMesh("../models/cornell/cornell_cube.ply") };
-        const Mesh cornel_sphere{ LoadMesh("../models/cornell/cornell_sphere.ply") };
-        const Mesh cornel_light{ LoadMesh("../models/cornell/cornell_light.ply") };
+        const Mesh cornell_box{ LoadMesh("../models/cornell/cornell_box.ply") };
+        const Mesh cornell_cube{ LoadMesh("../models/cornell/cornell_cube.ply") };
+        const Mesh cornell_sphere{ LoadMesh("../models/cornell/cornell_sphere.ply") };
+        const Mesh cornell_light{ LoadMesh("../models/cornell/cornell_light.ply") };
         const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Read meshes in "
@@ -42,10 +42,10 @@ int main()
 
 
         std::vector<Triangle> scene_triangles;
-        cornel_box.CreateTriangles(identity_tr, diffuse_material, scene_triangles);
-        cornel_cube.CreateTriangles(identity_tr, diffuse_material, scene_triangles);
-        cornel_sphere.CreateTriangles(identity_tr, diffuse_material, scene_triangles);
-        cornel_light.CreateTriangles(identity_tr, emitting_material, scene_triangles);
+        cornell_box.CreateTriangles(identity_tr, diffuse_material, scene_triangles);
+        cornell_cube.CreateTriangles(identity_tr, diffuse_material, scene_triangles);
+        cornell_sphere.CreateTriangles(identity_tr, diffuse_material, scene_triangles);
+        cornell_light.CreateTriangles(identity_tr, emitting_material, scene_triangles);
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
@@ -63,13 +63,10 @@ int main()
         constexpr unsigned int NUM_SAMPLES{ 128 };
 
         Film perspective_film{ WIDTH, HEIGHT };
-        Film orthographic_film{ WIDTH, HEIGHT };
 
         // Create cameras
         const PerspectiveCamera perspective_camera{ Point3f{ 0.f, 0.f, 30.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
                                                     60.f, WIDTH, HEIGHT };
-        const OrthographicCamera orthographic_camera{ Point3f{ 0.f, 0.f, 30.f }, Point3f{}, Vector3f{ 0.f, 1.f, 0.f },
-                                                      Point2f{ -20.f }, Point2f{ 20.f }, WIDTH, HEIGHT };
 
         // Create integrator
         const ImageIntegrator image_integrator{ std::make_unique<const DebugIntegrator>(DebugMode::NORMAL),
@@ -77,12 +74,10 @@ int main()
 
         const auto start{ std::chrono::high_resolution_clock::now() };
         image_integrator.RenderImage(scene, perspective_camera, perspective_film);
-        image_integrator.RenderImage(scene, orthographic_camera, orthographic_film);
         const auto end{ std::chrono::high_resolution_clock::now() };
 
-
+        // Write out image
         perspective_film.WritePNG("render_perspective.png");
-        orthographic_film.WritePNG("render_orthographic.png");
     }
     catch (const std::exception& ex)
     {
