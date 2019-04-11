@@ -31,7 +31,7 @@ const Spectrumf DirectLightIntegrator::IncomingRadiance(const Geometry::Ray& ray
             if (!occlusion_tester.IsOccluded(scene) && !Li.IsBlack() && sampled_wi_pdf != 0.f)
             {
                 L += intersection.hit_triangle->material->F(intersection, intersection.wo, sampled_wi) *
-                     Li * Clamp(Geometry::Dot(intersection.normal, sampled_wi), 0.f, 1.f) / sampled_wi_pdf;
+                     Li * Clamp(Geometry::Dot(intersection.local_geometry.n, sampled_wi), 0.f, 1.f) / sampled_wi_pdf;
             }
         }
     }

@@ -37,9 +37,9 @@ const Spectrumf MaterialInterface::SampleF(const Geometry::TriangleIntersection&
     // Sample direction using cosine weighted sampling
     const Geometry::Vector3f local_wi{ Sampling::CosineSampleHemisphere(u) };
     // Transform to world space
-    sampled_wi = local_wi.x * intersection.s + local_wi.y * intersection.normal + local_wi.z * intersection.t;
+    sampled_wi = intersection.local_geometry.ToWorld(local_wi);
     // Compute pdf
-    sampled_wi_pdf = Sampling::CosineSampleHemispherePdf(local_wi.y);
+    sampled_wi_pdf = Sampling::CosineSampleHemispherePdf(Geometry::Framef::CosTheta(local_wi));
 
     return F(intersection, wo, sampled_wi);
 }

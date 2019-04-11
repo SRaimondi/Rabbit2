@@ -212,9 +212,7 @@ inline void Triangle::Intersect(const Geometry::Ray& ray, Geometry::Intervalf& i
 
     // Compute barycentric coordinates and value for triangle intersection
     const float inv_det{ 1.f / det };
-    intersection.u = e0 * inv_det;
-    intersection.v = e1 * inv_det;
-    intersection.w = e2 * inv_det;
+    intersection.barycentric_coordinates = Geometry::Point3f{ e0 * inv_det, e1 * inv_det, e2 * inv_det };
     interval.SetEnd(t_scaled * inv_det);
 
     // Set pointer
@@ -303,10 +301,11 @@ inline void Triangle::ComputeIntersectionGeometry(const Geometry::Ray& ray,
     if (mesh.HasNormals())
     {
         // Compute normal based on barycentric coordinates
-        intersection.normal = Geometry::Normalize(transformation->NormalToWorld(
-            intersection.u * mesh.NormalAt(description.n0) +
-            intersection.v * mesh.NormalAt(description.n1) +
-            intersection.w * mesh.NormalAt(description.n2)));
+        intersection.local_geometry = Geometry::Framef{
+            Geometry::Normalize(transformation->NormalToWorld(
+                intersection.barycentric_coordinates.x * mesh.NormalAt(description.n0) +
+                intersection.barycentric_coordinates.y * mesh.NormalAt(description.n1) +
+                intersection.barycentric_coordinates.z * mesh.NormalAt(description.n2))) };
     }
     else
     {
@@ -315,11 +314,9 @@ inline void Triangle::ComputeIntersectionGeometry(const Geometry::Ray& ray,
         const Geometry::Point3f& v1{ mesh.VertexAt(description.v1) };
         const Geometry::Point3f& v2{ mesh.VertexAt(description.v2) };
 
-        intersection.normal = Geometry::Normalize(transformation->NormalToWorld(Geometry::Cross(v1 - v0, v2 - v0)));
+        intersection.local_geometry = Geometry::Framef{
+            Geometry::Normalize(transformation->NormalToWorld(Geometry::Cross(v1 - v0, v2 - v0))) };
     }
-
-    // Create local base around normal
-    Geometry::CreateLocalBase(intersection.normal, intersection.s, intersection.t);
 
     // Set outgoing direction
     intersection.wo = Geometry::Normalize(-ray.Direction());
@@ -327,9 +324,9 @@ inline void Triangle::ComputeIntersectionGeometry(const Geometry::Ray& ray,
     // Check if we have UV coordinates
     if (mesh.HasUVs())
     {
-        intersection.uv = intersection.u * mesh.UVAt(description.uv0) +
-                          intersection.v * mesh.UVAt(description.uv1) +
-                          intersection.w * mesh.UVAt(description.uv2);
+        intersection.uv = intersection.barycentric_coordinates.x * mesh.UVAt(description.uv0) +
+                          intersection.barycentric_coordinates.y * mesh.UVAt(description.uv1) +
+                          intersection.barycentric_coordinates.z * mesh.UVAt(description.uv2);
     }
 }
 

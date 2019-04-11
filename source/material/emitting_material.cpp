@@ -18,7 +18,9 @@ bool EmittingMaterial::IsEmitting() const noexcept
 const Spectrumf EmittingMaterial::Le(const Geometry::TriangleIntersection& intersection,
                                      const Geometry::Vector3f& w) const noexcept
 {
-    return Geometry::Dot(intersection.normal, w) > 0.f ? emission->Evaluate(intersection.uv) : Spectrumf{ 0.f };
+    return Geometry::Dot(intersection.local_geometry.n, w) > 0.f ?
+           emission->Evaluate(intersection.uv) :
+           Spectrumf{ 0.f };
 }
 
 } // Rabbit namespace

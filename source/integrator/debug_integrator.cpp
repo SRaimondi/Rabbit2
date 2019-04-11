@@ -24,7 +24,8 @@ const Spectrumf DebugIntegrator::IncomingRadiance(const Geometry::Ray& ray, Geom
             }
             case DebugMode::NORMAL:
             {
-                const Geometry::Vector3f mapped_normal{ 0.5f * (intersection.normal + Geometry::Vector3f{ 1.f }) };
+                const Geometry::Vector3f mapped_normal{
+                    0.5f * (intersection.local_geometry.n + Geometry::Vector3f{ 1.f }) };
                 return { mapped_normal.x, mapped_normal.y, mapped_normal.z };
             }
             case DebugMode::UV:

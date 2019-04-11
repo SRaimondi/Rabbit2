@@ -5,7 +5,7 @@
 #ifndef RABBIT2_INTERSECTION_HPP
 #define RABBIT2_INTERSECTION_HPP
 
-#include "geometry.hpp"
+#include "frame.hpp"
 
 namespace Rabbit
 {
@@ -19,7 +19,7 @@ namespace Geometry
 struct TriangleIntersection
 {
     TriangleIntersection() noexcept
-        : u{ 0.f }, v{ 0.f }, w{ 0.f }, hit_triangle{ nullptr }
+        : hit_triangle{ nullptr }
     {}
 
     // Check if intersection represents and hit
@@ -30,15 +30,14 @@ struct TriangleIntersection
 
     // Hit point
     Point3f hit_point;
-    // Normal at hit point + local frame
-    Vector3f normal;
-    Vector3f s, t;
+    // Local base at hit point
+    Framef local_geometry;
     // Outgoing light direction at intersection
     Vector3f wo;
     // UV coordinates
     Vector2f uv;
     // Barycentric coordinates
-    float u, v, w;
+    Point3f barycentric_coordinates;
     // Pointer to triangle that generated the intersection
     const Triangle* hit_triangle;
 };
