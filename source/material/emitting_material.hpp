@@ -25,7 +25,7 @@ public:
 
 private:
     // Emission texture
-    std::shared_ptr<const TextureInterface<const Spectrumf>> emission;
+    const std::shared_ptr<const TextureInterface<const Spectrumf>> emission;
 };
 
 } // Rabbit namespace

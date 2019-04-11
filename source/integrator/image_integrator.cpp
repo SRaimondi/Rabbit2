@@ -72,7 +72,7 @@ void ImageIntegrator::RenderImage(const Scene& scene, const CameraInterface& cam
                                     Geometry::Point2ui{ pixel_x, pixel_y }, sample) };
 
                                 // Compute incoming radiance
-                                pixel_radiance += integrator->IncomingRadiance(ray, ray_interval, scene, sampler);
+                                pixel_radiance += integrator->IncomingRadiance(ray, ray_interval, scene, sampler, 0);
                             }
 
                             // Set pixel radiance in film

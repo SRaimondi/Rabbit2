@@ -18,12 +18,18 @@ public:
 
     // Compute incoming radiance for the given ray in the given scene
     virtual const Spectrumf IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
-                                             const Scene& scene, Sampling::Sampler& sampler) const = 0;
-};
+                                             const Scene& scene, Sampling::Sampler& sampler,
+                                             unsigned int depth) const = 0;
 
-// Compute direct illumination
-const Spectrumf ComputeDirectIllumination(const Geometry::TriangleIntersection& intersection,
-                                          const Scene& scene, Sampling::Sampler& sampler) noexcept;
+    // Compute direct illumination
+    static const Spectrumf ComputeDirectIllumination(const Geometry::TriangleIntersection& intersection,
+                                                     const Scene& scene, Sampling::Sampler& sampler) noexcept;
+
+    // Compute specular incoming light
+    const Spectrumf ComputeSpecularIllumination(const Geometry::TriangleIntersection& intersection,
+                                                const Scene& scene, Sampling::Sampler& sampler,
+                                                unsigned int depth) const noexcept;
+};
 
 } // Rabbit namespace
 

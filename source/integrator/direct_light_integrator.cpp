@@ -9,7 +9,8 @@ namespace Rabbit
 {
 
 const Spectrumf DirectLightIntegrator::IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
-                                                        const Scene& scene, Sampling::Sampler& sampler) const noexcept
+                                                        const Scene& scene, Sampling::Sampler& sampler,
+                                                        unsigned int depth) const noexcept
 {
     Spectrumf L{ 0.f };
 
@@ -25,6 +26,12 @@ const Spectrumf DirectLightIntegrator::IncomingRadiance(const Geometry::Ray& ray
 
         // Add contribution from direct illumination
         L += ComputeDirectIllumination(intersection, scene, sampler);
+
+        // If material is specular, add specular contribution
+        if (depth < max_depth)
+        {
+            L += ComputeSpecularIllumination(intersection, scene, sampler, depth);
+        }
     }
     else
     {

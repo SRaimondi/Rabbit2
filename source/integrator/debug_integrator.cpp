@@ -9,7 +9,8 @@ namespace Rabbit
 
 
 const Spectrumf DebugIntegrator::IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
-                                                  const Scene& scene, Sampling::Sampler&) const
+                                                  const Scene& scene, Sampling::Sampler&,
+                                                  unsigned int) const
 {
     // Intersect ray with scene
     Geometry::TriangleIntersection intersection;

@@ -69,16 +69,16 @@ int main()
         Scene scene{ std::move(bvh) };
 
         // Add lights
-        scene.AddLight(std::make_unique<const InfiniteLight>(256, [](const Vector3f& direction) -> Spectrumf
+        scene.AddLight(std::make_unique<const InfiniteLight>(64, [](const Vector3f&) -> Spectrumf
         {
-            return Clamp(2.f * direction.y, 0.f, 1.f) * Spectrumf{ 0.9f };
+            return Spectrumf{ 0.7f };
         }));
-        scene.SetupAreaLights(64);
+        scene.SetupAreaLights(9);
 
         // Create film
         constexpr unsigned int WIDTH{ 512 };
         constexpr unsigned int HEIGHT{ 512 };
-        constexpr unsigned int NUM_SAMPLES{ 16 };
+        constexpr unsigned int NUM_SAMPLES{ 9 };
         Film film{ WIDTH, HEIGHT };
 
         // Create cameras
@@ -86,7 +86,7 @@ int main()
                                                     60.f, WIDTH, HEIGHT };
 
         // Create integrator
-        const ImageIntegrator image_integrator{ std::make_unique<const DirectLightIntegrator>(),
+        const ImageIntegrator image_integrator{ std::make_unique<const DirectLightIntegrator>(8),
                                                 Geometry::Point2ui{ 8, 8 }, NUM_SAMPLES };
 
         const auto start{ std::chrono::high_resolution_clock::now() };

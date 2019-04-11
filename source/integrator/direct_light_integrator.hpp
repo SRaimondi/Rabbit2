@@ -13,8 +13,17 @@ namespace Rabbit
 class DirectLightIntegrator final : public RayIntegratorInterface
 {
 public:
+    explicit DirectLightIntegrator(unsigned int max_depth) noexcept
+        : max_depth{ max_depth }
+    {}
+
     const Spectrumf IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
-                                     const Scene& scene, Sampling::Sampler& sampler) const noexcept override;
+                                     const Scene& scene, Sampling::Sampler& sampler,
+                                     unsigned int depth) const noexcept override;
+
+private:
+    // Maximum specular depth
+    const unsigned int max_depth;
 };
 
 } // Rabbit namespace
