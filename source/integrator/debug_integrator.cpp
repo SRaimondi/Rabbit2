@@ -9,7 +9,7 @@ namespace Rabbit
 
 
 const Spectrumf DebugIntegrator::IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
-                                                  const Scene& scene) const noexcept
+                                                  const Scene& scene) const
 {
     // Intersect ray with scene
     Geometry::TriangleIntersection intersection;
@@ -36,6 +36,8 @@ const Spectrumf DebugIntegrator::IncomingRadiance(const Geometry::Ray& ray, Geom
                 const Geometry::Vector3f mapped_wo{ 0.5f * (intersection.wo + Geometry::Vector3f{ 1.f }) };
                 return { mapped_wo.x, mapped_wo.y, mapped_wo.z };
             }
+            default:
+                throw std::runtime_error("Unrecognized debug mode in DebugIntegrator::IncomingRadiance\n");
         }
     }
     else
