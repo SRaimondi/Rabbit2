@@ -11,7 +11,7 @@ namespace Rabbit
 {
 
 template <typename T>
-class ConstantTexture : public TextureInterface<T>
+class ConstantTexture final : public TextureInterface<T>
 {
 public:
     constexpr explicit ConstantTexture(const T& value) noexcept

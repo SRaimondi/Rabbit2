@@ -14,6 +14,8 @@ namespace Rabbit
 class MaterialInterface
 {
 public:
+    virtual ~MaterialInterface() noexcept = default;
+
     // Checkers for the properties of the Material
     virtual bool IsDiffuse() const noexcept;
 

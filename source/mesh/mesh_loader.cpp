@@ -46,7 +46,7 @@ const Mesh LoadOBJ(const std::string& filename, bool load_uv)
     std::vector<Geometry::Point3f> vertices(attrib.vertices.size() / 3);
     if (std::is_same<float, real_t>::value)
     {
-        std::memcpy(vertices.data(), attrib.vertices.data(), attrib.vertices.size() * sizeof(float));
+        std::memcpy(&(vertices[0].x), attrib.vertices.data(), attrib.vertices.size() * sizeof(float));
     }
     else
     {

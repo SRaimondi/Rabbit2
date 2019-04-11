@@ -13,7 +13,7 @@
 namespace Rabbit
 {
 
-class EmittingMaterial : public MaterialInterface
+class EmittingMaterial final : public MaterialInterface
 {
 public:
     explicit EmittingMaterial(const std::shared_ptr<const TextureInterface<const Spectrumf>>& e) noexcept;

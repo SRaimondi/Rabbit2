@@ -72,7 +72,7 @@ endif (APPLE)
 
 # Specify flags for build
 IF (CMAKE_BUILD_TYPE MATCHES Debug)
-    TARGET_COMPILE_OPTIONS(Rabbit2 PRIVATE -Wall -Wextra)
+    TARGET_COMPILE_OPTIONS(Rabbit2 PRIVATE -Wall -Wextra -Wpedantic)
 ELSEIF (CMAKE_BUILD_TYPE MATCHES Release)
     TARGET_COMPILE_OPTIONS(Rabbit2 PRIVATE -march=native)
 ENDIF ()

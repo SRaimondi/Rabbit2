@@ -10,7 +10,7 @@
 namespace Rabbit
 {
 
-class PointLight : public LightInterface
+class PointLight final : public LightInterface
 {
 public:
     PointLight(const Geometry::Point3f& position, const Spectrumf& i) noexcept

@@ -10,7 +10,7 @@
 namespace Rabbit
 {
 
-class DirectLightIntegrator : public RayIntegratorInterface
+class DirectLightIntegrator final : public RayIntegratorInterface
 {
 public:
     const Spectrumf IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,

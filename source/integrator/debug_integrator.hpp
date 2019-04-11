@@ -19,7 +19,7 @@ enum class DebugMode
     WO
 };
 
-class DebugIntegrator : public RayIntegratorInterface
+class DebugIntegrator final : public RayIntegratorInterface
 {
 public:
     explicit DebugIntegrator(const DebugMode& mode) noexcept

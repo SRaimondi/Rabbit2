@@ -13,6 +13,8 @@ namespace Rabbit
 class RayIntegratorInterface
 {
 public:
+    virtual ~RayIntegratorInterface() noexcept = default;
+
     // Compute incoming radiance for the given ray in the given scene
     virtual const Spectrumf IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
                                              const Scene& scene) const = 0;

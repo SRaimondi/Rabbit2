@@ -22,6 +22,8 @@ public:
         : num_samples{ ns }
     {}
 
+    virtual ~LightInterface() noexcept = default;
+
     // Check if the light is a delta light, defaults to true
     virtual bool IsDeltaLight() const noexcept;
 

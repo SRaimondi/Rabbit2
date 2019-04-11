@@ -13,7 +13,7 @@
 namespace Rabbit
 {
 
-class DiffuseMaterial : public MaterialInterface
+class DiffuseMaterial final : public MaterialInterface
 {
 public:
     explicit DiffuseMaterial(const std::shared_ptr<const TextureInterface<const Spectrumf>>& r) noexcept;

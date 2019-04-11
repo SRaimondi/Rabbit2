@@ -14,6 +14,8 @@ template <typename T>
 class TextureInterface
 {
 public:
+    virtual ~TextureInterface() noexcept = default;
+
     // Evaluate texture at given uv coordinates
     virtual T Evaluate(const Geometry::Vector2f& uv) const noexcept = 0;
 };
