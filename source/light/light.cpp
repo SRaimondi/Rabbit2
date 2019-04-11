@@ -12,4 +12,9 @@ bool Rabbit::LightInterface::IsDeltaLight() const noexcept
     return false;
 }
 
+const Spectrumf LightInterface::L(const Geometry::Ray& ray) const noexcept
+{
+    return Rabbit::Spectrumf{ 0.f };
+}
+
 } // Rabbit namespace

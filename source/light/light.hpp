@@ -6,6 +6,7 @@
 #define RABBIT2_LIGHT_HPP
 
 #include "geometry/intersection.hpp"
+#include "geometry/ray.hpp"
 #include "film/spectrum.hpp"
 
 namespace Rabbit
@@ -43,6 +44,9 @@ public:
     virtual const Spectrumf SampleLi(const Geometry::TriangleIntersection& reference_intersection,
                                      const Geometry::Point2f& u, LightSample& sample,
                                      OcclusionTester& occlusion_tester) const noexcept = 0;
+
+    // Compute incoming light for a ray that left the scene
+    virtual const Spectrumf L(const Geometry::Ray& ray) const noexcept;
 
     // Get number of samples for the light
     unsigned int NumSamples() const noexcept

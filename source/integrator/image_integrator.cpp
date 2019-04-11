@@ -64,13 +64,14 @@ void ImageIntegrator::RenderImage(const Scene& scene, const CameraInterface& cam
 
                             // Compute pixel radiance
                             Spectrumf pixel_radiance{ 0.f };
-                            for (const Geometry::Point2f sample : pixel_samples)
+                            for (const Geometry::Point2f& sample : pixel_samples)
                             {
                                 // Generate ray
                                 Geometry::Intervalf ray_interval{ Geometry::Ray::DefaultInterval() };
                                 const Geometry::Ray ray{ camera.GenerateRayWorldSpace(
                                     Geometry::Point2ui{ pixel_x, pixel_y }, sample) };
 
+                                // Compute incoming radiance
                                 pixel_radiance += integrator->IncomingRadiance(ray, ray_interval, scene, sampler);
                             }
 

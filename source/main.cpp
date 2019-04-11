@@ -10,6 +10,7 @@
 #include "camera/perspective_camera.hpp"
 #include "camera/orthographic_camera.hpp"
 #include "light/point_light.hpp"
+#include "light/infinite_light.hpp"
 
 #include <iostream>
 #include <chrono>
@@ -65,13 +66,16 @@ int main()
         Scene scene{ std::move(bvh) };
 
         // Add lights
-        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 0.f, 50.f }, Spectrumf{ 1000.f }));
-        scene.SetupAreaLights(49);
+        scene.AddLight(std::make_unique<const InfiniteLight>(256, [](const Vector3f& direction) -> Spectrumf
+        {
+            return Clamp(2.f * direction.y, 0.f, 1.f) * Spectrumf{ 0.9f };
+        }));
+        scene.SetupAreaLights(64);
 
         // Create film
-        constexpr unsigned int WIDTH{ 1024 };
-        constexpr unsigned int HEIGHT{ 1024 };
-        constexpr unsigned int NUM_SAMPLES{ 32 };
+        constexpr unsigned int WIDTH{ 512 };
+        constexpr unsigned int HEIGHT{ 512 };
+        constexpr unsigned int NUM_SAMPLES{ 64 };
         Film film{ WIDTH, HEIGHT };
 
         // Create cameras

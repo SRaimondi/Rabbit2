@@ -21,6 +21,10 @@ public:
                                              const Scene& scene, Sampling::Sampler& sampler) const = 0;
 };
 
+// Compute direct illumination
+const Spectrumf ComputeDirectIllumination(const Geometry::TriangleIntersection& intersection,
+                                          const Scene& scene, Sampling::Sampler& sampler) noexcept;
+
 } // Rabbit namespace
 
 #endif //RABBIT2_RAY_INTEGRATOR_HPP
