@@ -48,6 +48,7 @@ const Spectrumf DirectLightIntegrator::IncomingRadiance(const Geometry::Ray& ray
             }
             else
             {
+                Spectrumf Ld{ 0.f };
                 for (unsigned int sample = 0; sample != light->NumSamples(); sample++)
                 {
                     const Spectrumf Li{
@@ -57,12 +58,13 @@ const Spectrumf DirectLightIntegrator::IncomingRadiance(const Geometry::Ray& ray
                     // Check if we need to add contribution
                     if (!occlusion_tester.IsOccluded(scene) && !Li.IsBlack() && light_sample.sampled_wi_pdf > 0.f)
                     {
-                        L += triangle_material->F(intersection, intersection.wo, light_sample.sampled_wi) *
-                             Li *
-                             Clamp(Geometry::Dot(intersection.local_geometry.n, light_sample.sampled_wi), 0.f, 1.f) /
-                             light_sample.sampled_wi_pdf;
+                        Ld += triangle_material->F(intersection, intersection.wo, light_sample.sampled_wi) *
+                              Li *
+                              Clamp(Geometry::Dot(intersection.local_geometry.n, light_sample.sampled_wi), 0.f, 1.f) /
+                              light_sample.sampled_wi_pdf;
                     }
                 }
+                L += Ld / static_cast<float>(light->NumSamples());
             }
         }
     }
