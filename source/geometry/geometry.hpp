@@ -371,6 +371,13 @@ inline void CreateLocalBase(const Vector3<T>& n, Vector3<T>& s, Vector3<T>& t) n
     t = Cross(s, n);
 }
 
+// Reflect vector along normal
+template <typename T>
+constexpr Vector3<T> Reflect(const Vector3<T>& v, const Vector3<T>& n) noexcept
+{
+    return 2.f * Dot(v, n) * n - v;
+}
+
 using Point3f = Point3<float>;
 using Point2f = Point2<float>;
 using Point2ui = Point2<unsigned int>;

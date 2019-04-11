@@ -3,6 +3,7 @@
 #include "sampling/pcg32.hpp"
 #include "material/diffuse_material.hpp"
 #include "material/emitting_material.hpp"
+#include "material/mirror_material.hpp"
 #include "texture/constant_texture.hpp"
 #include "integrator/image_integrator.hpp"
 #include "integrator/debug_integrator.hpp"
@@ -40,9 +41,11 @@ int main()
 
         // Materials
         const auto diffuse_white_material{ std::make_shared<const DiffuseMaterial>(
-            std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 1.f })) };
+            std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 0.95f })) };
         const auto diffuse_green_material{ std::make_shared<const DiffuseMaterial>(
             std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 0.1f, 0.9f, 0.1f })) };
+        const auto mirror_material{ std::make_shared<const MirrorMaterial>(
+            std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 1.f })) };
         const auto emitting_material{ std::make_shared<const EmittingMaterial>(
             std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 20.f })) };
 
@@ -50,7 +53,7 @@ int main()
         std::vector<Triangle> scene_triangles;
         cornell_box.CreateTriangles(identity_tr, diffuse_white_material, scene_triangles);
         cornell_cube.CreateTriangles(identity_tr, diffuse_green_material, scene_triangles);
-        cornell_sphere.CreateTriangles(identity_tr, diffuse_white_material, scene_triangles);
+        cornell_sphere.CreateTriangles(identity_tr, mirror_material, scene_triangles);
         cornell_light.CreateTriangles(identity_tr, emitting_material, scene_triangles);
         cornell_dragon.CreateTriangles(identity_tr, diffuse_white_material, scene_triangles);
 
@@ -75,7 +78,7 @@ int main()
         // Create film
         constexpr unsigned int WIDTH{ 512 };
         constexpr unsigned int HEIGHT{ 512 };
-        constexpr unsigned int NUM_SAMPLES{ 64 };
+        constexpr unsigned int NUM_SAMPLES{ 16 };
         Film film{ WIDTH, HEIGHT };
 
         // Create cameras

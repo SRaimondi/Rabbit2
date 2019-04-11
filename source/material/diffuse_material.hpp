@@ -25,7 +25,7 @@ public:
 
 private:
     // Reflectance texture
-    std::shared_ptr<const TextureInterface<const Spectrumf>> reflectance;
+    const std::shared_ptr<const TextureInterface<const Spectrumf>> reflectance;
 };
 
 } // Rabbit namespace
