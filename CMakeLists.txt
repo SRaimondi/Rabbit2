@@ -64,7 +64,7 @@ add_executable(Rabbit2
         source/light/point_light.cpp
         source/light/point_light.hpp
         source/integrator/direct_light_integrator.cpp
-        source/integrator/direct_light_integrator.hpp source/geometry/occlusion_test.hpp)
+        source/integrator/direct_light_integrator.hpp source/geometry/occlusion_test.hpp source/geometry/frame.hpp)
 
 if (APPLE)
     target_compile_definitions(Rabbit2 PRIVATE CL_SILENCE_DEPRECATION)
