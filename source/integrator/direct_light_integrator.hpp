@@ -14,7 +14,7 @@ class DirectLightIntegrator final : public RayIntegratorInterface
 {
 public:
     const Spectrumf IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
-                                     const Scene& scene, Sampling::PCG32& rng) const noexcept override;
+                                     const Scene& scene, Sampling::Sampler& sampler) const noexcept override;
 };
 
 } // Rabbit namespace

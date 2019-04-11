@@ -9,7 +9,7 @@ namespace Rabbit
 {
 
 const Spectrumf DirectLightIntegrator::IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
-                                                        const Scene& scene, Sampling::PCG32& rng) const noexcept
+                                                        const Scene& scene, Sampling::Sampler& sampler) const noexcept
 {
     Spectrumf L{ 0.f };
 
@@ -39,7 +39,7 @@ const Spectrumf DirectLightIntegrator::IncomingRadiance(const Geometry::Ray& ray
                 Geometry::Point2f u{ 0.f };
                 if (!light->IsDeltaLight())
                 {
-                    u = { rng.NextFloat(), rng.NextFloat() };
+                    u = sampler.Next2D();
                 }
                 const Spectrumf Li{ light->SampleLi(intersection, u, light_sample, occlusion_tester) };
 

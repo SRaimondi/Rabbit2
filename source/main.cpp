@@ -66,11 +66,11 @@ int main()
 
         // Add lights
         scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 0.f, 50.f }, Spectrumf{ 1000.f }));
-        scene.SetupAreaLights(5);
+        scene.SetupAreaLights(36);
 
         // Create film
-        constexpr unsigned int WIDTH{ 512 };
-        constexpr unsigned int HEIGHT{ 512 };
+        constexpr unsigned int WIDTH{ 1024 };
+        constexpr unsigned int HEIGHT{ 1024 };
         constexpr unsigned int NUM_SAMPLES{ 4 };
         Film film{ WIDTH, HEIGHT };
 

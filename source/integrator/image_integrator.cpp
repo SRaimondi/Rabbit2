@@ -3,7 +3,7 @@
 //
 
 #include "image_integrator.hpp"
-#include "sampling/pcg32.hpp"
+#include "sampling/sampler.hpp"
 #include "light/light.hpp"
 
 #include <thread>
@@ -31,14 +31,14 @@ void ImageIntegrator::RenderImage(const Scene& scene, const CameraInterface& cam
 
     // Launch threads
     std::vector<std::thread> threads;
-    for (unsigned int t = 0; t != num_threads; t++)
+    for (unsigned int thread_id = 0; thread_id != num_threads; thread_id++)
     {
         threads.emplace_back(
-            [&scene, &camera, &film, &tiles, &next_tile_index](const RayIntegratorInterface* integrator,
-                                                               unsigned int spp) -> void
+            [thread_id, &scene, &camera, &film, &tiles, &next_tile_index](const RayIntegratorInterface* integrator,
+                                                                          unsigned int spp) -> void
             {
-                //FIXME
-                Sampling::PCG32 rng;
+                // Random number generator
+                Sampling::Sampler sampler{ thread_id };
 
                 // Precompute inverse number of samples for scaling
                 const float inv_num_samples{ 1.f / spp };
@@ -62,10 +62,9 @@ void ImageIntegrator::RenderImage(const Scene& scene, const CameraInterface& cam
                                 // Generate ray
                                 Geometry::Intervalf ray_interval{ Geometry::Ray::DefaultInterval() };
                                 const Geometry::Ray ray{ camera.GenerateRayWorldSpace(
-                                    Geometry::Point2ui{ pixel_x, pixel_y },
-                                    Geometry::Point2f{ rng.NextFloat(), rng.NextFloat() }) };
+                                    Geometry::Point2ui{ pixel_x, pixel_y }, sampler.Next2D()) };
 
-                                pixel_radiance += integrator->IncomingRadiance(ray, ray_interval, scene, rng);
+                                pixel_radiance += integrator->IncomingRadiance(ray, ray_interval, scene, sampler);
                             }
 
                             // Set pixel radiance in film

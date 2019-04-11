@@ -27,7 +27,7 @@ public:
     {}
 
     const Spectrumf IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
-                                     const Scene& scene, Sampling::PCG32& rng) const override;
+                                     const Scene& scene, Sampling::Sampler& sampler) const override;
 
 private:
     // Debug mode

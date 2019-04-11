@@ -19,7 +19,7 @@ public:
         : state{ PCG32_DEFAULT_STATE }, stream{ PCG32_DEFAULT_STREAM }
     {}
 
-    explicit PCG32(uint64_t seed, uint64_t init_stream = 1ull) noexcept
+    explicit PCG32(uint64_t seed, uint64_t init_stream) noexcept
         : PCG32()
     {
         Seed(seed, init_stream);
