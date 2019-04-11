@@ -40,7 +40,10 @@ void ImageIntegrator::RenderImage(const Scene& scene, const CameraInterface& cam
                 // Random number generator
                 Sampling::Sampler sampler{ thread_id };
 
-                // Precompute inverse number of samples for scaling
+                // Compute samples per dimension after rounding to perfect square
+                const unsigned int spp_dim{ static_cast<unsigned int>(std::round(std::sqrt(spp))) };
+                spp = spp_dim * spp_dim;
+                std::vector<Geometry::Point2f> pixel_samples(spp);
                 const float inv_num_samples{ 1.f / spp };
 
                 // Get next tile to render
@@ -56,13 +59,17 @@ void ImageIntegrator::RenderImage(const Scene& scene, const CameraInterface& cam
                         for (unsigned int pixel_x = current_tile.tile_start.x;
                              pixel_x != current_tile.tile_end.x; pixel_x++)
                         {
+                            // Generate stratified samples for pixel
+                            sampler.StratifiedSamples(pixel_samples, spp_dim);
+
+                            // Compute pixel radiance
                             Spectrumf pixel_radiance{ 0.f };
-                            for (unsigned int sample = 0; sample != spp; sample++)
+                            for (const Geometry::Point2f sample : pixel_samples)
                             {
                                 // Generate ray
                                 Geometry::Intervalf ray_interval{ Geometry::Ray::DefaultInterval() };
                                 const Geometry::Ray ray{ camera.GenerateRayWorldSpace(
-                                    Geometry::Point2ui{ pixel_x, pixel_y }, sampler.Next2D()) };
+                                    Geometry::Point2ui{ pixel_x, pixel_y }, sample) };
 
                                 pixel_radiance += integrator->IncomingRadiance(ray, ray_interval, scene, sampler);
                             }

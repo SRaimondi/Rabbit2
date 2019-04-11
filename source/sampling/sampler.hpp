@@ -8,6 +8,8 @@
 #include "pcg32.hpp"
 #include "geometry/geometry.hpp"
 
+#include <vector>
+
 namespace Rabbit
 {
 namespace Sampling
@@ -33,7 +35,22 @@ public:
         return { Next1D(), Next1D() };
     }
 
+    // Generate stratified 2D samples
+    const std::vector<Geometry::Point2f> StratifiedSamples(unsigned int num_samples_dim) noexcept;
+
+    void StratifiedSamples(std::vector<Geometry::Point2f>& samples, unsigned int num_samples_dim) noexcept;
+
 private:
+    // Shuffle vector of elements
+    template <typename Iterator>
+    void Shuffle(Iterator begin, Iterator end) noexcept
+    {
+        for (auto it = end - 1; it > begin; --it)
+        {
+            std::iter_swap(it, begin + rng.NextUInt32(static_cast<uint32_t>(it - begin + 1)));
+        }
+    }
+
     // Random number generator
     PCG32 rng;
 };
