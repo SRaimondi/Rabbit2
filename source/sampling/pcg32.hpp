@@ -53,7 +53,7 @@ public:
     // Generate a single precision floating point value in the [0, 1) interval
     float NextFloat() noexcept
     {
-        union Helper
+        union
         {
             uint32_t u;
             float f;

@@ -23,11 +23,11 @@ int main()
     {
         // Load bunny mesh
         const auto mesh_read_start{ std::chrono::high_resolution_clock::now() };
-        const Mesh cornell_box{ LoadMesh("../models/cornell/cornell_box.ply") };
-        const Mesh cornell_cube{ LoadMesh("../models/cornell/cornell_cube.ply") };
-        const Mesh cornell_sphere{ LoadMesh("../models/cornell/cornell_sphere.ply") };
-        const Mesh cornell_light{ LoadMesh("../models/cornell/cornell_light.ply") };
-        const Mesh cornell_dragon{ LoadMesh("../models/cornell/cornell_dragon.ply") };
+        const Mesh cornell_box{ LoadMesh("../models/cornell/cornell_box.ply", true, false) };
+        const Mesh cornell_cube{ LoadMesh("../models/cornell/cornell_cube.ply", true, true) };
+        const Mesh cornell_sphere{ LoadMesh("../models/cornell/cornell_sphere.ply", false, true) };
+        const Mesh cornell_light{ LoadMesh("../models/cornell/cornell_light.ply", true, true) };
+        const Mesh cornell_dragon{ LoadMesh("../models/cornell/cornell_dragon.ply", false, false) };
         const auto mesh_read_end{ std::chrono::high_resolution_clock::now() };
 
         std::cout << "Read meshes in "
@@ -66,12 +66,12 @@ int main()
 
         // Add lights
         scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 10.f, 30.f }, Spectrumf{ 600.f }));
-        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 5.f, 0.f }, Spectrumf{ 200.f }));
+        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 5.f, 0.f }, Spectrumf{ 150.f }));
 
         // Create film
         constexpr unsigned int WIDTH{ 1080 };
         constexpr unsigned int HEIGHT{ 1080 };
-        constexpr unsigned int NUM_SAMPLES{ 64 };
+        constexpr unsigned int NUM_SAMPLES{ 32 };
         Film film{ WIDTH, HEIGHT };
 
         // Create cameras

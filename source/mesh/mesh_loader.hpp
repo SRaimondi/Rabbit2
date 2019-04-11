@@ -12,9 +12,9 @@ namespace Rabbit
 namespace MeshLoader
 {
 
-const Mesh LoadOBJ(const std::string& filename, bool load_uv);
+const Mesh LoadOBJ(const std::string& filename, bool load_normal, bool load_uv);
 
-const Mesh LoadPLY(const std::string& filename, bool load_uv);
+const Mesh LoadPLY(const std::string& filename, bool load_normal, bool load_uv);
 
 std::vector<Geometry::Vector3f> SmoothNormals(const std::vector<Geometry::Point3f>& vertices,
                                               const std::vector<unsigned int>& indices);
@@ -22,7 +22,7 @@ std::vector<Geometry::Vector3f> SmoothNormals(const std::vector<Geometry::Point3
 } // MeshLoader namespace
 
 // Load mesh from file
-const Mesh LoadMesh(const std::string& filename, bool load_uv = false);
+const Mesh LoadMesh(const std::string& filename, bool load_normal = true, bool load_uv = true);
 
 } // Rabbit namespace
 

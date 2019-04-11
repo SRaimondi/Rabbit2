@@ -18,7 +18,8 @@ namespace Rabbit
 namespace MeshLoader
 {
 
-const Mesh LoadOBJ(const std::string& filename, bool load_uv)
+// FIXME
+const Mesh LoadOBJ(const std::string& filename, bool load_normal, bool load_uv)
 {
     using namespace tinyobj;
 
@@ -94,7 +95,7 @@ const Mesh LoadOBJ(const std::string& filename, bool load_uv)
              std::vector<Geometry::Vector2f>{}, std::vector<TriangleDescription>{}};
 }
 
-const Mesh LoadPLY(const std::string& filename, bool load_uv)
+const Mesh LoadPLY(const std::string& filename, bool load_normal, bool load_uv)
 {
     using namespace tinyply;
 
@@ -112,15 +113,26 @@ const Mesh LoadPLY(const std::string& filename, bool load_uv)
     ply_file.parse_header(file);
 
     // Set properties we want to load
+
+    // Vertices
     const std::shared_ptr<PlyData> ply_vertices{
         ply_file.request_properties_from_element("vertex", { "x", "y", "z" }) };
-    const std::shared_ptr<PlyData> ply_normals{
-        ply_file.request_properties_from_element("vertex", { "nx", "ny", "nz" }) };
+
+    // Normals
+    std::shared_ptr<PlyData> ply_normals;
+    if (load_normal)
+    {
+        ply_normals = ply_file.request_properties_from_element("vertex", { "nx", "ny", "nz" });
+    }
+
+    // Uvs
     std::shared_ptr<PlyData> ply_uvs;
     if (load_uv)
     {
         ply_uvs = ply_file.request_properties_from_element("vertex", { "s", "t" });
     }
+
+    // Faces
     const std::shared_ptr<PlyData> ply_indices{
         ply_file.request_properties_from_element("face", { "vertex_indices" }, 3) };
 
@@ -130,8 +142,24 @@ const Mesh LoadPLY(const std::string& filename, bool load_uv)
     // Allocate space for vertices / indices and copy
     std::vector<Geometry::Point3f> vertices(ply_vertices->count);
     std::memcpy(vertices.data(), ply_vertices->buffer.get(), ply_vertices->buffer.size_bytes());
-    std::vector<Geometry::Vector3f> normals(ply_normals->count);
-    std::memcpy(normals.data(), ply_normals->buffer.get(), ply_normals->buffer.size_bytes());
+
+    // Create faces
+    std::vector<unsigned int> indices(ply_indices->count * 3);
+    std::memcpy(indices.data(), ply_indices->buffer.get(), ply_indices->buffer.size_bytes());
+
+    // Store normals
+    std::vector<Geometry::Vector3f> normals;
+    if (load_normal)
+    {
+        normals.resize(ply_normals->count);
+        std::memcpy(normals.data(), ply_normals->buffer.get(), ply_normals->buffer.size_bytes());
+    }
+    else
+    {
+        normals = SmoothNormals(vertices, indices);
+    }
+
+    // Store uvs
     std::vector<Geometry::Vector2f> uvs;
     if (load_uv)
     {
@@ -139,10 +167,7 @@ const Mesh LoadPLY(const std::string& filename, bool load_uv)
         std::memcpy(uvs.data(), ply_uvs->buffer.get(), ply_uvs->buffer.size_bytes());
     }
 
-    // Create faces
-    std::vector<unsigned int> indices(ply_indices->count * 3);
-    std::memcpy(indices.data(), ply_indices->buffer.get(), ply_indices->buffer.size_bytes());
-
+    // Generate triangles description
     std::vector<TriangleDescription> triangles;
     triangles.reserve(ply_indices->count);
     for (unsigned int i = 0; i != ply_indices->count; i++)
@@ -197,7 +222,7 @@ std::vector<Geometry::Vector3f> SmoothNormals(const std::vector<Geometry::Point3
 
 } // MeshLoader namespace
 
-const Mesh LoadMesh(const std::string& filename, bool load_uv)
+const Mesh LoadMesh(const std::string& filename, bool load_normal, bool load_uv)
 {
     // Check file extension
     const std::size_t extension_position{ filename.find_last_of('.') };
@@ -212,11 +237,11 @@ const Mesh LoadMesh(const std::string& filename, bool load_uv)
     // Forward method based on extension
     if (extension == ".ply")
     {
-        return MeshLoader::LoadPLY(filename, load_uv);
+        return MeshLoader::LoadPLY(filename, load_normal, load_uv);
     }
     else if (extension == ".obj")
     {
-        return MeshLoader::LoadOBJ(filename, load_uv);
+        return MeshLoader::LoadOBJ(filename, load_normal, load_uv);
     }
     else
     {
