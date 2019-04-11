@@ -146,6 +146,12 @@ constexpr const Vector3<T> operator+(const Vector3<T>& lhs, const Vector3<T>& rh
 }
 
 template <typename T>
+constexpr const Point3<T> operator+(const Point3<T>& lhs, const Point3<T>& rhs) noexcept
+{
+    return { lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z };
+}
+
+template <typename T>
 constexpr const Vector2<T> operator+(const Vector2<T>& lhs, const Vector2<T>& rhs) noexcept
 {
     return { lhs.x + rhs.x, lhs.y + rhs.y };
@@ -200,6 +206,12 @@ constexpr const Vector3<T> operator*(T lhs, const Vector3<T>& rhs) noexcept
 }
 
 template <typename T>
+constexpr const Point3<T> operator*(T lhs, const Point3<T>& rhs) noexcept
+{
+    return { lhs * rhs.x, lhs * rhs.y, lhs * rhs.z };
+}
+
+template <typename T>
 constexpr const Vector2<T> operator*(T lhs, const Vector2<T>& rhs) noexcept
 {
     return { lhs * rhs.x, lhs * rhs.y };
@@ -242,6 +254,12 @@ template <typename T>
 constexpr T Dot(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
 {
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+}
+
+template <typename T>
+constexpr T AbsDot(const Vector3<T>& lhs, const Vector3<T>& rhs) noexcept
+{
+    return std::abs(Dot(lhs, rhs));
 }
 
 template <typename T>

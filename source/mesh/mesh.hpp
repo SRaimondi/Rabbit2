@@ -129,6 +129,21 @@ public:
                                      float intersection_parameter,
                                      Geometry::TriangleIntersection& intersection) const noexcept;
 
+    // Compute area of the triangle after applying transformation to world space
+    float Area() const noexcept
+    {
+        const Geometry::Point3f p0{ transformation->ToWorld(mesh.VertexAt(description.v0)) };
+        const Geometry::Point3f p1{ transformation->ToWorld(mesh.VertexAt(description.v1)) };
+        const Geometry::Point3f p2{ transformation->ToWorld(mesh.VertexAt(description.v2)) };
+
+        return 0.5f * Geometry::Norm(Geometry::Cross(p1 - p0, p2 - p0));
+    }
+
+    // Sample TriangleIntersection on the triangle from a given reference intersection
+    const Geometry::TriangleIntersection Sample(const Geometry::TriangleIntersection& reference_intersection,
+                                                const Geometry::Point2f& u,
+                                                float& sampled_intersection_pdf) const noexcept;
+
     // Pointer to the material
     std::shared_ptr<const MaterialInterface> material;
 
@@ -310,12 +325,12 @@ inline void Triangle::ComputeIntersectionGeometry(const Geometry::Ray& ray,
     else
     {
         // Compute normal based on vertices
-        const Geometry::Point3f& v0{ mesh.VertexAt(description.v0) };
-        const Geometry::Point3f& v1{ mesh.VertexAt(description.v1) };
-        const Geometry::Point3f& v2{ mesh.VertexAt(description.v2) };
+        const Geometry::Point3f& p0{ mesh.VertexAt(description.v0) };
+        const Geometry::Point3f& p1{ mesh.VertexAt(description.v1) };
+        const Geometry::Point3f& p2{ mesh.VertexAt(description.v2) };
 
         intersection.local_geometry = Geometry::Framef{
-            Geometry::Normalize(transformation->NormalToWorld(Geometry::Cross(v1 - v0, v2 - v0))) };
+            Geometry::Normalize(transformation->NormalToWorld(Geometry::Cross(p1 - p0, p2 - p0))) };
     }
 
     // Set outgoing direction
