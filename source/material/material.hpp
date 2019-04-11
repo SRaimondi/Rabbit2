@@ -11,6 +11,19 @@
 namespace Rabbit
 {
 
+// Material sample
+struct MaterialSample
+{
+    constexpr MaterialSample() noexcept
+        : sampled_wi_pdf{ 0.f }
+    {}
+
+    // Sampled incoming direction
+    Geometry::Vector3f sampled_wi;
+    // Sampled direction pdf, with respect to solid angle
+    float sampled_wi_pdf;
+};
+
 class MaterialInterface
 {
 public:
@@ -30,7 +43,7 @@ public:
     // Sample a new direction for the BRDF, defaults to cosine sampling
     virtual const Spectrumf SampleF(const Geometry::TriangleIntersection& intersection,
                                     const Geometry::Vector3f& wo, const Geometry::Point2f& u,
-                                    Geometry::Vector3f& sampled_wi, float& sampled_wi_pdf) const noexcept;
+                                    MaterialSample& sample) const noexcept;
 
     // Evaluate emission in a given direction, defaults to 0
     virtual const Spectrumf Le(const Geometry::TriangleIntersection& intersection,

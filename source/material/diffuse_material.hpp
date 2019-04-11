@@ -20,8 +20,8 @@ public:
 
     bool IsDiffuse() const noexcept override;
 
-    const Spectrumf F(const Geometry::TriangleIntersection& intersection, const Geometry::Vector3f& wo,
-                      const Geometry::Vector3f& wi) const noexcept override;
+    const Spectrumf F(const Geometry::TriangleIntersection& intersection,
+                      const Geometry::Vector3f& wo, const Geometry::Vector3f& wi) const noexcept override;
 
 private:
     // Reflectance texture
