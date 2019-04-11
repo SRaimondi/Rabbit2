@@ -65,11 +65,12 @@ int main()
         Scene scene{ std::move(bvh) };
 
         // Add lights
-        scene.SetupAreaLights(100);
+        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 0.f, 50.f }, Spectrumf{ 1000.f }));
+        scene.SetupAreaLights(5);
 
         // Create film
-        constexpr unsigned int WIDTH{ 256 };
-        constexpr unsigned int HEIGHT{ 256 };
+        constexpr unsigned int WIDTH{ 512 };
+        constexpr unsigned int HEIGHT{ 512 };
         constexpr unsigned int NUM_SAMPLES{ 4 };
         Film film{ WIDTH, HEIGHT };
 
@@ -79,7 +80,7 @@ int main()
 
         // Create integrator
         const ImageIntegrator image_integrator{ std::make_unique<const DirectLightIntegrator>(),
-                                                Geometry::Point2ui{ 16, 16 }, NUM_SAMPLES };
+                                                Geometry::Point2ui{ 8, 8 }, NUM_SAMPLES };
 
         const auto start{ std::chrono::high_resolution_clock::now() };
         image_integrator.RenderImage(scene, perspective_camera, film);
