@@ -19,8 +19,8 @@ public:
 
     bool IsDeltaLight() const noexcept override;
 
-    Spectrumf SampleLi(const Geometry::TriangleIntersection& reference_intersection, const Geometry::Point2f& u,
-                       Geometry::Vector3f& sampled_wi, float& sampled_wi_pdf,
+    Spectrumf SampleLi(const Geometry::TriangleIntersection& reference_intersection,
+                       const Geometry::Point2f& u, LightSample& sample,
                        OcclusionTester& occlusion_tester) const noexcept override;
 
 private:

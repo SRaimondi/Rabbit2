@@ -16,17 +16,17 @@ class OcclusionTester
 public:
     OcclusionTester() noexcept = default;
 
-    void OriginDirection(const Geometry::Point3f& start, const Geometry::Vector3f& direction) noexcept
+    void OriginDirection(const Geometry::Point3f& origin, const Geometry::Vector3f& direction) noexcept
     {
-        occlusion_ray = Geometry::Ray{ start, direction };
+        occlusion_ray = Geometry::Ray{ origin, direction };
         occlusion_interval = Geometry::Ray::DefaultInterval();
     }
 
-    void FromTo(const Geometry::Point3f& start, const Geometry::Point3f& end) noexcept
+    void FromTo(const Geometry::Point3f& from, const Geometry::Point3f& to) noexcept
     {
-        occlusion_ray = Geometry::Ray{ start, Geometry::Normalize(end - start) };
+        occlusion_ray = Geometry::Ray{ from, Geometry::Normalize(to - from) };
         occlusion_interval = Geometry::Intervalf{ Geometry::EPS<float>,
-                                                  Geometry::Distance(start, end) - Geometry::EPS<float> };
+                                                  Geometry::Distance(from, to) - Geometry::EPS<float> };
     }
 
     bool IsOccluded(const Scene& scene) const noexcept

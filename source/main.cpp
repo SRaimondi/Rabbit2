@@ -65,7 +65,8 @@ int main()
         Scene scene{ std::move(bvh) };
 
         // Add lights
-        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 5.f, 30.f }, Spectrumf{ 600.f }));
+        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 10.f, 30.f }, Spectrumf{ 600.f }));
+        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 5.f, 0.f }, Spectrumf{ 200.f }));
 
         // Create film
         constexpr unsigned int WIDTH{ 1080 };
