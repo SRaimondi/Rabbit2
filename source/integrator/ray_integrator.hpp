@@ -6,6 +6,7 @@
 #define RABBIT2_RAY_INTEGRATOR_HPP
 
 #include "scene/scene.hpp"
+#include "sampling/pcg32.hpp"
 
 namespace Rabbit
 {
@@ -17,7 +18,7 @@ public:
 
     // Compute incoming radiance for the given ray in the given scene
     virtual const Spectrumf IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
-                                             const Scene& scene) const = 0;
+                                             const Scene& scene, Sampling::PCG32& rng) const = 0;
 };
 
 } // Rabbit namespace

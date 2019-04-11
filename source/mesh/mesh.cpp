@@ -62,7 +62,15 @@ const Geometry::TriangleIntersection Triangle::Sample(const Geometry::TriangleIn
     sampled_intersection.hit_point = sampled_intersection.barycentric_coordinates.x * p0 +
                                      sampled_intersection.barycentric_coordinates.y * p1 +
                                      sampled_intersection.barycentric_coordinates.z * p2;
+    // TODO Think about this
     sampled_intersection.local_geometry = Geometry::Framef{ Geometry::Normalize(triangle_normal) };
+    // Check if we have normals
+    if (mesh.HasUVs())
+    {
+        sampled_intersection.uv = sampled_intersection.barycentric_coordinates.x * mesh.UVAt(description.uv0) +
+                                  sampled_intersection.barycentric_coordinates.y * mesh.UVAt(description.uv1) +
+                                  sampled_intersection.barycentric_coordinates.z * mesh.UVAt(description.uv2);
+    }
 
     // Compute PDF
     const Geometry::Vector3f wi{ Geometry::Normalize(sampled_intersection.hit_point -

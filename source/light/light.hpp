@@ -40,9 +40,9 @@ public:
     virtual bool IsDeltaLight() const noexcept;
 
     // Sample incoming light at given intersection
-    virtual Spectrumf SampleLi(const Geometry::TriangleIntersection& reference_intersection,
-                               const Geometry::Point2f& u, LightSample& sample,
-                               OcclusionTester& occlusion_tester) const noexcept = 0;
+    virtual const Spectrumf SampleLi(const Geometry::TriangleIntersection& reference_intersection,
+                                     const Geometry::Point2f& u, LightSample& sample,
+                                     OcclusionTester& occlusion_tester) const noexcept = 0;
 
     // Get number of samples for the light
     unsigned int NumSamples() const noexcept

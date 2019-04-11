@@ -103,6 +103,12 @@ public:
     // Check for intersection
     bool IntersectTest(const Geometry::Ray& ray, const Geometry::Intervalf& interval) const noexcept;
 
+    // Access list of triangle in the BVH
+    const std::vector<Triangle>& Triangles() const noexcept
+    {
+        return triangles;
+    }
+
 private:
     // Build tree
     void Build();

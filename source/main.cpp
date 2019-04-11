@@ -43,7 +43,7 @@ int main()
         const auto diffuse_green_material{ std::make_shared<const DiffuseMaterial>(
             std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 0.1f, 0.9f, 0.1f })) };
         const auto emitting_material{ std::make_shared<const EmittingMaterial>(
-            std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 10.f })) };
+            std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 0.8f })) };
 
 
         std::vector<Triangle> scene_triangles;
@@ -65,13 +65,12 @@ int main()
         Scene scene{ std::move(bvh) };
 
         // Add lights
-        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 10.f, 30.f }, Spectrumf{ 600.f }));
-        scene.AddLight(std::make_unique<const PointLight>(Point3f{ 0.f, 5.f, 0.f }, Spectrumf{ 150.f }));
+        scene.SetupAreaLights(16);
 
         // Create film
-        constexpr unsigned int WIDTH{ 1080 };
-        constexpr unsigned int HEIGHT{ 1080 };
-        constexpr unsigned int NUM_SAMPLES{ 32 };
+        constexpr unsigned int WIDTH{ 512 };
+        constexpr unsigned int HEIGHT{ 512 };
+        constexpr unsigned int NUM_SAMPLES{ 4 };
         Film film{ WIDTH, HEIGHT };
 
         // Create cameras

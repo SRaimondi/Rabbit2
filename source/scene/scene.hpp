@@ -41,6 +41,9 @@ public:
         return lights;
     }
 
+    // Setup area lights
+    void SetupAreaLights(unsigned int num_samples) noexcept;
+
 private:
     // Accelerator for triangles
     const BVH bvh;

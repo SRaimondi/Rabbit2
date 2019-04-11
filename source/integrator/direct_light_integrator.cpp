@@ -9,7 +9,7 @@ namespace Rabbit
 {
 
 const Spectrumf DirectLightIntegrator::IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
-                                                        const Scene& scene) const noexcept
+                                                        const Scene& scene, Sampling::PCG32& rng) const noexcept
 {
     Spectrumf L{ 0.f };
 
@@ -20,7 +20,7 @@ const Spectrumf DirectLightIntegrator::IncomingRadiance(const Geometry::Ray& ray
         // Get material pointer
         const auto& triangle_material{ intersection.hit_triangle->material };
 
-        // Add possible emission from triangle
+        // Add emission from intersection, if any
         if (triangle_material->IsEmitting())
         {
             L += triangle_material->Le(intersection, intersection.wo);
@@ -32,15 +32,37 @@ const Spectrumf DirectLightIntegrator::IncomingRadiance(const Geometry::Ray& ray
         // Loop over all lights in the scene and compute contribution
         for (const auto& light : scene.Lights())
         {
-            // Sample incoming light
-            const Spectrumf Li{ light->SampleLi(intersection, Geometry::Point2f{}, light_sample, occlusion_tester) };
-
-            // Check if we need to add contribution
-            if (!occlusion_tester.IsOccluded(scene) && !Li.IsBlack() && light_sample.sampled_wi_pdf > 0.f)
+            if (light->IsDeltaLight())
             {
-                L += triangle_material->F(intersection, intersection.wo, light_sample.sampled_wi) *
-                     Li * Clamp(Geometry::Dot(intersection.local_geometry.n, light_sample.sampled_wi), 0.f, 1.f) /
-                     light_sample.sampled_wi_pdf;
+                // Sample incoming light
+                const Spectrumf Li{
+                    light->SampleLi(intersection, Geometry::Point2f{}, light_sample, occlusion_tester) };
+
+                // Check if we need to add contribution
+                if (!occlusion_tester.IsOccluded(scene) && !Li.IsBlack() && light_sample.sampled_wi_pdf > 0.f)
+                {
+                    L += triangle_material->F(intersection, intersection.wo, light_sample.sampled_wi) *
+                         Li * Clamp(Geometry::Dot(intersection.local_geometry.n, light_sample.sampled_wi), 0.f, 1.f) /
+                         light_sample.sampled_wi_pdf;
+                }
+            }
+            else
+            {
+                for (unsigned int sample = 0; sample != light->NumSamples(); sample++)
+                {
+                    const Spectrumf Li{
+                        light->SampleLi(intersection, Geometry::Point2f{ rng.NextFloat(), rng.NextFloat() },
+                                        light_sample, occlusion_tester) };
+
+                    // Check if we need to add contribution
+                    if (!occlusion_tester.IsOccluded(scene) && !Li.IsBlack() && light_sample.sampled_wi_pdf > 0.f)
+                    {
+                        L += triangle_material->F(intersection, intersection.wo, light_sample.sampled_wi) *
+                             Li *
+                             Clamp(Geometry::Dot(intersection.local_geometry.n, light_sample.sampled_wi), 0.f, 1.f) /
+                             light_sample.sampled_wi_pdf;
+                    }
+                }
             }
         }
     }
