@@ -78,6 +78,18 @@ const Spectrumf PathTracingIntegrator::IncomingRadiance(const Geometry::Ray& ray
         // Set ray to new one
         current_ray = intersection.SpawnRay(material_sample.sampled_wi);
         current_interval = Geometry::Ray::DefaultInterval();
+
+        // Possibly terminate using Russian roulette
+        if (bounce > 3)
+        {
+            // Compute probability to stop
+            const float q{ std::max(0.05f, 1.f - AverageIntensity(beta)) };
+            if (sampler.Next1D() < q)
+            {
+                break;
+            }
+            beta /= 1.f - q;
+        }
     }
 
     return L;

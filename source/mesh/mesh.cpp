@@ -51,10 +51,6 @@ const Geometry::TriangleIntersection Triangle::Sample(const Geometry::TriangleIn
     const Geometry::Point3f p1{ transformation->ToWorld(mesh.VertexAt(description.v1)) };
     const Geometry::Point3f p2{ transformation->ToWorld(mesh.VertexAt(description.v2)) };
 
-    // Compute triangle normal, not normalized
-    const Geometry::Vector3f triangle_normal{ Geometry::Cross(p1 - p0, p2 - p0) };
-    const float triangle_area{ 0.5f * Geometry::Norm(triangle_normal) };
-
     // Sample point
     Geometry::TriangleIntersection sampled_intersection;
     sampled_intersection.hit_triangle = this;
@@ -62,9 +58,13 @@ const Geometry::TriangleIntersection Triangle::Sample(const Geometry::TriangleIn
     sampled_intersection.hit_point = sampled_intersection.barycentric_coordinates.x * p0 +
                                      sampled_intersection.barycentric_coordinates.y * p1 +
                                      sampled_intersection.barycentric_coordinates.z * p2;
-    // TODO Think about this
+
+    // Compute triangle geometric normal, not normalized
+    const Geometry::Vector3f triangle_normal{ Geometry::Cross(p1 - p0, p2 - p0) };
+    const float triangle_area{ 0.5f * Geometry::Norm(triangle_normal) };
     sampled_intersection.local_geometry = Geometry::Framef{ Geometry::Normalize(triangle_normal) };
-    // Check if we have normals
+
+    // Compute UVs for the sampled point
     if (mesh.HasUVs())
     {
         sampled_intersection.uv = sampled_intersection.barycentric_coordinates.x * mesh.UVAt(description.uv0) +
@@ -73,16 +73,20 @@ const Geometry::TriangleIntersection Triangle::Sample(const Geometry::TriangleIn
     }
 
     // Compute PDF
-    const Geometry::Vector3f wi{ Geometry::Normalize(sampled_intersection.hit_point -
-                                                     reference_intersection.hit_point) };
-    sampled_intersection_pdf =
-        Geometry::DistanceSquared(reference_intersection.hit_point, sampled_intersection.hit_point) /
-        (Geometry::AbsDot(sampled_intersection.local_geometry.n, -wi) * triangle_area);
-
-    // Check the pdf is valid
-    if (std::isinf(sampled_intersection_pdf) || std::isnan(sampled_intersection_pdf))
+    const Geometry::Vector3f ref_p_to_sampled_p{ sampled_intersection.hit_point - reference_intersection.hit_point };
+    const Geometry::Vector3f wi{ -Geometry::Normalize(ref_p_to_sampled_p) };
+    const float n_dot_sampled_wi{ Geometry::Dot(sampled_intersection.local_geometry.n, wi) };
+    if (Geometry::SquaredNorm(ref_p_to_sampled_p) == 0.f || n_dot_sampled_wi <= 0.f)
     {
         sampled_intersection_pdf = 0.f;
+    }
+    else
+    {
+        sampled_intersection_pdf = Geometry::SquaredNorm(ref_p_to_sampled_p) / (n_dot_sampled_wi * triangle_area);
+        if (std::isinf(sampled_intersection_pdf))
+        {
+            sampled_intersection_pdf = 0.f;
+        }
     }
 
     return sampled_intersection;

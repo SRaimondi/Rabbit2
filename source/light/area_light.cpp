@@ -14,8 +14,8 @@ const Spectrumf AreaLight::SampleLi(const Geometry::TriangleIntersection& refere
                                     OcclusionTester& occlusion_tester) const noexcept
 {
     // Sample point on the triangle representing the light
-    const Geometry::TriangleIntersection sampled_light{
-        triangle->Sample(reference_intersection, u, sample.sampled_wi_pdf) };
+    const Geometry::TriangleIntersection sampled_light{ triangle->Sample(reference_intersection,
+                                                                         u, sample.sampled_wi_pdf) };
     // Compute direction
     sample.sampled_wi = Geometry::Normalize(sampled_light.hit_point - reference_intersection.hit_point);
     occlusion_tester.FromTo(reference_intersection.hit_point, sampled_light.hit_point);

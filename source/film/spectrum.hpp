@@ -41,6 +41,15 @@ struct Spectrum
         return *this;
     }
 
+    Spectrum& operator/=(const T t) noexcept
+    {
+        const T inv_t{ T(1) / t };
+        r *= inv_t;
+        g *= inv_t;
+        b *= inv_t;
+        return *this;
+    }
+
     const Spectrum Clamp(T min, T max) const noexcept
     {
         return { ::Rabbit::Clamp(r, min, max), ::Rabbit::Clamp(g, min, max), ::Rabbit::Clamp(b, min, max) };
@@ -78,6 +87,13 @@ constexpr const Spectrum<T> operator/(const Spectrum<T>& lhs, T rhs) noexcept
 {
     const T inv_rhs{ 1 / rhs };
     return inv_rhs * lhs;
+}
+
+template <typename T>
+constexpr T AverageIntensity(const Spectrum<T>& s) noexcept
+{
+    constexpr T t{ T(1) / T(3) };
+    return t * (s.r + s.g + s.b);
 }
 
 using Spectrumf = Spectrum<float>;

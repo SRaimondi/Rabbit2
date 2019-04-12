@@ -129,16 +129,6 @@ public:
                                      float intersection_parameter,
                                      Geometry::TriangleIntersection& intersection) const noexcept;
 
-    // Compute area of the triangle after applying transformation to world space
-    float Area() const noexcept
-    {
-        const Geometry::Point3f p0{ transformation->ToWorld(mesh.VertexAt(description.v0)) };
-        const Geometry::Point3f p1{ transformation->ToWorld(mesh.VertexAt(description.v1)) };
-        const Geometry::Point3f p2{ transformation->ToWorld(mesh.VertexAt(description.v2)) };
-
-        return 0.5f * Geometry::Norm(Geometry::Cross(p1 - p0, p2 - p0));
-    }
-
     // Sample TriangleIntersection on the triangle from a given reference intersection
     const Geometry::TriangleIntersection Sample(const Geometry::TriangleIntersection& reference_intersection,
                                                 const Geometry::Point2f& u,

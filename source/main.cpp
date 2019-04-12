@@ -72,12 +72,12 @@ int main()
         Scene scene{ std::move(bvh) };
 
         // Add lights
-        scene.SetupAreaLights(64);
+        scene.SetupAreaLights(36);
 
         // Create film
-        constexpr unsigned int WIDTH{ 512 };
-        constexpr unsigned int HEIGHT{ 512 };
-        constexpr unsigned int NUM_SAMPLES{ 16 };
+        constexpr unsigned int WIDTH{ 256 };
+        constexpr unsigned int HEIGHT{ 256 };
+        constexpr unsigned int NUM_SAMPLES{ 36 };
         Film film{ WIDTH, HEIGHT };
 
         // Create cameras
@@ -85,7 +85,7 @@ int main()
                                                     60.f, WIDTH, HEIGHT };
 
         // Create integrator
-        const ImageIntegrator image_integrator{ std::make_unique<const PathTracingIntegrator>(2),
+        const ImageIntegrator image_integrator{ std::make_unique<const PathTracingIntegrator>(10),
                                                 Geometry::Point2ui{ 16, 16 }, NUM_SAMPLES };
 
         const auto start{ std::chrono::high_resolution_clock::now() };
