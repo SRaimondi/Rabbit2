@@ -53,7 +53,8 @@ add_executable(Rabbit2
         source/light/area_light.cpp source/light/area_light.hpp
         source/sampling/sampler.cpp source/sampling/sampler.hpp
         source/light/infinite_light.cpp source/light/infinite_light.hpp
-        source/material/mirror_material.cpp source/material/mirror_material.hpp)
+        source/material/mirror_material.cpp source/material/mirror_material.hpp
+        source/integrator/path_tracing_integrator.cpp source/integrator/path_tracing_integrator.hpp)
 
 if (APPLE)
     target_compile_definitions(Rabbit2 PRIVATE CL_SILENCE_DEPRECATION)

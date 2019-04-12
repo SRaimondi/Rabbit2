@@ -26,8 +26,8 @@ void Sampler::StratifiedSamples(std::vector<Geometry::Point2f>& samples, unsigne
         for (unsigned int x = 0; x != num_samples_dim; x++)
         {
             const unsigned int index{ y * num_samples_dim + x };
-            samples[y * num_samples_dim + x].x = (x + Next1D()) * inv_num_samples;
-            samples[y * num_samples_dim + x].y = (y + Next1D()) * inv_num_samples;
+            samples[index].x = (x + Next1D()) * inv_num_samples;
+            samples[index].y = (y + Next1D()) * inv_num_samples;
         }
     }
 

@@ -32,7 +32,7 @@ const Spectrumf RayIntegratorInterface::ComputeDirectIllumination(const Geometry
             const Spectrumf Li{ light->SampleLi(intersection, u, light_sample, occlusion_tester) };
 
             // Check if we need to add contribution
-            if (!Li.IsBlack() && light_sample.sampled_wi_pdf > 0.f && !occlusion_tester.IsOccluded(scene))
+            if (!Li.IsBlack() && light_sample.sampled_wi_pdf != 0.f && !occlusion_tester.IsOccluded(scene))
             {
                 Ld += intersection.hit_triangle->material->F(intersection, intersection.wo, light_sample.sampled_wi) *
                       Li * Clamp(Geometry::Dot(intersection.local_geometry.n, light_sample.sampled_wi), 0.f, 1.f) /
@@ -58,7 +58,7 @@ const Spectrumf RayIntegratorInterface::ComputeSpecularIllumination(const Geomet
     if (!specular.IsBlack() && sample.sampled_wi_pdf > 0.f)
     {
         // Create new ray an interval
-        const Geometry::Ray specular_ray{ intersection.hit_point, sample.sampled_wi };
+        const Geometry::Ray specular_ray{ intersection.SpawnRay(sample.sampled_wi) };
         Geometry::Intervalf specular_ray_interval{ Geometry::Ray::DefaultInterval() };
 
         // Compute incoming specular light

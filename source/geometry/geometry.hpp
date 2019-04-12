@@ -172,7 +172,7 @@ constexpr const Point3<T> operator-(const Point3<T>& lhs, const Vector3<T>& rhs)
 template <typename T>
 constexpr const Point2<T> operator-(const Point2<T>& lhs, const Vector2<T>& rhs) noexcept
 {
-    return { lhs.x + rhs.x, lhs.y + rhs.y };
+    return { lhs.x - rhs.x, lhs.y - rhs.y };
 }
 
 template <typename T>

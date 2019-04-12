@@ -6,6 +6,7 @@
 #define RABBIT2_INTERSECTION_HPP
 
 #include "frame.hpp"
+#include "ray.hpp"
 
 namespace Rabbit
 {
@@ -26,6 +27,11 @@ struct TriangleIntersection
     bool IsValid() const noexcept
     {
         return hit_triangle != nullptr;
+    }
+
+    Ray SpawnRay(const Vector3f& direction) const noexcept
+    {
+        return { hit_point + EPS<float> * local_geometry.n, direction };
     }
 
     // Hit point

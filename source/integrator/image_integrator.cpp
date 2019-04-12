@@ -8,6 +8,7 @@
 
 #include <thread>
 #include <atomic>
+#include <iostream>
 
 namespace Rabbit
 {
@@ -23,8 +24,12 @@ void ImageIntegrator::RenderImage(const Scene& scene, const CameraInterface& cam
     const std::vector<Tile> tiles{ GenerateTiles(film.Width(), film.Height()) };
 
     // Count how many threads we have to launch
+#ifdef NDEBUG
     const unsigned int num_threads{ std::min(std::thread::hardware_concurrency(),
                                              static_cast<unsigned int>(tiles.size())) };
+#else
+    const unsigned int num_threads{ 1 };
+#endif
 
     // Atomic tile counter to synchronize access to tiles between threads
     std::atomic_uint next_tile_index{ 0 };
@@ -86,7 +91,25 @@ void ImageIntegrator::RenderImage(const Scene& scene, const CameraInterface& cam
             }, ray_integrator.get(), samples_per_pixel);
     }
 
-    // Wait for all threads to finish
+    // Simple progress
+    unsigned int current_tile{ next_tile_index };
+    unsigned int last_tile_done{ current_tile };
+
+    while (current_tile < tiles.size())
+    {
+        current_tile = next_tile_index;
+        if (current_tile != last_tile_done)
+        {
+            std::cout << "Done " << std::min(current_tile, static_cast<unsigned int>(tiles.size())) << "/"
+                      << tiles.size() << " tiles\r";
+            std::cout.flush();
+            last_tile_done = current_tile;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    std::cout << "\n";
+
+    // Join for all threads
     for (auto& thread : threads)
     {
         thread.join();

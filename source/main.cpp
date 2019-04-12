@@ -8,6 +8,7 @@
 #include "integrator/image_integrator.hpp"
 #include "integrator/debug_integrator.hpp"
 #include "integrator/direct_light_integrator.hpp"
+#include "integrator/path_tracing_integrator.hpp"
 #include "camera/perspective_camera.hpp"
 #include "camera/orthographic_camera.hpp"
 #include "light/point_light.hpp"
@@ -44,18 +45,20 @@ int main()
             std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 0.95f })) };
         const auto diffuse_green_material{ std::make_shared<const DiffuseMaterial>(
             std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 0.1f, 0.9f, 0.1f })) };
+        const auto diffuse_red_material{ std::make_shared<const DiffuseMaterial>(
+            std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 0.9f, 0.2f, 0.1f })) };
         const auto mirror_material{ std::make_shared<const MirrorMaterial>(
             std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 1.f })) };
         const auto emitting_material{ std::make_shared<const EmittingMaterial>(
-            std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 20.f })) };
+            std::make_shared<const ConstantTexture<const Spectrumf>>(Spectrumf{ 10.f })) };
 
 
         std::vector<Triangle> scene_triangles;
         cornell_box.CreateTriangles(identity_tr, diffuse_white_material, scene_triangles);
         cornell_cube.CreateTriangles(identity_tr, diffuse_green_material, scene_triangles);
-        cornell_sphere.CreateTriangles(identity_tr, mirror_material, scene_triangles);
+        cornell_sphere.CreateTriangles(identity_tr, diffuse_white_material, scene_triangles);
         cornell_light.CreateTriangles(identity_tr, emitting_material, scene_triangles);
-        cornell_dragon.CreateTriangles(identity_tr, diffuse_white_material, scene_triangles);
+        cornell_dragon.CreateTriangles(identity_tr, diffuse_red_material, scene_triangles);
 
         // Create BVH
         const auto bvh_start{ std::chrono::high_resolution_clock::now() };
@@ -69,16 +72,12 @@ int main()
         Scene scene{ std::move(bvh) };
 
         // Add lights
-        scene.AddLight(std::make_unique<const InfiniteLight>(64, [](const Vector3f&) -> Spectrumf
-        {
-            return Spectrumf{ 0.7f };
-        }));
-        scene.SetupAreaLights(9);
+        scene.SetupAreaLights(64);
 
         // Create film
         constexpr unsigned int WIDTH{ 512 };
         constexpr unsigned int HEIGHT{ 512 };
-        constexpr unsigned int NUM_SAMPLES{ 9 };
+        constexpr unsigned int NUM_SAMPLES{ 16 };
         Film film{ WIDTH, HEIGHT };
 
         // Create cameras
@@ -86,8 +85,8 @@ int main()
                                                     60.f, WIDTH, HEIGHT };
 
         // Create integrator
-        const ImageIntegrator image_integrator{ std::make_unique<const DirectLightIntegrator>(8),
-                                                Geometry::Point2ui{ 8, 8 }, NUM_SAMPLES };
+        const ImageIntegrator image_integrator{ std::make_unique<const PathTracingIntegrator>(2),
+                                                Geometry::Point2ui{ 16, 16 }, NUM_SAMPLES };
 
         const auto start{ std::chrono::high_resolution_clock::now() };
         image_integrator.RenderImage(scene, perspective_camera, film);

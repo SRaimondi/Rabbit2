@@ -15,7 +15,8 @@ namespace Rabbit
 class InfiniteLight final : public LightInterface
 {
 public:
-    InfiniteLight(unsigned int num_samples, std::function<Spectrumf(const Geometry::Vector3f& direction)>&& rf) noexcept
+    InfiniteLight(unsigned int num_samples,
+                  std::function<const Spectrumf(const Geometry::Vector3f& direction)>&& rf) noexcept
         : LightInterface{ num_samples }, radiance_function{ std::move(rf) }
     {}
 
@@ -25,7 +26,7 @@ public:
     const Spectrumf L(const Geometry::Ray& ray) const noexcept override;
 
 private:
-    const std::function<Spectrumf(const Geometry::Vector3f& direction)> radiance_function;
+    const std::function<const Spectrumf(const Geometry::Vector3f& direction)> radiance_function;
 };
 
 } // Rabbit namespace

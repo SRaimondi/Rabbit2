@@ -80,7 +80,7 @@ const Geometry::TriangleIntersection Triangle::Sample(const Geometry::TriangleIn
         (Geometry::AbsDot(sampled_intersection.local_geometry.n, -wi) * triangle_area);
 
     // Check the pdf is valid
-    if (std::isinf(sampled_intersection_pdf))
+    if (std::isinf(sampled_intersection_pdf) || std::isnan(sampled_intersection_pdf))
     {
         sampled_intersection_pdf = 0.f;
     }

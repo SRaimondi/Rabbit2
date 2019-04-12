@@ -21,6 +21,7 @@ public:
                                              const Scene& scene, Sampling::Sampler& sampler,
                                              unsigned int depth) const = 0;
 
+protected:
     // Compute direct illumination
     static const Spectrumf ComputeDirectIllumination(const Geometry::TriangleIntersection& intersection,
                                                      const Scene& scene, Sampling::Sampler& sampler) noexcept;

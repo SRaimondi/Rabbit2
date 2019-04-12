@@ -33,6 +33,14 @@ struct Spectrum
         return *this;
     }
 
+    Spectrum& operator*=(const Spectrum& other) noexcept
+    {
+        r *= other.r;
+        g *= other.g;
+        b *= other.b;
+        return *this;
+    }
+
     const Spectrum Clamp(T min, T max) const noexcept
     {
         return { ::Rabbit::Clamp(r, min, max), ::Rabbit::Clamp(g, min, max), ::Rabbit::Clamp(b, min, max) };
