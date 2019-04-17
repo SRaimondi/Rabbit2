@@ -9,7 +9,7 @@ namespace Rabbit
 
 const Spectrumf PathTracingIntegrator::IncomingRadiance(const Geometry::Ray& ray, Geometry::Intervalf& interval,
                                                         const Scene& scene, Sampling::Sampler& sampler,
-                                                        unsigned int depth) const
+                                                        unsigned int ) const
 {
     // Final computed radiance
     Spectrumf L{ 0.f };

@@ -62,7 +62,10 @@ endif (APPLE)
 
 # Specify flags for build
 IF (CMAKE_BUILD_TYPE MATCHES Debug)
-    TARGET_COMPILE_OPTIONS(Rabbit2 PRIVATE -Wall -Wextra -Wpedantic)
+    target_compile_options(Rabbit2 PRIVATE -Wall -Wextra -Wpedantic)
 ELSEIF (CMAKE_BUILD_TYPE MATCHES Release)
-    TARGET_COMPILE_OPTIONS(Rabbit2 PRIVATE -march=native)
+    target_compile_options(Rabbit2 PRIVATE -march=native)
 ENDIF ()
+
+find_package(Threads REQUIRED)
+target_link_libraries(Rabbit2 PRIVATE Threads::Threads)
